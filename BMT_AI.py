@@ -7,7 +7,7 @@ st.set_page_config(page_title="BMT AI Assistant", page_icon="🤖", layout="wide
 # OpenAI API Key ထည့်ရန် (ဒီနေရာမှာ မင်းရဲ့ Key ကို သေချာထည့်ပါ)
 # သတိပြုရန် - 'sk-...' ကွင်းစကွင်းပိတ်ထဲမှာပဲ ထည့်ပါ
 client = OpenAI(api_key="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")
-
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 # 2. Session State (အသုံးပြုမှု မှတ်တမ်း)
 if 'usage_count' not in st.session_state:
     st.session_state.usage_count = 0
