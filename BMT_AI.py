@@ -1,19 +1,26 @@
 import streamlit as st
 from groq import Groq
 
-st.set_page_config(page_title="BMT AI Assistant", page_icon="🤖")
-st.title("🤖 BMT AI Assistant")
+st.set_page_config(
+    page_title="BMT AI ",
+    page_icon="🤖"
+)
 
-# Secrets ထဲက Groq Key ကို ယူမယ်
+st.title("🤖 BMT AI ")
+
+# Groq client
 client = Groq(api_key=st.secrets["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"])
 
+# Chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Show previous messages
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
+# User input
 if prompt := st.chat_input("ဘာမေးချင်လဲ Founder?"):
     st.session_state.messages.append(
         {"role": "user", "content": prompt}
@@ -24,22 +31,19 @@ if prompt := st.chat_input("ဘာမေးချင်လဲ Founder?"):
 
     with st.chat_message("assistant"):
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="llama3-70b-8192",
             messages=[
                 {
                     "role": "system",
-                    "content": "မင်းက BMT က ဖန်တီးထားတဲ့ မြန်မာ AI ဖြစ်ပါတယ်။"
+                    "content": "မင်းက BMT က ဖန်တီးထားတဲ့ မြန်မာ AI Assistant ဖြစ်ပါတယ်။"
                 },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
+                *st.session_state.messages
+            ],
         )
 
-        msg = response.choices[0].message.content
-        st.markdown(msg)
+        answer = response.choices[0].message.content
+        st.markdown(answer)
 
     st.session_state.messages.append(
-        {"role": "assistant", "content": msg}
+        {"role": "assistant", "content": answer}
     )
