@@ -1,43 +1,32 @@
 import streamlit as st
+from groq import Groq
 
-# Website ရဲ့ Layout ကို သတ်မှတ်ခြင်း
-st.set_page_config(page_title="BMT AI Assistant", page_icon="🤖", layout="centered")
+st.set_page_config(page_title="BMT AI Assistant", page_icon="🤖")
+st.title("🤖 BMT AI Assistant")
 
-# အလှဆင်ရန် CSS Code များ
-st.markdown("""
-    <style>
-    .stApp {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        color: white;
-    }
-    .main-title {
-        font-size: 50px;
-        font-weight: bold;
-        text-align: center;
-        color: #00d2ff;
-        text-shadow: 2px 2px 4px #000000;
-    }
-    .stTextInput input {
-        border-radius: 20px;
-        border: 2px solid #00d2ff;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# Secrets ထဲက Groq Key ကို ယူမယ်
+client = Groq(api_key=st.secrets["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"])
 
-# Website အပေါ်ဆုံးပိုင်း
-st.markdown('<p class="main-title">🤖 BMT AI ASSISTANT</p>', unsafe_allow_html=True)
-st.write("<h3 style='text-align: center;'>မြန်မာနိုင်ငံသားများအတွက် အကောင်းဆုံး AI</h3>", unsafe_allow_html=True)
-st.write("---")
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# Chat အကွက်
-st.subheader("💬 AI Chat Room")
-chat_input = st.text_input("မေးချင်တာရှိရင် ဒီမှာ ရေးပေးပါ...", placeholder="ဥပမာ- ဓာတ်ပုံဘယ်လိုပြင်ရမလဲ?")
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-if st.button("ပို့မည် (Send)"):
-    st.success("စာသားပို့လိုက်ပါပြီ။ (AI အဖြေရဖို့ API Key ထည့်ရန် လိုအပ်သည်)")
+if prompt := st.chat_input("ဘာမေးချင်လဲ Founder?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-# ဘေးဘောင် (Sidebar) မှာ အလှဆင်ခြင်း
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/4712/4712035.png", width=100)
-    st.title("BMT AI Settings")
-    st.info("ဒီနေရာမှာ API Key တွေ ထည့်သွင်းနိုင်ပါတယ်")
+    with st.chat_message("assistant"):
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "မင်းက BMT က ဖန်တီးထားတဲ့ မြန်မာ AI ဖြစ်ပါတယ်။"},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        msg = response.choices[0].message.content
+        st.markdown(msg)
+    st.session_state.messages.append({"role": "assistant", "content": msg})
