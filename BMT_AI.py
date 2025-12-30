@@ -15,7 +15,10 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 if prompt := st.chat_input("ဘာမေးချင်လဲ Founder?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.messages.append(
+        {"role": "user", "content": prompt}
+    )
+
     with st.chat_message("user"):
         st.markdown(prompt)
 
@@ -23,10 +26,20 @@ if prompt := st.chat_input("ဘာမေးချင်လဲ Founder?"):
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "မင်းက BMT က ဖန်တီးထားတဲ့ မြန်မာ AI ဖြစ်ပါတယ်။"},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "မင်းက BMT က ဖန်တီးထားတဲ့ မြန်မာ AI ဖြစ်ပါတယ်။"
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
             ]
         )
+
         msg = response.choices[0].message.content
         st.markdown(msg)
-    st.session_state.messages.append({"role": "assistant", "content": msg})
+
+    st.session_state.messages.append(
+        {"role": "assistant", "content": msg}
+    )
