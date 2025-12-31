@@ -168,22 +168,24 @@ elif st.session_state.page == 'video':
 
     with tab2:
         st.subheader("Your BMT Gallery")
-        if not st.session_state.video_history: st.write("ဗီဒီယို မရှိသေးပါ။")
+        if not st.session_state.video_history:
+            st.write("ဗီဒီယို မရှိသေးပါ။")
         else:
-            for idx, vid in enumerate(st.session_state.video_history):st.markdown(f"""
+            for idx, vid in enumerate(st.session_state.video_history):
+                st.markdown(f"""
                 <div class="glass-card">
                     <div style="display: flex; justify-content: space-between;">
-                        <b> Video #{idx+1} ({vid['duration']})</b>
-                        <span style="color: #3b82f6;"></span>
+                        <b>🎥 Video #{idx+1} ({vid['duration']})</b>
+                        <span style="color: #3b82f6; font-weight: bold;">⋮</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
                 c1, c2, c3 = st.columns(3)
                 with c1: 
-                    if st.button(f" Download", key=f"dl_{idx}"): st.toast("Saved!")
+                    if st.button(f"📥 Download", key=f"dl_{idx}"): st.toast("Saved!")
                 with c2: 
-                    if st.button(f" Share", key=f"sh_{idx}"): st.toast("Shared!")
+                    if st.button(f"🔗 Share", key=f"sh_{idx}"): st.toast("Shared!")
                 with c3: 
-                    if st.button(f" Delete", key=f"del_{idx}"): st.toast("Deleted!")
+                    if st.button(f"🗑️ Delete", key=f"del_{idx}"): st.toast("Deleted!")
 
-st.sidebar
+st.sidebar.warning("⚠️ Videos will be deleted after 48 hours.")
