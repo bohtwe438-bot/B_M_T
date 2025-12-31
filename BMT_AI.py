@@ -146,8 +146,7 @@ elif st.session_state.page == 'chat':
             chat_completion = client.chat.completions.create(
                 model="llama3-8b-8192",
                 messages=[{"role": "system", "content": system_setup}] + st.session_state.messages
-                # အလယ်တည့်တည့်မှာ Logo ပေါ်အောင်လုပ်ခြင်း
-col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
+                col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
 with col_logo2:
     st.image("1000016584.png", use_container_width=True)
     
