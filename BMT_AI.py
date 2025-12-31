@@ -49,67 +49,62 @@ def ai_studio_module():
     if 'page_state' not in st.session_state:
         st.session_state.page_state = 'home'
 
-    # --- ၁။ HOME PAGE (SELECT TOOL) ---
+    # --- ၁။ HOME PAGE (Y-AXIS / VERTICAL LAYOUT) ---
     if st.session_state.page_state == 'home':
-        st.markdown("<h3 style='text-align:center; color:#94a3b8;'>CHOOSE YOUR POWER</h3>", unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
+        # အပေါ်ဆုံးမှာ BMT Logo ပုံကို ထည့်ခြင်း [cite: 2025-12-31]
+        st.markdown("""
+            <div style='text-align:center; padding-bottom: 20px;'>
+                <img src="https://i.ibb.co/0b7e58b4-5a97-46bf-b2ed-192a6cef4312/image.png" style='width:120px; border-radius:20px;'>
+                <h1 style='letter-spacing: 10px; font-weight: 900; margin-top:10px;'>BMT</h1>
+            </div>
+        """, unsafe_allow_html=True)
         
-        with col1:
-            if st.button("💬 OPEN AI CHAT", key="chat_btn", use_container_width=True):
+        # ခလုတ်များကို အပေါ်အောက် (Vertical) စီခြင်း
+        _, col_mid, _ = st.columns([1, 5, 1])
+        with col_mid:
+            # AI CHAT Button (အစိမ်းရောင်အနားကွက်) [cite: 2025-12-31]
+            if st.button("   AI SMART CHAT", key="chat_btn", use_container_width=True):
                 st.session_state.page_state = 'chat_page'
                 st.rerun()
-        with col2:
-            if st.button("📹 VIDEO GENERATOR", key="video_btn", use_container_width=True):
+            
+            st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+            
+            # VIDEO GENERATOR Button (အပြာရောင်အနားကွက်) [cite: 2025-12-31]
+            if st.button("   VIDEO GENERATOR", key="video_btn", use_container_width=True):
                 st.session_state.page_state = 'video_page'
                 st.rerun()
 
-    # --- ၂။ AI CHAT PAGE (NEW PAGE) ---
+    # --- ၂။ AI CHAT PAGE ---
     elif st.session_state.page_state == 'chat_page':
-        # Back Home Button
-        if st.button("⬅️ BACK TO EMPIRE", use_container_width=False):
+        if st.button(" BACK TO EMPIRE"):
             st.session_state.page_state = 'home'
             st.rerun()
-            
-        st.markdown("<h2 style='color:#10b981;'>💬 BMT Intelligent Chat</h2>", unsafe_allow_html=True)
-        st.chat_input("ဗိုလ်ချုပ်... ဘာများ သိလိုပါသလဲ?")
+        st.subheader("BMT AI Chat")
+        st.chat_input("မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...")
 
-    # --- ၃။ VIDEO GENERATOR PAGE (NEW PAGE) ---
+    # --- ၃။ VIDEO GENERATOR PAGE ---
     elif st.session_state.page_state == 'video_page':
-        # Back Home Button
-        if st.button("⬅️ BACK TO EMPIRE", use_container_width=False):
+        if st.button(" BACK TO EMPIRE"):
             st.session_state.page_state = 'home'
             st.rerun()
-            
-        st.markdown("<h2 style='color:#3b82f6;'>📹 BMT Video Engine</h2>", unsafe_allow_html=True)
+        st.subheader("BMT Video Engine")
         
-        # FSGD Matrix (ဗိုလ်ချုပ်၏ Update ပါဝင်သည်) [cite: 2025-12-31]
+        # Diamond Tier 1080p, 2k, 4k ပါဝင်သော Logic [cite: 2025-12-31]
         plans = {
             "F (Free)": {"res": ["480p", "720p"], "dur": ["5s", "8s"]},
             "S (Silver)": {"res": ["720p", "1080p"], "dur": ["10s", "15s", "20s"]},
             "G (Gold)": {"res": ["1080p", "2k"], "dur": ["20s", "30s", "40s", "60s"]},
             "D (Diamond)": {"res": ["1080p", "2k", "4k"], "dur": ["30s", "60s", "90s", "120s"]}
         }
-
-        script = st.text_area("Create your masterpiece (Script)", height=150, placeholder="ဒီမှာ ဗီဒီယိုအတွက် စာသားရေးပါ...")
         
-        st.markdown('<div class="option-box">', unsafe_allow_html=True)
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            tier = st.selectbox("Select Tier", list(plans.keys()))
-        with c2:
-            st.selectbox("Aspect Ratio", ["9:16", "16:9", "1:1", "4:3", "21:9"])
-        with c3:
-            # Diamond မှာ 1080p, 2k, 4k ပါဝင်လာပါပြီ
-            st.selectbox("Resolution", plans[tier]["res"])
-        with c4:
-            st.selectbox("Duration", plans[tier]["dur"])
-        st.markdown('</div>', unsafe_allow_html=True)
-            
-        if st.button("🚀 INITIATE RENDERING", use_container_width=True):
-            if script:
-                st.toast("Processing BMT High-End Video...")
-                time.sleep(2)
-                st.success(f"Video queued successfully in {tier} mode!")
+        script = st.text_area("ဗီဒီယိုအတွက် စာသားရေးပါ", height=150)
+        tier = st.selectbox("Select Tier", list(plans.keys()))
+        col_res, col_dur = st.columns(2)
+        with col_res: st.selectbox("Resolution", plans[tier]["res"])
+        with col_dur: st.selectbox("Duration", plans[tier]["dur"])
+        
+        if st.button(" START GENERATE", use_container_width=True):
+            st.success("BMT Engine is starting...")
 
 # ==========================================
 # ၄။ ကြော်ငြာ (ADVERTISEMENTS)
