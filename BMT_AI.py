@@ -9,7 +9,7 @@ st.set_page_config(
 st.title("🤖 BMT AI ")
 
 # Groq client
-client = Groq(api_key=st.secrets["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"])
+client = Groq(api_key=st.secrets["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"])
 
 # Chat history
 if "messages" not in st.session_state:
