@@ -3,189 +3,130 @@ from groq import Groq
 import time
 
 # ==========================================
-# ၁။ FOUNDER BMT - API KEYS
+# ၁။ အလှအပ (STYLING & THEME)
 # ==========================================
-GROQ_KEY = ""  # <-- INSERT GROQ KEY HERE
-VOICE_KEY = "" # <-- INSERT VOICE/ELEVENLABS KEY HERE
-VIDEO_KEY = "" # <-- INSERT VIDEO GENERATOR KEY HERE
-
-# ==========================================
-# ၂။ PAGE SETUP & SESSION STATE
-# ==========================================
-st.set_page_config(page_title="BMT", page_icon="", layout="wide")
-
-if 'page' not in st.session_state: st.session_state.page = 'home'
-if 'messages' not in st.session_state: st.session_state.messages = []
-if 'video_history' not in st.session_state: st.session_state.video_history = []
-if 'daily_count' not in st.session_state: st.session_state.daily_count = 0
+def apply_bmt_style():
+    st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
+    st.markdown("""
+        <style>
+        .stApp { background-color: #0f172a; color: white; }
+        .bmt-title { font-size: 80px; font-weight: 900; text-align: center; color: #3b82f6; letter-spacing: 15px; }
+        .bmt-sub { text-align: center; font-size: 18px; color: #60a5fa; margin-bottom: 30px; letter-spacing: 3px; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }
+        .owner-tag { color: #facc15; font-weight: bold; border: 1px solid #facc15; padding: 5px; border-radius: 5px; text-align: center; }
+        </style>
+        """, unsafe_allow_html=True)
 
 # ==========================================
-# ၃။ CUSTOM CSS (BMT Branding Only)
+# ၂။ ပိုင်ရှင် KEY များ (OWNER KEYS & API)
 # ==========================================
-st.markdown("""
-    <style>
-    .stApp { background-color: #0f172a; color: white; }
-    .bmt-title { 
-        font-size: 80px; font-weight: 900; text-align: center; 
-        color: #3b82f6; letter-spacing: 15px; margin-bottom: 10px; 
-    }
-    .bmt-sub { text-align: center; font-size: 18px; color: #60a5fa; margin-bottom: 30px; letter-spacing: 3px; }
-    .glass-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 25px; border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 20px;
-    }
-    .marquee { background: #1e293b; color: #fbbf24; padding: 10px; font-weight: bold; text-align: center; border-radius: 5px; margin-bottom: 15px; }
-    div.stButton > button {
-        border-radius: 12px; font-weight: bold; height: 50px; 
-        background-color: #3b82f6; color: white; border: none; transition: 0.3s;
-    }
-    div.stButton > button:hover { background-color: #2563eb; transform: scale(1.02); }
-    </style>
-    """, unsafe_allow_html=True)
+def manage_owner_keys():
+    # Initialize Keys in Session State
+    if 'api_keys' not in st.session_state:
+        st.session_state.api_keys = {"groq": "", "video": "", "voice": ""}
+    if 'is_owner' not in st.session_state:
+        st.session_state.is_owner = False
 
-def switch_page(page_name):
-    st.session_state.page = page_name
-    st.rerun()
+    with st.sidebar:
+        st.header(" BMT Access")
+        pwd = st.text_input("Owner Password", type="password")
+        if pwd == "bmt999": # ဗိုလ်ချုပ် စိတ်ကြိုက်ပြောင်းနိုင်သည်
+            st.session_state.is_owner = True
+            st.markdown('<div class="owner-tag">OWNER VERIFIED </div>', unsafe_allow_html=True)
+            st.divider()
+            st.subheader(" API Configuration")
+            st.session_state.api_keys["groq"] = st.text_input("Groq AI Key", value=st.session_state.api_keys["groq"], type="password")
+            st.session_state.api_keys["video"] = st.text_input("Video Engine Key", value=st.session_state.api_keys["video"], type="password")
+            st.session_state.api_keys["voice"] = st.text_input("Voice Key", value=st.session_state.api_keys["voice"], type="password")
+        else:
+            st.session_state.is_owner = False
 
 # ==========================================
-# ၄။ CORE BMT LOGIC
+# ၃။ AI CHAT & VIDEO GENERATOR (CORE LOGIC)
 # ==========================================
+def ai_studio_module():
+    st.markdown('<h1 class="bmt-title">BMT</h1>', unsafe_allow_html=True)
+    st.markdown("<p class='bmt-sub'>AI CHAT & VIDEO GENERATOR</p>", unsafe_allow_html=True)
 
-def get_bmt_durations(tier):
-    if tier == "F (Free)": return ["5s", "8s", "12s (Upgrade to S)"]
-    elif tier == "S (Silver)": return ["12s", "15s", "20s"]
-    elif tier == "G (Gold)": return ["30s", "1 min"]
-    elif tier == "D (Diamond)": return ["30s", "1 min", "1:30 min", "2 min"]
-    return ["5s"]
+    tab1, tab2, tab3 = st.tabs([" AI Chat", " Video Studio", " Gallery"])
 
-def start_bmt_master_render(selected_tier, selected_duration, script):
-    if selected_tier == "F (Free)" and "Upgrade" in selected_duration:
-        st.warning("၁၂ စက္ကန့် ဗီဒီယိုအတွက် Silver Tier သို့ Upgrade လုပ်ပေးပါ။")
-        return False
+    # --- AI CHAT ---
+    with tab1:
+        if st.session_state.api_keys["groq"]:
+            client = Groq(api_key=st.session_state.api_keys["groq"])
+            for msg in st.session_state.messages:
+                with st.chat_message(msg["role"]): st.markdown(msg["content"])
+            if prompt := st.chat_input("Ask BMT AI..."):
+                st.session_state.messages.append({"role": "user", "content": prompt})
+                chat_completion = client.chat.completions.create(
+                    model="llama3-8b-8192",
+                    messages=[{"role": "system", "content": "You are BMT AI. Speak Myanmar."}] + st.session_state.messages
+                )
+                response = chat_completion.choices[0].message.content
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                st.rerun()
+        else:
+            st.warning("Please enter Groq API Key in Sidebar (Owner Mode).")
 
-    ad_space = st.empty()
-    progress_space = st.empty()
+    # --- VIDEO STUDIO ---
+    with tab2:
+        col_l, col_r = st.columns([2, 1])
+        with col_l:
+            script = st.text_area("Video Script", height=200)
+        with col_r:
+            tier = st.selectbox("Tier", ["F (Free)", "S (Silver)", "G (Gold)", "D (Diamond)"])
+            # FSGD Rule Implementation [cite: 2025-12-31]
+            durations = {"F (Free)": "8s", "S (Silver)": "12s", "G (Gold)": "60s", "D (Diamond)": "120s"}
+            selected_dur = durations[tier]
+            
+            if st.button("GENERATE VIDEO"):
+                if not st.session_state.is_owner and tier != "F (Free)":
+                    st.error("Upgrade required for this tier!")
+                else:
+                    with st.status(f"BMT Rendering {selected_dur}..."):
+                        time.sleep(3) # Logic for Video API goes here
+                        st.success("Done!")
+                        st.session_state.video_history.append({"tier": tier, "dur": selected_dur})
 
-    with ad_space.container():
-        st.markdown(f"""
-            <div style="background: #1e293b; padding: 20px; border-radius: 15px; border: 2px solid #3b82f6; text-align: center; margin-bottom: 20px;">
-                <h4 style="color: #3b82f6;"> BMT SPONSORED AD (30s)</h4>
-                <div style="background: black; height: 180px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
-                    <p style="color: #64748b;">[ Video Ad Playing... ]</p>
-                </div>
-                <p style="font-size: 12px; color: gray; margin-top: 10px;">Rendering {selected_duration} for {selected_tier} User</p>
+    # --- GALLERY ---
+    with tab3:
+        st.subheader("Your Gallery")
+        for vid in st.session_state.video_history:
+            st.write(f" {vid['tier']} Video - {vid['dur']}")
+
+# ==========================================
+# ၄။ ကြော်ငြာ (ADVERTISEMENTS)
+# ==========================================
+def ads_manager():
+    if not st.session_state.is_owner:
+        st.divider()
+        st.markdown("""
+            <div style="background: #1e293b; padding: 15px; border-radius: 10px; border: 1px solid #3b82f6; text-align: center;">
+                <h4 style="color: #3b82f6; margin:0;">BMT SPONSORED AD</h4>
+                <p style="font-size: 14px;">Upgrade to Diamond for 120s Videos!</p>
             </div>
         """, unsafe_allow_html=True)
 
-    bar = progress_space.progress(0)
-    status_text = st.empty()
-    steps = ["Processing Script...", "Generating AI Voice (MM/EN)...", "Creating Visuals...", "Mixing Background Music..."]
-    
-    for i in range(100):
-        time.sleep(0.3) 
-        bar.progress(i + 1)
-        step = steps[i // 25] if i // 25 < len(steps) else steps[-1]
-        status_text.markdown(f"<p style='text-align: center;'><b>BMT Rendering: {i+1}%</b><br><small>{step}</small></p>", unsafe_allow_html=True)
-    
-    status_text.success(f" BMT AI Video Generated! ({selected_duration})")
-    time.sleep(1)
-    ad_space.empty()
-    return True
+# ==========================================
+# ၅။ ပိုင်ရှင်ကြည့်ရန် (OWNER DASHBOARD)
+# ==========================================
+def owner_dashboard():
+    if st.session_state.is_owner:
+        st.divider()
+        st.subheader(" BMT Business Insights")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Daily Users", "150", "+5%")
+        c2.metric("Revenue", "350,000 MMK", "Peak")
+        c3.metric("Video Tasks", len(st.session_state.video_history))
 
 # ==========================================
-# ၅။ UI NAVIGATION
+# ၆။ အစီအစဉ်ကျ RUN ခြင်း (MAIN EXECUTION)
 # ==========================================
-st.markdown('<div class="marquee"> FSGD SYSTEM: F (Standard) | S (Silver) | G (Gold) | D (Diamond) - UPGRADE NOW! </div>', unsafe_allow_html=True)
-col_head, col_dot3 = st.columns([12, 1])
-with col_dot3:
-    if st.button("", key="main_dot3"):
-        st.toast("BMT Wallet: 0 | Tier: Standard", icon="")
+if 'messages' not in st.session_state: st.session_state.messages = []
+if 'video_history' not in st.session_state: st.session_state.video_history = []
 
-# ==========================================
-# ၆။ PAGES
-# ==========================================
-
-if st.session_state.page == 'home':
-    st.markdown('<h1 class="bmt-title">BMT</h1>', unsafe_allow_html=True)
-    st.markdown("<p class='bmt-sub'>AI CHAT & VIDEO GENERATOR</p>", unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2, gap="large")
-    with col1:
-        st.markdown('<div class="glass-card"><h3> FREE CHAT</h3><p>BMT AI နှင့် အကန့်အသတ်မရှိ စကားပြောပါ။</p></div>', unsafe_allow_html=True)
-        if st.button("OPEN CHAT", use_container_width=True): switch_page('chat')
-    with col2:
-        st.markdown('<div class="glass-card"><h3> VIDEO STUDIO</h3><p>Professional AI Video များ ဖန်တီးပါ။</p></div>', unsafe_allow_html=True)
-        if st.button("OPEN STUDIO", use_container_width=True): switch_page('video')
-
-elif st.session_state.page == 'chat':
-    if st.button(" BACK"): switch_page('home')
-    st.title(" BMT FREE CHAT")
-    
-    if GROQ_KEY:
-        client = Groq(api_key=GROQ_KEY)
-        for msg in st.session_state.messages:
-            with st.chat_message(msg["role"]): st.markdown(msg["content"])
-        if prompt := st.chat_input("BMT AI ကို မေးမြန်းပါ..."):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"): st.markdown(prompt)
-            chat_completion = client.chat.completions.create(
-                model="llama3-8b-8192",
-                messages=[{"role": "system", "content": "You are BMT AI Chat. Speak Myanmar."}] + st.session_state.messages
-            )
-            response = chat_completion.choices[0].message.content
-            with st.chat_message("assistant"): st.markdown(response)
-            st.session_state.messages.append({"role": "assistant", "content": response})
-    else:
-        st.info(" Please insert Groq API Key.")
-
-elif st.session_state.page == 'video':
-    if st.button(" BACK"): switch_page('home')
-    st.title(" BMT VIDEO STUDIO")
-    
-    tab1, tab2 = st.tabs([" Create Video", " Gallery"])
-    
-    with tab1:
-        col_l, col_r = st.columns([2, 1])
-        with col_l:
-            script = st.text_area("ဗီဒီယိုအကြောင်းအရာ ရေးသားပါ", height=200, placeholder="Script ကို ဤနေရာတွင် ထည့်ပါ...")
-            if st.button(" AI MAGIC"): st.info("Enhancing Script...")
-        
-        with col_r:
-            tier = st.selectbox("Select Plan", ["F (Free)", "S (Silver)", "G (Gold)", "D (Diamond)"])
-            duration = st.selectbox("Video Duration", get_bmt_durations(tier))
-            ratio = st.radio("Aspect Ratio", ["9:16", "16:9", "1:1"])
-            
-            if st.button(" GENERATE VIDEO", use_container_width=True):
-                if tier == "F (Free)" and st.session_state.daily_count >= 3:
-                    st.error("တစ်ရက် ၃ ကြိမ် ပြည့်သွားပါပြီ!")
-                elif script:
-                    if start_bmt_master_render(tier, duration, script):
-                        st.session_state.video_history.append({"tier": tier, "duration": duration, "ratio": ratio})
-                        if tier == "F (Free)": st.session_state.daily_count += 1
-                else: st.error("Script အရင်ရေးပေးပါ။")
-
-    with tab2:
-        st.subheader("Your BMT Gallery")
-        if not st.session_state.video_history:
-            st.write("ဗီဒီယို မရှိသေးပါ။")
-        else:
-            for idx, vid in enumerate(st.session_state.video_history):
-                st.markdown(f"""
-                <div class="glass-card">
-                    <div style="display: flex; justify-content: space-between;">
-                        <b>🎥 Video #{idx+1} ({vid['duration']})</b>
-                        <span style="color: #3b82f6; font-weight: bold;">⋮</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                c1, c2, c3 = st.columns(3)
-                with c1: 
-                    if st.button(f"📥 Download", key=f"dl_{idx}"): st.toast("Saved!")
-                with c2: 
-                    if st.button(f"🔗 Share", key=f"sh_{idx}"): st.toast("Shared!")
-                with c3: 
-                    if st.button(f"🗑️ Delete", key=f"del_{idx}"): st.toast("Deleted!")
-
-st.sidebar.warning("⚠️ Videos will be deleted after 48 hours.")
+apply_bmt_style()       # ၁။ အလှပြင်
+manage_owner_keys()     # ၂။ Key စစ်/ထည့်
+ai_studio_module()      # ၃။ Chat & Video
+ads_manager()           # ၄။ ကြော်ငြာ
+owner_dashboard()       # ၅။ ပိုင်ရှင်ကြည့်ရန်
