@@ -170,9 +170,7 @@ elif st.session_state.page == 'video':
         st.subheader("Your BMT Gallery")
         if not st.session_state.video_history: st.write("ဗီဒီယို မရှိသေးပါ။")
         else:
-            for idx, vid in enumerate(st.session_state.video_history):
-
-st.markdown(f"""
+            for idx, vid in enumerate(st.session_state.video_history):st.markdown(f"""
                 <div class="glass-card">
                     <div style="display: flex; justify-content: space-between;">
                         <b> Video #{idx+1} ({vid['duration']})</b>
