@@ -154,3 +154,60 @@ elif st.session_state.page == 'video':
                     <button style="margin-top:10px; padding:5px 15px; border-radius:8px; background:#1e293b; color:white; border:1px solid #3b82f6;">Download Video</button>
                 </div>
                 """, unsafe_allow_html=True)
+import time # အပေါ်ဆုံးမှာ မပါသေးရင် ထည့်ပေးပါ
+
+# ၁။ BMT Branding & Dot 3 Logic (UI အပေါ်ဆုံးမှာ ပေါ်ဖို့အတွက်)
+def show_bmt_header():
+    # FSGD Marquee စာတန်း
+    st.markdown("""
+        <div style="background: #1e293b; color: #fbbf24; padding: 10px; text-align: center; font-weight: bold; border-radius: 5px;">
+             FSGD SYSTEM: Upgrade to S, G, or D for Ad-free & Longer Videos! 
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Dot 3 Menu (ညာဘက်အပေါ်ထောင့်)
+    col_main, col_dot3 = st.columns([12, 1])
+    with col_dot3:
+        if st.button("", key="bmt_dot3_menu"):
+            st.toast("Founder: BMT | Wallet: 0 Coins | Tier: F (Standard)", icon="")
+
+# ၂။ ၃၀ စက္ကန့် Split-Screen Rendering Logic
+def start_bmt_render_logic(tier_name):
+    # အပေါ်အောက် ခွဲလိုက်ခြင်း
+    ad_space = st.empty()
+    progress_space = st.empty()
+
+    # အပေါ်ပိုင်း - ၃၀ စက္ကန့် Ad
+    with ad_space.container():
+        st.markdown(f"""
+            <div style="background: #0f172a; padding: 20px; border-radius: 15px; border: 2px solid #3b82f6; text-align: center; margin-bottom: 20px;">
+                <h4 style="color: #3b82f6;"> BMT SPONSORED AD (30s)</h4>
+                <div style="background: black; height: 180px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #1e293b;">
+                    <p style="color: #64748b;">[ Video Ad Playing... Founder Profit Growing! ]</p>
+                </div>
+                <p style="font-size: 12px; color: gray; margin-top: 10px;">Rendering for {tier_name} User</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # အောက်ပိုင်း - ၁% မှ ၁၀၀% တက်မည့် Progress
+    bmt_bar = progress_space.progress(0)
+    bmt_status = st.empty()
+    
+    for i in range(100):
+        time.sleep(0.3) # ၃၀ စက္ကန့် အတိအကျ (၀.၃ x ၁၀၀)
+        bmt_bar.progress(i + 1)
+        bmt_status.markdown(f"<p style='text-align: center; font-weight: bold;'>BMT Rendering: {i+1}%</p>", unsafe_allow_html=True)
+    
+    bmt_status.success(" Video Generated! (Max 8s for F-Tier)")
+    time.sleep(1)
+    ad_space.empty() # ပြီးသွားလျှင် Ad ကို ဖျက်မည်
+
+# ၃။ Daily Limit & 48h Auto-Delete Warning
+def check_bmt_limits():
+    if 'daily_video_count' not in st.session_state:
+        st.session_state.daily_video_count = 0
+    
+    # ၄၈ နာရီ ဖျက်မည့် သတိပေးချက်
+    st.sidebar.warning(" Note: All generated videos will be auto-deleted after 48 hours to maintain server capacity.")
+    
+    return st.session_state.daily_video_count
