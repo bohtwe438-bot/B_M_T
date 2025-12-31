@@ -45,54 +45,54 @@ def manage_owner_keys():
 # ၃။ AI CHAT & VIDEO GENERATOR (CORE LOGIC)
 # ==========================================
 def ai_studio_module():
-    st.markdown('<h1 class="bmt-title">BMT</h1>', unsafe_allow_html=True)
-    st.markdown("<p class='bmt-sub'>AI CHAT & VIDEO GENERATOR</p>", unsafe_allow_html=True)
+    # ၁။ Navigation Buttons (အနားကွက်အရောင်ပါဝင်သော ခလုတ်များ)
+    if 'mode' not in st.session_state: st.session_state.mode = 'chat'
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        # Chat ခလုတ် (အစိမ်းရောင်အနားကွက်)
+        if st.button(" AI CHAT", key="chat_btn", use_container_width=True):
+            st.session_state.mode = 'chat'
+    with col2:
+        # Video ခလုတ် (အပြာရောင်အနားကွက်)
+        if st.button(" VIDEO GENERATOR", key="video_btn", use_container_width=True):
+            st.session_state.mode = 'video'
 
-    tab1, tab2, tab3 = st.tabs([" AI Chat", " Video Studio", " Gallery"])
+    st.divider()
 
-    # --- AI CHAT ---
-    with tab1:
-        if st.session_state.api_keys["groq"]:
-            client = Groq(api_key=st.session_state.api_keys["groq"])
-            for msg in st.session_state.messages:
-                with st.chat_message(msg["role"]): st.markdown(msg["content"])
-            if prompt := st.chat_input("Ask BMT AI..."):
-                st.session_state.messages.append({"role": "user", "content": prompt})
-                chat_completion = client.chat.completions.create(
-                    model="llama3-8b-8192",
-                    messages=[{"role": "system", "content": "You are BMT AI. Speak Myanmar."}] + st.session_state.messages
-                )
-                response = chat_completion.choices[0].message.content
-                st.session_state.messages.append({"role": "assistant", "content": response})
-                st.rerun()
-        else:
-            st.warning("Please enter Groq API Key in Sidebar (Owner Mode).")
+    # ၂။ လုပ်ဆောင်ချက်အပိုင်းများ
+    if st.session_state.mode == 'chat':
+        st.subheader("BMT Intelligent Chat")
+        st.chat_input("Ask BMT AI...")
+        
+    else:
+        st.subheader("BMT Video Engine")
+        # ဗိုလ်ချုပ်ရဲ့ Tier အလိုက် Resolution & Duration Matrix [cite: 2025-12-31]
+        plans = {
+            "F (Free)": {"res": ["480p", "720p"], "dur": ["5s", "8s"]},
+            "S (Silver)": {"res": ["720p", "1080p"], "dur": ["10s", "15s", "20s"]},
+            "G (Gold)": {"res": ["1080p", "2k"], "dur": ["20s", "30s", "40s", "60s"]},
+            "D (Diamond)": {"res": ["2k", "4k"], "dur": ["30s", "60s", "90s", "120s"]}
+        }
 
-    # --- VIDEO STUDIO ---
-    with tab2:
-        col_l, col_r = st.columns([2, 1])
-        with col_l:
-            script = st.text_area("Video Script", height=200)
-        with col_r:
-            tier = st.selectbox("Tier", ["F (Free)", "S (Silver)", "G (Gold)", "D (Diamond)"])
-            # FSGD Rule Implementation [cite: 2025-12-31]
-            durations = {"F (Free)": "8s", "S (Silver)": "12s", "G (Gold)": "60s", "D (Diamond)": "120s"}
-            selected_dur = durations[tier]
+        # စာရေးရမည့်နေရာ
+        st.text_area("ဗီဒီယိုအတွက် Script ရေးသားပါ", height=150, placeholder="ဒီမှာ စာရေးပါ...")
+        
+        # Option ရွေးချယ်မှုများ
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            tier = st.selectbox("Tier", list(plans.keys()))
+            st.session_state.selected_tier = tier
+        with c2:
+            st.selectbox("Ratio", ["9:16", "16:9", "1:1", "4:3", "21:9"])
+        with c3:
+            # Tier အလိုက် Resolution ပြောင်းလဲခြင်း
+            st.selectbox("Resolution", plans[tier]["res"])
+        with c4:
+            # Tier အလိုက် Duration ပြောင်းလဲခြင်း
+            st.selectbox("Duration", plans[tier]["dur"])
             
-            if st.button("GENERATE VIDEO"):
-                if not st.session_state.is_owner and tier != "F (Free)":
-                    st.error("Upgrade required for this tier!")
-                else:
-                    with st.status(f"BMT Rendering {selected_dur}..."):
-                        time.sleep(3) # Logic for Video API goes here
-                        st.success("Done!")
-                        st.session_state.video_history.append({"tier": tier, "dur": selected_dur})
-
-    # --- GALLERY ---
-    with tab3:
-        st.subheader("Your Gallery")
-        for vid in st.session_state.video_history:
-            st.write(f" {vid['tier']} Video - {vid['dur']}")
+        st.button(" START RENDER", use_container_width=True)
 
 # ==========================================
 # ၄။ ကြော်ငြာ (ADVERTISEMENTS)
