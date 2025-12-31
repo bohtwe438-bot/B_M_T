@@ -211,3 +211,73 @@ def check_bmt_limits():
     st.sidebar.warning(" Note: All generated videos will be auto-deleted after 48 hours to maintain server capacity.")
     
     return st.session_state.daily_video_count
+import time
+
+# --- ၁။ BMT Tier & Duration Logic (5s, 8s, 12s -> Upgrade) ---
+def get_bmt_durations(tier):
+    if tier == "F (Free)":
+        return ["5s", "8s", "12s (Upgrade to S)"]
+    elif tier == "S (Silver)":
+        return ["12s", "15s", "20s"]
+    elif tier == "G (Gold)":
+        return ["30s", "1 min"]
+    elif tier == "D (Diamond)":
+        return ["30s", "1 min", "1:30 min", "2 min"]
+    return ["5s"]
+
+# --- ၂။ ၃၀ စက္ကန့် Split-Screen Ad & Render Logic ---
+def bmt_split_render(selected_tier, selected_duration):
+    # F-Tier မှာ 12s ကို နှိပ်ခဲ့ရင် Upgrade Page ခေါ်မည်
+    if selected_tier == "F (Free)" and "Upgrade" in selected_duration:
+        st.warning(" ၁၂ စက္ကန့် ဗီဒီယိုအတွက် Silver Tier သို့ Upgrade လုပ်ပေးပါ ဗိုလ်ချုပ်!")
+        return False
+
+    ad_space = st.empty()
+    progress_space = st.empty()
+
+    with ad_space.container():
+        st.markdown(f"""
+            <div style="background: #1e293b; padding: 20px; border-radius: 15px; border: 2px solid #3b82f6; text-align: center;">
+                <h4 style="color: #3b82f6;"> BMT SPONSORED AD (30s)</h4>
+                <div style="background: black; height: 180px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                    <p style="color: #64748b;">[ Video Ad Playing... ]</p>
+                </div>
+                <p style="color: #60a5fa; font-size: 14px; margin-top: 10px;">Rendering {selected_duration} Video for {selected_tier}</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    bar = progress_space.progress(0)
+    status = st.empty()
+    for i in range(100):
+        time.sleep(0.3) # ၃၀ စက္ကန့် အတိအကျ
+        bar.progress(i + 1)
+        status.markdown(f"<p style='text-align: center;'>BMT Rendering: {i+1}%</p>", unsafe_allow_html=True)
+    
+    status.success(f" ဗီဒီယို ထုတ်လုပ်ပြီးပါပြီ! ({selected_duration})")
+    time.sleep(1)
+    ad_space.empty()
+    return True
+
+# --- ၃။ Gallery Dot 3 () Logic (Download, Share, Delete) ---
+def bmt_gallery_card(vid_data, index):
+    with st.container():
+        st.markdown(f"""
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 15px; border: 1px solid #3b82f6; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span> Video #{index+1} ({vid_data['duration']})</span>
+                    <span style="color: #3b82f6; font-weight: bold;"></span>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Dot 3 Functions
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button(f" Download", key=f"dl_{index}"): st.toast("Downloading to phone...")
+        with col2:
+            if st.button(f" Share", key=f"sh_{index}"): st.toast("Link copied to clipboard!")
+        with col3:
+            if st.button(f" Delete", key=f"del_{index}"): st.toast("Video deleted!")
+
+# --- ၄။ ၄၈ နာရီ Auto-Delete Warning ---
+st.sidebar.info(" BMT Policy: Server Capacity ထိန်းသိမ်းရန် ဗီဒီယိုများကို ၄၈ နာရီအကြာတွင် အလိုလို ဖျက်သွားပါမည်။")
