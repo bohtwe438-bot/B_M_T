@@ -1,107 +1,110 @@
+Bo Htwe, [12/31/2025 8:05 AM]
 import streamlit as st
+import time
 
-# ၁။ Page Config
-st.set_page_config(page_title="BMT", page_icon="🤖", layout="wide")
+# ၁။ Page Setup & Theme
+st.set_page_config(page_title="BMT", page_icon="", layout="wide")
 
-# Session State ကို သုံးပြီး စာမျက်နှာ ကူးပြောင်းမှုကို ထိန်းချုပ်မယ်
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
+if 'video_history' not in st.session_state:
+    st.session_state.video_history = []
 
-# --- CSS Styling ---
+# ၂။ Advanced UI Styling
 st.markdown("""
     <style>
     .stApp { background-color: #0f172a; color: white; }
-    
-    /* Home Page Buttons */
-    div.stButton > button.home-btn {
-        height: 150px;
-        font-size: 24px;
-        font-weight: bold;
-        border-radius: 20px;
-        border: none;
-        transition: 0.5s;
+    .bmt-title {
+        font-size: 80px; font-weight: 900; text-align: center;
+        background: linear-gradient(180deg, #ffffff 0%, #3b82f6 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        letter-spacing: 15px; margin-bottom: 30px;
     }
-    
-    /* Back Button Style */
-    div.stButton > button.back-btn {
-        background-color: transparent;
-        color: #94a3b8;
-        border: 1px solid #334155;
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 30px; border-radius: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+    }
+    div.stButton > button {
+        border-radius: 12px; font-weight: bold; transition: 0.3s;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- Functions for Pages ---
+def switch_page(page_name):
+    st.session_state.page = page_name
+    st.rerun()
 
-def go_home():
-    st.session_state.page = 'home'
-
-def go_chat():
-    st.session_state.page = 'chat'
-
-def go_video():
-    st.session_state.page = 'video'
-
-# --- Page Logic ---
-
-# ၁။ Home Page (ပင်မစာမျက်နှာ)
+# --- Page 1: Home ---
 if st.session_state.page == 'home':
-    st.markdown("<h1 style='text-align: center; font-size: 80px; letter-spacing: 10px;'>BMT</h1>", unsafe_allow_html=True)
-    st.write("<br><br>", unsafe_allow_html=True)
-    
+    st.markdown('<h1 class="bmt-title">BMT</h1>', unsafe_allow_html=True)
     col1, col2 = st.columns(2, gap="large")
     
     with col1:
-        st.markdown("""
-            <div style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); padding: 40px; border-radius: 30px; text-align: center;">
-                <h2>💬 SMART CHAT</h2>
-                <p>AI နှင့် စကားပြောရန်</p>
-            </div>
-        """, unsafe_allow_html=True)
-        if st.button("OPEN CHAT ROOM", use_container_width=True, key="home_chat"):
-            go_chat()
-            st.rerun()
+        st.markdown('<div class="glass-card" style="border-top: 5px solid #00d2ff;">', unsafe_allow_html=True)
+        st.header(" AI CHAT")
+        st.write("Smart Conversation & Assistance")
+        if st.button("OPEN CHAT", use_container_width=True): switch_page('chat')
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown("""
-            <div style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); padding: 40px; border-radius: 30px; text-align: center;">
-                <h2>🎥 VIDEO GEN</h2>
-                <p>ဗီဒီယိုများ ဖန်တီးရန်</p>
-            </div>
-        """, unsafe_allow_html=True)
-        if st.button("OPEN VIDEO TOOLS", use_container_width=True, key="home_video"):
-            go_video()
-            st.rerun()
+        st.markdown('<div class="glass-card" style="border-top: 5px solid #ec4899;">', unsafe_allow_html=True)
+        st.header(" VIDEO GEN")
+        st.write("Create Professional AI Videos")
+        if st.button("OPEN VIDEO TOOL", use_container_width=True): switch_page('video')
+        st.markdown('</div>', unsafe_allow_html=True)
 
-# ၂။ AI Chat Page (စာမျက်နှာအသစ်)
+# --- Page 2: Chat ---
 elif st.session_state.page == 'chat':
-    if st.button("⬅️ BACK TO HOME", key="back_home"):
-        go_home()
-        st.rerun()
-        
-    st.markdown("<h1 style='color: #06b6d4;'>💬 BMT AI CHAT</h1>", unsafe_allow_html=True)
-    st.write("---")
-    
-    # Chat UI (ဒီနေရာမှာ အလှတစ်မျိုး ပြင်ဆင်မယ်)
-    with st.container():
-        st.markdown('<div style="background: rgba(6, 182, 212, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #06b6d4;">'
-                    'AI: မင်္ဂလာပါ Founder! ဘာကူညီပေးရမလဲ?</div>', unsafe_allow_html=True)
-        st.write("<br>", unsafe_allow_html=True)
-        st.text_input("မေးခွန်းရိုက်ပါ...", key="chat_input_page")
+    if st.button(" HOME"): switch_page('home')
+    st.title(" BMT AI CHAT")
+    st.info("Key ရလျှင် ဤနေရာတွင် AI နှင့် တိုက်ရိုက်စကားပြောနိုင်ပါပြီ။")
+    st.chat_input("Ask BMT anything...")
 
-# ၃။ Video Generator Page (စာမျက်နှာအသစ်)
+# --- Page 3: Video (Ratio, Voice, Gallery အကုန်ပါဝင်သည်) ---
 elif st.session_state.page == 'video':
-    if st.button("⬅️ BACK TO HOME", key="back_home_v"):
-        go_home()
-        st.rerun()
-        
-    st.markdown("<h1 style='color: #ec4899;'>🎥 BMT VIDEO GENERATOR</h1>", unsafe_allow_html=True)
-    st.write("---")
+    if st.button(" HOME"): switch_page('home')
+    st.title(" BMT VIDEO STUDIO")
     
-    # Video UI (ဒီနေရာမှာ နောက်ထပ် အလှတစ်မျိုး ပြင်ဆင်မယ်)
-    col_a, col_b = st.columns([2, 1])
-    with col_a:
-        st.text_area("Video Script ရေးသားရန်", height=200, placeholder="ဥပမာ- သဘာဝအလှအပအကြောင်း...")
-    with col_b:
-        st.selectbox("Video Style ရွေးချယ်ပါ", ["Cinematic", "Anime", "3D Render", "Realism"])
-        st.button("GENERATE NOW ✨", use_container_width=True)
+    tab1, tab2 = st.tabs([" Create Video", " My Gallery"])
+    
+    with tab1:
+        col_left, col_right = st.columns([2, 1])
+        with col_left:
+            st.markdown("###  Script & Magic")
+            script = st.text_area("ဗီဒီယိုအကြောင်းအရာ ရေးပါ", height=200)
+            if st.button(" AI Magic (Auto-Enhance Script)"):
+                st.write(" Script ကို AI က ပိုကောင်းအောင် ပြင်ဆင်ပေးနေသည်...")
+        
+        with col_right:
+            st.markdown("###  Settings")
+            ratio = st.selectbox("Aspect Ratio (အချိုးအစား)", ["9:16 (Portrait)", "16:9 (Landscape)", "1:1 (Square)"])
+            voice = st.selectbox("AI Voice (အသံရွေးချယ်ရန်)", ["မြန်မာသံ (အမျိုးသား)", "မြန်မာသံ (အမျိုးသမီး)", "English (Premium)"])
+            style = st.select_slider("Quality Style", options=["Fast", "Balanced", "High-End"])
+            
+            if st.button(" GENERATE NOW", use_container_width=True):
+                if script:
+                    progress_text = "Video Generating... Please wait."
+                    my_bar = st.progress(0, text=progress_text)
+                    for percent_complete in range(100):
+                        time.sleep(0.01)
+                        my_bar.progress(percent_complete + 1, text=progress_text)
+                    st.success(f" Video {ratio} ဖြင့် အောင်မြင်စွာ ထုတ်လုပ်ပြီးပါပြီ!")
+                    st.session_state.video_history.append({"date": time.ctime(), "ratio": ratio})
+                else:
+                    st.error("Script အရင်ရေးပေးပါ Founder!")
+
+Bo Htwe, [12/31/2025 8:05 AM]
+with tab2:
+        st.markdown("###  Your Generated Videos")
+        if not st.session_state.video_history:
+            st.write("ထုတ်ထားသော ဗီဒီယို မရှိသေးပါ။")
+        else:
+            for vid in st.session_state.video_history:
+                st.markdown(f"""
+                <div class="glass-card" style="margin-bottom: 10px;">
+                     {vid['date']} |  Ratio: {vid['ratio']} <br>
+                    <button style="margin-top: 10px;"> Download Video</button>
+                </div>
+                """, unsafe_allow_html=True)
