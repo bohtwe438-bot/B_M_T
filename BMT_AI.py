@@ -1,105 +1,123 @@
 import streamlit as st
 
-# ၁။ Page Layout & Style
-st.set_page_config(page_title="BMT AI Assistant", page_icon="", layout="wide")
+# ၁။ Page Configuration
+st.set_page_config(page_title="BMT", page_icon="🤖", layout="wide")
 
-# ၂။ Advanced CSS Customization
+# ၂။ Advanced UI Styling (CSS)
 st.markdown("""
     <style>
-    /* တစ်ခုလုံးရဲ့ နောက်ခံအရောင် */
+    /* Background တစ်ခုလုံးကို Dark & Deep ဖြစ်အောင် */
     .stApp {
-        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
         color: white;
-    }
-    
-    /* Card Style - စာသားတွေ စုစည်းဖို့ */
-    .main-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 30px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-    }
-    
-    /* ခေါင်းစဉ်ကြီး */
-    .main-title {
-        font-size: 45px;
-        font-weight: 800;
-        text-align: center;
-        background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0px;
-    }
-    
-    /* Button အလှဆင်ခြင်း */
-    div.stButton > button:first-child {
-        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 30px;
-        font-weight: bold;
-        transition: 0.3s;
-        width: 100%;
-    }
-    div.stButton > button:hover {
-        transform: scale(1.02);
-        box-shadow: 0px 4px 15px rgba(0, 210, 255, 0.4);
     }
 
-    /* Input Box */
+    /* BMT Title ကို Glow ဖြစ်အောင် */
+    .bmt-header {
+        font-size: 80px;
+        font-weight: 900;
+        text-align: center;
+        margin-top: -50px;
+        background: linear-gradient(180deg, #ffffff 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));
+        letter-spacing: 10px;
+    }
+
+    /* Card Layout (Glassmorphism) */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 30px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        height: 100%;
+    }
+
+    /* Chat Button Style (Cyan Gradient) */
+    div.stButton > button#chat_btn {
+        background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        height: 55px;
+        font-size: 18px;
+        font-weight: 700;
+        transition: 0.4s ease;
+        text-transform: uppercase;
+    }
+
+    /* Video Button Style (Purple/Pink Gradient) */
+    div.stButton > button#video_btn {
+        background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        height: 55px;
+        font-size: 18px;
+        font-weight: 700;
+        transition: 0.4s ease;
+        text-transform: uppercase;
+    }
+
+    /* Hover effects for buttons */
+    div.stButton > button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        opacity: 0.9;
+    }
+
+    /* Custom Input Boxes */
     .stTextInput input {
-        background-color: #1e293b !important;
+        background: rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         color: white !important;
-        border-radius: 15px !important;
-        border: 1px solid #334155 !important;
+        border-radius: 12px !important;
+        height: 45px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# ၃။ Sidebar (ဘေးဘောင်)
-with st.sidebar:
-    # logo.png ကို GitHub မှာ တင်ထားရင် ဒါက အလိုလိုပေါ်မယ်
-    try:
-        st.image("logo.png", width=200)
-    except:
-        st.write(" BMT AI PROJECT")
-    
-    st.markdown("---")
-    st.title(" Control Panel")
-    st.info("BMT AI ကို အသုံးပြုပြီး Video Script များနှင့် Chatting လုပ်ဆောင်နိုင်ပါသည်။")
-    st.markdown("---")
-    st.caption("Developed with  for Myanmar")
+# ၃။ Main Branding
+st.markdown('<h1 class="bmt-header">BMT</h1>', unsafe_allow_html=True)
+st.write("<br><br>", unsafe_allow_html=True)
 
-# ၄။ Main Content အပိုင်း
-col1, col2, col3 = st.columns([1, 4, 1])
+# ၄။ Multi-Function Section
+col1, col2 = st.columns(2, gap="large")
+
+with col1:
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown("## 💬 AI CHAT")
+    st.write("စမတ်ကျကျ အမေးအဖြေလုပ်ရန်")
+    user_q = st.text_input("မေးခွန်းရိုက်ပါ", key="q_in", label_visibility="collapsed", placeholder="မေးချင်တာရှိရင် ဒီမှာရေးပါ...")
+    st.write("<br>", unsafe_allow_html=True)
+    if st.button("START CHATTING", key="chat_btn", use_container_width=True):
+        st.toast("Chat Engine ပြင်ဆင်နေပါသည်...")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    # Logo နဲ့ ခေါင်းစဉ်
-    st.markdown('<p class="main-title">BMT AI ASSISTANT</p>', unsafe_allow_html=True)
-    st.markdown("<h5 style='text-align: center; color: #94a3b8;'>Smart AI Chat & Video Generator</h5>", unsafe_allow_html=True)
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.markdown("## 🎥 VIDEO")
+    st.write("ဗီဒီယို Script များဖန်တီးရန်")
+    video_p = st.text_input("Script ရိုက်ပါ", key="v_in", label_visibility="collapsed", placeholder="ဗီဒီယိုအကြောင်းအရာ ရေးပါ...")
     st.write("<br>", unsafe_allow_html=True)
-    
-    # စာရိုက်မည့် ဧရိယာကို Card ထဲထည့်ခြင်း
-    with st.container():
-        st.markdown('<div class="main-card">', unsafe_allow_html=True)
-        
-        st.subheader(" AI Chat Room")
-        user_input = st.text_input("ဘာမေးချင်လဲ Founder?", placeholder="ဥပမာ- Video Script ရေးပေးပါ...")
-        
-        c1, c2, c3 = st.columns([1, 1, 1])
-        with c2:
-            send_btn = st.button("Send Message")
-        
-        if send_btn:
-            if user_input:
-                st.success("စာသားပို့လိုက်ပါပြီ။ အင်ဂျင်နိုးရန် Key ထည့်ဖို့ လိုအပ်ပါသည်။")
-            else:
-                st.warning("စာသား အရင်ရေးပေးပါဦး။")
-                
-        st.markdown('</div>', unsafe_allow_html=True)
+    if st.button("GENERATE VIDEO", key="video_btn", use_container_width=True):
+        st.toast("Video Engine ပြင်ဆင်နေပါသည်...")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ၅။ Footer အပိုင်း
-st.write("<br><br>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #475569;'> 2025 BMT AI. Billion Level Vision.</p>", unsafe_allow_html=True)
+# ၅။ Sidebar Branding
+with st.sidebar:
+    try:
+        st.image("logo.png", use_container_width=True)
+    except:
+        st.markdown("<h2 style='text-align: center;'>BMT</h2>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.write("✨ BMT Premium v1.0")
+    st.caption("AI Solutions for Myanmar")
+
+# ၆။ Footer
+st.write("<br><br><br>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; opacity: 0.2;'>© 2025 BMT. AUTHENTIC QUALITY.</p>", unsafe_allow_html=True)
