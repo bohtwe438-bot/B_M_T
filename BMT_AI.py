@@ -400,9 +400,23 @@ elif st.session_state.get('video_done'):
         st.session_state.ad_done = True 
         st.rerun()
 
-# --- (ဂ) NORMAL STUDIO VIEW (ပုံမှန်စာရိုက်သည့်အချိန်) ---
+# ==========================================
+# (၂) STUDIO VIEW (အမှားအားလုံး ပြင်ပြီးသား)
+# ==========================================
 else:
-    # Header အပိုင်း
+    # ၁။ Variable Scope စစ်ဆေးခြင်း (NameError မတက်စေရန်)
+    if 'curr' not in locals():
+        if 'gallery_data' in locals() and len(gallery_data) > 0:
+            curr = gallery_data[0]
+        else:
+            curr = {'c': '#00FFA3', 'n': 'AI STUDIO'} # Default color/name
+
+    # ၂။ Option Menu (i မပါသော ပုံသေသတ်မှတ်ချက်)
+    with st.popover(" OPTIONS"):
+        st.button(" Download Video", key="studio_dl_fixed", use_container_width=True)
+        st.button(" Share Video", key="studio_sh_fixed", use_container_width=True)
+
+    # ၃။ Header အပိုင်း (Studio Name & Gallery Button)
     h_col1, h_col2 = st.columns([0.6, 0.4])
     with h_col1:
         st.markdown(f"<h3 style='color:{curr['c']}'>Video Studio - {curr['n']}</h3>", unsafe_allow_html=True)
@@ -411,13 +425,35 @@ else:
             st.session_state.view = 'gallery_page'
             st.rerun()
 
-    prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
-    
-    st.markdown(f"""<style>div.stButton > button.start-gen-btn {{ width: 100% !important; height: 60px !important; background: transparent !important; color: {curr['c']} !important; border: 2px solid {curr['c']} !important; border-radius: 4px !important; font-weight: bold !important; font-size: 18px !important; }} div.stButton > button.start-gen-btn:hover {{ background: {curr['c']} !important; color: black !important; box-shadow: 0 0 20px {curr['c']}; }} </style>""", unsafe_allow_html=True)
+    # ၄။ Logic Flow (Generating -> Done -> Input)
+    if st.session_state.get('generating'):
+        st.info("AI is rendering your video... Please wait.")
+        # Rendering logic များကို ဤနေရာတွင် ဆက်လက်ထားရှိနိုင်ပါသည်
+        
+    elif st.session_state.get('video_done'):
+        st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
+        st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+        if st.button(" BACK TO CREATE", use_container_width=True):
+            if 'video_done' in st.session_state:
+                del st.session_state.video_done
+            st.rerun()
+            
+    else:
+        # ၅။ စာရိုက်သည့်နေရာ (Input Mode)
+        prompt = st.text_area("WRITE YOUR SCRIPT", height=250, placeholder="Describe your video here...")
+        
+        # Start Button Style
+        st.markdown(f"""<style> div.stButton > button.start-gen-btn {{ width: 100% !important; height: 60px !important; background: transparent !important; color: {curr['c']} !important; border: 2px solid {curr['c']} !important; border-radius: 4px !important; font-weight: bold !important; font-size: 18px !important; }} div.stButton > button.start-gen-btn:hover {{ background: {curr['c']} !important; color: black !important; box-shadow: 0 0 20px {curr['c']}; }} </style>""", unsafe_allow_html=True)
 
-    if st.button(f" START {curr['n']} GENERATE", key="start-gen-btn"):
-        st.session_state.generating = True
-        st.rerun()
+        if st.button(f" START {curr['n']} GENERATE", key="start-gen-btn"):
+            st.session_state.generating = True
+            st.rerun()
+
+# --- BACK BUTTON (အောက်ဆုံးတွင် သီးသန့်ထားခြင်း) ---
+if st.button(" BACK "):
+    st.session_state.ad_done = True
+    st.session_state.view = 'tier_selection' # သို့မဟုတ် မိမိသွားလိုသော page နာမည်
+    st.rerun()
 
 # ==========================================
 # (၃) FINAL BUTTON & STYLE (အောက်ဆုံးတွင်ထားရန်)
