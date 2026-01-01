@@ -462,21 +462,27 @@ if not st.session_state.get('generating', False):
         st.session_state.generating = True
         st.rerun()
             # (ခ) အောက်ပိုင်း - % PROGRESS BAR
-            if st.session_state.generating:
-                wait_time = 60 if ad_mode == 'long' else 30
-                st.markdown(f'<div class="scanner-box" style="border-color:{curr["c"]}"><div class="scanner-line" style="background:{curr["c"]}"></div><span style="color:{curr["c"]}">AI RENDERING...</span></div>', unsafe_allow_html=True)
-                
-                bar_placeholder = st.progress(0)
-                percent_text = st.empty()
-                
-                for p in range(101):
-                    time.sleep(wait_time / 100)
-                    bar_placeholder.progress(p)
-                    percent_text.markdown(f"<h2 style='text-align:center; color:{curr['c']};'>{p}%</h2>", unsafe_allow_html=True)
-                
-                st.session_state.generating = False
-                st.session_state.video_done = True
-                st.rerun()
+if st.session_state.generating:
+    wait_time = 60 if ad_mode == 'long' else 30
+    st.markdown(
+        f'<div class="scanner-box" style="border-color:{curr["c"]}"><div class="scanner-line" style="background:{curr["c"]}"></div><span style="color:{curr["c"]}">AI RENDERING...</span></div>',
+        unsafe_allow_html=True
+    )
+
+    bar_placeholder = st.progress(0)
+    percent_text = st.empty()
+
+    for p in range(101):
+        time.sleep(wait_time / 100)
+        bar_placeholder.progress(p)
+        percent_text.markdown(
+            f"<h2 style='text-align:center; color:{curr['c']};'>{p}%</h2>",
+            unsafe_allow_html=True
+        )
+
+    st.session_state.generating = False
+    st.session_state.video_done = True
+    st.rerun()
 
             # ---  (ဂ) FINAL BACK (COLOR FIXED & NO ADS) ---
             # CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
