@@ -121,31 +121,34 @@ def main():
     st.markdown('<div class="bmt-title">BMT AI EMPIRE</div>', unsafe_allow_html=True)
     st.markdown('<div class="bmt-sub">The Future of AI Video Generation</div>', unsafe_allow_html=True)
 
-    # Tier Selection Logic
-    col1, col2, col3, col4 = st.columns(4)
+    # Tier Selection Logic (စာလုံးနေရာမှန်အောင် ပြင်ဆင်ထားသည်)
+    # col1, col2 ကို ၂ ခုပဲ ခွဲပြီး ၂ တန်း စီရင် ပိုလှပါတယ်
+    row1_col1, row1_col2 = st.columns(2)
+    row2_col1, row2_col2 = st.columns(2)
 
-    tiers = [
-        {"id": "FREE", "name": "Free Tier", "limit": "8 SECONDS", "col": col1},
-        {"id": "SILVER", "name": "Silver Tier", "limit": "30 SECONDS", "col": col2},
-        {"id": "GOLD", "name": "Gold Tier", "limit": "60 SECONDS", "col": col3},
-        {"id": "DIAMOND", "name": "Diamond Tier", "limit": "UNLIMITED", "col": col4}
-    ]
+    tiers = [
+        {"id": "FREE", "name": "FREE TIER", "limit": "8 SECONDS", "col": row1_col1},
+        {"id": "SILVER", "name": "SILVER TIER", "limit": "30 SECONDS", "col": row1_col2},
+        {"id": "GOLD", "name": "GOLD TIER", "limit": "60 SECONDS", "col": row2_col1},
+        {"id": "DIAMOND", "name": "DIAMOND TIER", "limit": "UNLIMITED", "col": row2_col2}
+    ]
 
-    for t in tiers:
-        with t["col"]:
-            st.markdown(f"""
-                <div class="glass-card">
-                    <h3 style="margin-bottom: 5px;">{t['name']}</h3>
-                    <p style="color: #94a3b8; font-size: 0.9rem;">High-Quality AI Gen</p>
-                    <div class="tier-tag">{t['limit']}</div>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button(f"ENTER {t['id']}", key=t['id']):
-                st.session_state.tier = t['id']
-                st.toast(f"Welcome to {t['name']}!")
-
-if name == "main":
-    main()
+    for t in tiers:
+        with t["col"]:
+            # Card ထဲက စာလုံးတွေကို အလယ်ဗဟိုကျအောင်နဲ့ မကျပ်အောင် ပြင်ထားသည်
+            st.markdown(f"""
+                <div class="glass-card">
+                    <h3 style="margin-bottom: 10px; font-size: 1.5rem; letter-spacing: 2px;">{t['name']}</h3>
+                    <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 15px;">AI POWERED GENERATION</p>
+                    <div class="tier-tag" style="font-size: 0.7rem; width: 100%;">{t['limit']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # ခလုတ်ကို ကတ်နဲ့ ကပ်မနေအောင် spacer လေး ခံပေးပါ
+            st.write("") 
+            if st.button(f"ENTER {t['id']}", key=t['id'], use_container_width=True):
+                st.session_state.tier = t['id']
+                st.toast(f"Welcome to {t['name']}!")
 
 # ==========================================
 # ၂။ ပိုင်ရှင် KEY များ (OWNER KEYS & API)
