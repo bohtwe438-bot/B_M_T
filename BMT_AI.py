@@ -424,22 +424,18 @@ if st.session_state.generating:
         st.session_state.view = 'studio'
         st.rerun()
 
-# --- ✅ (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
-    elif st.session_state.get('video_done'): # <--- Line 429 ကို ဒီလို ဘယ်ဘက်ဆုတ်ရပါမယ်
-        st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>🎯 PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
-        
-        # ဗီဒီယိုပြသသည့် Frame
+# ---  (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
+    elif st.session_state.get('video_done'):
+        st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
         st.markdown(f'<div style="border:2px solid {curr["c"]}; border-radius:12px; padding:10px; background:#000; margin-bottom:20px;">', unsafe_allow_html=True)
         st.video("https://www.w3schools.com/html/mov_bbb.mp4")
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Download နှင့် Share ခလုတ်များ
         col_dl, col_sh = st.columns(2)
-        col_dl.button("📥 DOWNLOAD VIDEO", use_container_width=True)
-        col_sh.button("📤 SHARE VIDEO", use_container_width=True)
+        col_dl.button(" DOWNLOAD VIDEO", use_container_width=True)
+        col_sh.button(" SHARE VIDEO", use_container_width=True)
 
-        # Create ပြန်သွားသည့် ခလုတ်
-        if st.button("⬅️ BACK TO CREATE", use_container_width=True):
+        if st.button(" BACK TO CREATE", use_container_width=True):
             if 'video_done' in st.session_state:
                 del st.session_state.video_done
             st.session_state.ad_done = True 
