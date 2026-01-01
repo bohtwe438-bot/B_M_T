@@ -425,7 +425,7 @@ if st.session_state.generating:
         st.rerun()
 
     # ---  (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
-    elif st.session_state.get('video_done'):
+     elif st.session_state.get('video_done'):
         st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
         st.markdown(f'<div style="border:2px solid {curr["c"]}; border-radius:12px; padding:10px; background:#000; margin-bottom:20px;">', unsafe_allow_html=True)
         st.video("https://www.w3schools.com/html/mov_bbb.mp4")
