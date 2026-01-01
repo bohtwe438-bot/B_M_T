@@ -174,8 +174,32 @@ def ai_studio_module():
                             del st.session_state.video_done
                             st.rerun()
                 
-                # အရေးကြီးဆုံးအချက် - ဤစာကြောင်း၏ အရှေ့က Space သည် v_header_col နှင့် တစ်တန်းတည်း ဖြစ်ရပါမည်
+                # မူရင်း ဗီဒီယို Player
                 st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+
+                # --- ထပ်တိုး VIDEO GALLERY SECTION ---
+                st.markdown(f"<hr style='border:1px solid {curr['c']}'>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='color:{curr['c']}'> MY GALLERY</h3>", unsafe_allow_html=True)
+                
+                if 'gallery' not in st.session_state:
+                    st.session_state.gallery = []
+
+                if st.session_state.gallery:
+                    g_cols = st.columns(2)
+                    for i, item in enumerate(reversed(st.session_state.gallery)):
+                        with g_cols[i % 2]:
+                            st.video(item['url'])
+                            st.caption(f" {item['tier']} | {item['res']} | {item['dur']}")
+                else:
+                    st.info("No videos in gallery yet.")
+
+                # (ဃ) အောက်ဆုံး - BACK HOME ခလုတ်
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button(" BACK TO MAIN MENU", use_container_width=True):
+                    st.session_state.page_state = 'main_menu'
+                    if 'video_done' in st.session_state: 
+                        del st.session_state.video_done
+                    st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
