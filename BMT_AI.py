@@ -191,39 +191,50 @@ def ai_studio_module():
             else:
                 st.info("No videos in gallery yet.")
 
-            # (ဃ) BACK TO MAIN MENU (SELECT YOUR TIER PAGE)
+            # ---  (ဃ) BACK TO HOME (RECTANGLE BEAUTY) ---
             st.markdown(f"""
                 <style>
-                .stButton > button {{
+                /* ခလုတ်ကို စတုဂံပုံစံ သေသပ်အောင် လုပ်ခြင်း */
+                div.stButton > button {{
                     background-color: transparent !important;
                     color: {curr['c']} !important;
-                    border: 1px solid {curr['c']} !important;
+                    border: 2px solid {curr['c']} !important;
                     border-radius: 4px !important;
                     width: 150px !important;
-                    height: 40px !important;
+                    height: 42px !important;
                     display: block !important;
-                    margin: 20px auto !important;
+                    margin: 30px auto !important;
+                    font-weight: bold !important;
+                    text-transform: uppercase;
+                    transition: all 0.3s ease;
+                }}
+                /* Mouse တင်လိုက်လျှင် အရောင်ပြည့်သွားစေရန် */
+                div.stButton > button:hover {{
+                    background-color: {curr['c']} !important;
+                    color: black !important;
+                    box-shadow: 0 0 15px {curr['c']} !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
 
-            # ခလုတ်ကို နှိပ်လိုက်လျှင်
+            # ခလုတ်၏ Logic အပိုင်း
             if st.button(" BACK"):
-                # ၁။ အကယ်၍ Preview ပြနေလျှင် Preview ကိုအရင်ပိတ်မည်
+                # Preview Screen ပြနေရင် Preview ကို အရင်ပိတ်မယ်
                 if st.session_state.get('video_done'):
                     del st.session_state['video_done']
                     st.rerun()
                 
-                # ၂။ အကယ်၍ Preview မရှိလျှင် "SELECT YOUR TIER" စာမျက်နှာသို့ အတင်းအကျပ်ပြန်မည်
+                # Preview မရှိတော့ရင် "SELECT YOUR TIER" (Main Menu) ကို အတင်းပြန်သွားမယ်
                 else:
-                    # ဤနေရာတွင် လူကြီးမင်း၏ Main Menu State နာမည်ကို အသုံးပြုရပါမည်
+                    # အရေးကြီးဆုံးအချက်- အပေါ်ဆုံးမှာ ပေးထားတဲ့ Main Menu နာမည်နဲ့ တူရပါမယ်
                     st.session_state.page_state = 'main_menu'
                     
-                    # Dashboard နှင့် Ads များထဲသို့ ပြန်မရောက်သွားစေရန် State များကို ရှင်းထုတ်ခြင်း
+                    # တခြား Dashboard တွေ ကြော်ငြာတွေထဲ မရောက်အောင် အကုန်ပိတ်ခြင်း
                     st.session_state.ad_done = True 
                     if 'admin_mode' in st.session_state:
                         st.session_state.admin_mode = False
                     
+                    # Force Rerun လုပ်ပြီး Home ပြန်ခေါ်ခြင်း
                     st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
