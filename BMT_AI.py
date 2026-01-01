@@ -150,12 +150,13 @@ def ai_studio_module():
                 st.session_state.video_done = True
                 st.rerun()
 
-            # (ဂ) ဗီဒီယို နှင့် Dot 3 Menu
+            # (ဂ) ဗီဒီယို ထွက်လာပြီးနောက် ပြသမည့် Player နှင့် Dot 3 Menu
             if st.session_state.get('video_done'):
                 v_header_col, v_menu_col = st.columns([0.9, 0.1])
                 with v_header_col:
                     st.markdown(f"<h3 style='color:{curr['c']}'>PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
                 with v_menu_col:
+                    # Dot 3 Menu
                     with st.popover(""):
                         st.button("Download", use_container_width=True)
                         st.button("Share", use_container_width=True)
@@ -163,17 +164,8 @@ def ai_studio_module():
                             del st.session_state.video_done
                             st.rerun()
                 
-                # အခုနက Line 172 က မှားနေတဲ့စာကြောင်းကို ဒီနေရာမှာ ညှိထားပါတယ်
+                # အရေးကြီးဆုံးအချက် - ဤစာကြောင်း၏ အရှေ့က Space သည် v_header_col နှင့် တစ်တန်းတည်း ဖြစ်ရပါမည်
                 st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-
-        # col_side ရဲ့ Indentation ကိုလည်း ဓာတ်ပုံ ၃ ထဲကထက် ပိုမှန်အောင် ညှိပေးထားပါတယ်
-        with col_side:
-            st.selectbox("Resolution", curr['res'])
-            st.selectbox("Duration", curr['d_list'])
-            if st.button(" BACK"): 
-                if 'video_done' in st.session_state: del st.session_state.video_done
-                st.session_state.page_state = 'tier_selection'
-                st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
