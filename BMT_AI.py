@@ -418,13 +418,13 @@ if st.session_state.generating:
                 </div>
             """, unsafe_allow_html=True)
 
-        #  Generating ပိတ်တဲ့အပိုင်းကို ဘယ်ဘက်ကို ပြန်ဆုတ်ထားပါတယ်
+        # Generating ပိတ်တဲ့အပိုင်းကို ဘယ်ဘက်ကို ပြန်ဆုတ်ထားပါတယ်
         st.session_state.generating = False
         st.session_state.video_done = True
         st.session_state.view = 'studio'
         st.rerun()
 
-# ---  (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
+    # ---  (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
     elif st.session_state.get('video_done'):
         st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
         st.markdown(f'<div style="border:2px solid {curr["c"]}; border-radius:12px; padding:10px; background:#000; margin-bottom:20px;">', unsafe_allow_html=True)
