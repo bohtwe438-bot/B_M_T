@@ -379,36 +379,37 @@ else:
             st.rerun()
 
     # ---  (က) GENERATING MODE ---
-    if st.session_state.generating:
-        main_placeholder = st.empty()
+if st.session_state.generating:
+    main_placeholder = st.empty()
 
-        with main_placeholder.container():
-            wait_time = 60 if ("min" in duration or "60s" in duration) else 30
-            ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
+    with main_placeholder.container():
+        wait_time = 60 if ("min" in duration or "60s" in duration) else 30
+        ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
 
-            st.markdown(
-                f"""
-                <div style="text-align: center; margin-bottom: 30px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
-                    <p style="color: #666; font-size: 10px; letter-spacing: 2px;">GOOGLE ADS SPONSOR</p>
-                    <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px; margin-top:10px;">
+        st.markdown(
+            f"""
+            <div style="text-align: center; margin-bottom: 30px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
+                <p style="color: #666; font-size: 10px; letter-spacing: 2px;">GOOGLE ADS SPONSOR</p>
+                <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px; margin-top:10px;">
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # ⚠️ ဒီနေရာကနေစပြီး ဘယ်ဘက်ကို ပြန်ဆုတ်ပါ (Wait_time နဲ့ တစ်တန်းတည်း ဖြစ်ရပါမယ်)
+        prog_text = st.empty()
+        prog_bar = st.empty()
+
+        for percent in range(101):
+            time.sleep(wait_time / 100)
+            ad_msg = "UPGRADE FOR 4K QUALITY" if percent < 50 else "ENJOY AD-FREE EXPERIENCE"
+            prog_text.markdown(f"""
+                <div style="text-align: center;">
+                    <h1 style="color: {curr['c']}; font-size: 75px; font-weight: 900; margin: 0; text-shadow: 0 0 20px {curr['c']}CC;">{percent}%</h1>
+                    <p style="color: #888; letter-spacing: 5px; font-size: 12px;">RENDERING VIDEO...</p>
+                    <p style="color: {curr['c']}; font-size: 14px;">{ad_msg}</p>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-                        prog_text = st.empty()
-                        prog_bar = st.empty()
-
-                        for percent in range(101):
-                            time.sleep(wait_time / 100)
-                            ad_msg = "UPGRADE FOR 4K QUALITY" if percent < 50 else "ENJOY AD-FREE EXPERIENCE"
-                            prog_text.markdown(f"""
-                                <div style="text-align: center;">
-                                    <h1 style="color: {curr['c']}; font-size: 75px; font-weight: 900; margin: 0; text-shadow: 0 0 20px {curr['c']}CC;">{percent}%</h1>
-                                    <p style="color: #888; letter-spacing: 5px; font-size: 12px;">RENDERING VIDEO...</p>
-                                    <p style="color: {curr['c']}; font-size: 14px;">{ad_msg}</p>
-                                </div>
-                            """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
                             prog_bar.markdown(f"""
                                 <div style="width: 90%; background: #111; border-radius: 50px; height: 12px; margin: 20px auto; border: 1px solid #333; padding: 2px;">
                                     <div style="width: {percent}%; height: 100%; border-radius: 50px; background: linear-gradient(90deg, {curr['c']}, #fff); box-shadow: 0 0 10px {curr['c']}; transition: width 0.3s;"></div>
