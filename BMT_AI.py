@@ -440,24 +440,27 @@ if st.session_state.get('video_done'):
             del st.session_state.video_done
         st.session_state.ad_done = True 
         st.rerun()
-                # --- 📝 (1) INPUT MODE (စာရိုက်သည့်အချိန်) ---
-                else:
-                    prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
-                    st.markdown(f"""
-                        <style>
-                        div.stButton > button.start-gen-btn {{
-                            width: 100% !important; height: 60px !important;
-                            background: transparent !important; color: {curr['c']} !important;
-                            border: 2px solid {curr['c']} !important; border-radius: 4px !important;
-                            font-weight: bold !important; font-size: 18px !important;
-                        }}
-                        div.stButton > button.start-gen-btn:hover {{ background: {curr['c']} !important; color: black !important; box-shadow: 0 0 20px {curr['c']}; }}
-                        </style>
-                    """, unsafe_allow_html=True)
+                # ---  (1) INPUT MODE (စာရိုက်သည့်အချိန်) ---
+if not st.session_state.get('generating', False):
+    prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
+    st.markdown(
+        f"""
+        <style>
+        div.stButton > button.start-gen-btn {{
+            width: 100% !important; height: 60px !important;
+            background: transparent !important; color: {curr['c']} !important;
+            border: 2px solid {curr['c']} !important; border-radius: 4px !important;
+            font-weight: bold !important; font-size: 18px !important;
+        }}
+        div.stButton > button.start-gen-btn:hover {{ background: {curr['c']} !important; color: black !important; box-shadow: 0 0 20px {curr['c']}; }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-                    if st.button(f"🚀 START {curr['n']} GENERATE", key="start-gen-btn"):
-                        st.session_state.generating = True
-                        st.rerun()
+    if st.button(f" START {curr['n']} GENERATE", key="start-gen-btn"):
+        st.session_state.generating = True
+        st.rerun()
             # (ခ) အောက်ပိုင်း - % PROGRESS BAR
             if st.session_state.generating:
                 wait_time = 60 if ad_mode == 'long' else 30
