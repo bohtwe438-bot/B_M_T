@@ -240,36 +240,80 @@ def ai_studio_module():
                 st.session_state.video_done = True
                 st.rerun()
 
-            # (ဂ) ဗီဒီယို Player နှင့် Gallery သီးသန့်အပိုင်း
-            if st.session_state.get('video_done'):
-                v_header_col, v_menu_col = st.columns([0.9, 0.1])
-                with v_header_col:
-                    st.markdown(f"<h3 style='color:{curr['c']}'>PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
-                with v_menu_col:
-                    with st.popover(""):
-                        st.button("Download", use_container_width=True)
-                        st.button("Share", use_container_width=True)
-                        if st.button("Delete", use_container_width=True):
-                            del st.session_state.video_done
-                            st.rerun()
-                
-                st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-
-            # ---  MY GALLERY (ဗီဒီယိုရှိလျှင် အမြဲပေါ်နေမည့်အပိုင်း) ---
-            st.markdown(f"<hr style='border:1px solid {curr['c']}'>", unsafe_allow_html=True)
-            st.markdown(f"<h3 style='color:{curr['c']}'> MY GALLERY</h3>", unsafe_allow_html=True)
+            # ---  (ဂ) ဗီဒီယို Player နှင့် Gallery သီးသန့်အပိုင်း (FULL PAGE MODE) ---
+        if st.session_state.get('video_done'):
+            # စာမျက်နှာအဟောင်း (Input Area) ကို လုံးဝဖျက်ပြီး အသစ်ပြရန် Empty Container သုံးခြင်း
+            gallery_page = st.empty()
             
-            if 'gallery' not in st.session_state:
-                st.session_state.gallery = []
+            with gallery_page.container():
+                # ၁။ ထိပ်ပိုင်း ခေါင်းစဉ်နှင့် အလှဆင်ခြင်း
+                st.markdown(f"""
+                    <div style="text-align: center; padding: 10px;">
+                        <h2 style="color:{curr['c']}; text-shadow: 0 0 10px {curr['c']}55;"> PREVIEW SUCCESS</h2>
+                        <p style="color: #888; font-size: 13px;">Your AI Video is ready!</p>
+                    </div>
+                """, unsafe_allow_html=True)
 
-            if st.session_state.gallery:
-                g_cols = st.columns(2)
-                for i, item in enumerate(reversed(st.session_state.gallery)):
-                    with g_cols[i % 2]:
-                        st.video(item['url'])
-                        st.caption(f" {item['tier']} | {item['res']} | {item['dur']}")
-            else:
-                st.info("No videos in gallery yet.")
+                # ၂။ ဗီဒီယို Player ကို စတုဂံဘောင်ဖြင့် ပြသခြင်း
+                st.markdown(f"""
+                    <div style="border: 2px solid {curr['c']}; border-radius: 12px; padding: 10px; 
+                                background: #000; box-shadow: 0 0 20px {curr['c']}33; margin-bottom: 20px;">
+                """, unsafe_allow_html=True)
+                
+                st.video("https://www.w3schools.com/html/mov_bbb.mp4") # လူကြီးမင်း၏ Video Source
+                
+                st.markdown("</div>", unsafe_allow_html=True)
+
+                # ၃။ ACTION BUTTONS (Download / Share / Back)
+                col_dl, col_sh = st.columns(2)
+                with col_dl:
+                    st.button(" DOWNLOAD", use_container_width=True)
+                with col_sh:
+                    st.button(" SHARE", use_container_width=True)
+
+                # စတုဂံပုံစံ BACK Button (ဒီခလုတ်နှိပ်ရင် Input Page ပြန်ရောက်ပါမယ်)
+                st.markdown(f"""
+                    <style>
+                    div.stButton > button {{
+                        height: 55px !important;
+                        background: transparent !important;
+                        color: {curr['c']} !important;
+                        border: 2px solid {curr['c']} !important;
+                        border-radius: 4px !important; /* စတုဂံပုံစံ */
+                        font-weight: bold !important;
+                        font-size: 16px !important;
+                        margin-top: 15px !important;
+                    }}
+                    div.stButton > button:hover {{
+                        background: {curr['c']} !important;
+                        color: black !important;
+                    }}
+                    </style>
+                """, unsafe_allow_html=True)
+
+                if st.button(" BACK TO CREATE VIDEO", use_container_width=True):
+                    # Video Done ကို ဖျက်ပြီး Input စာမျက်နှာကို ပြန်ခေါ်ခြင်း
+                    del st.session_state.video_done
+                    st.session_state.ad_done = True 
+                    st.rerun()
+
+                # --- MY GALLERY (အောက်ခြေပိုင်းတွင် ပြန်စီခြင်း) ---
+                st.markdown(f"<hr style='border:1px solid {curr['c']}55; margin-top: 40px;'>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='color:{curr['c']}; text-align: center;'> MY GALLERY</h3>", unsafe_allow_html=True)
+                
+                if 'gallery' not in st.session_state: st.session_state.gallery = []
+
+                if st.session_state.gallery:
+                    g_cols = st.columns(2)
+                    for i, item in enumerate(reversed(st.session_state.gallery)):
+                        with g_cols[i % 2]:
+                            st.video(item['url'])
+                            st.caption(f" {item['tier']} | {item['res']}")
+                else:
+                    st.markdown("<p style='text-align: center; color: #666;'>No videos yet.</p>", unsafe_allow_html=True)
+            
+            # Gallery စာမျက်နှာကို ပြသပြီးရင် အောက်က code တွေ ဆက်မပွားအောင် ရပ်လိုက်ပါမယ်
+            st.stop()
 
             # ---  (ဃ) FINAL BACK (COLOR FIXED & NO ADS) ---
             # CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
