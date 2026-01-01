@@ -44,67 +44,89 @@ def manage_owner_keys():
 # ==========================================
 # ၃။ AI CHAT & VIDEO GENERATOR (CORE LOGIC)
 # ==========================================
-def ai_studio_module():
-    # စာမျက်နှာ အခြေအနေကို မှတ်သားရန်
+import streamlit as st
+import time
+
+def ai_empire_terminal():
+    # ၁။ စာမျက်နှာ အခြေအနေ မှတ်သားခြင်း (Navigation State) [cite: 2026-01-01]
     if 'page_state' not in st.session_state:
         st.session_state.page_state = 'home'
 
-    # --- ၁။ HOME PAGE (Y-AXIS / VERTICAL LAYOUT) ---
-    if st.session_state.page_state == 'home':
-        # အပေါ်ဆုံးမှာ BMT Logo ပုံကို ထည့်ခြင်း [cite: 2025-12-31]
-        st.markdown("""
-            <div style='text-align:center; padding-bottom: 20px;'>
-                <img src="https://i.ibb.co/0b7e58b4-5a97-46bf-b2ed-192a6cef4312/image.png" style='width:120px; border-radius:20px;'>
-                <h1 style='letter-spacing: 10px; font-weight: 900; margin-top:10px;'>BMT</h1>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # ခလုတ်များကို အပေါ်အောက် (Vertical) စီခြင်း
-        _, col_mid, _ = st.columns([1, 5, 1])
-        with col_mid:
-            # AI CHAT Button (အစိမ်းရောင်အနားကွက်) [cite: 2025-12-31]
-            if st.button("   AI SMART CHAT", key="chat_btn", use_container_width=True):
-                st.session_state.page_state = 'chat_page'
-                st.rerun()
-            
-            st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
-            
-            # VIDEO GENERATOR Button (အပြာရောင်အနားကွက်) [cite: 2025-12-31]
-            if st.button("   VIDEO GENERATOR", key="video_btn", use_container_width=True):
-                st.session_state.page_state = 'video_page'
-                st.rerun()
-
-    # --- ၂။ AI CHAT PAGE ---
-    elif st.session_state.page_state == 'chat_page':
-        if st.button(" BACK TO EMPIRE"):
-            st.session_state.page_state = 'home'
-            st.rerun()
-        st.subheader("BMT AI Chat")
-        st.chat_input("မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...")
-
-    # --- ၃။ VIDEO GENERATOR PAGE ---
-    elif st.session_state.page_state == 'video_page':
-        if st.button(" BACK TO EMPIRE"):
-            st.session_state.page_state = 'home'
-            st.rerun()
-        st.subheader("BMT Video Engine")
-        
-        # Diamond Tier 1080p, 2k, 4k ပါဝင်သော Logic [cite: 2025-12-31]
-        plans = {
-            "F (Free)": {"res": ["480p", "720p"], "dur": ["5s", "8s"]},
-            "S (Silver)": {"res": ["720p", "1080p"], "dur": ["10s", "15s", "20s"]},
-            "G (Gold)": {"res": ["1080p", "2k"], "dur": ["20s", "30s", "40s", "60s"]},
-            "D (Diamond)": {"res": ["1080p", "2k", "4k"], "dur": ["30s", "60s", "90s", "120s"]}
+    # --- CSS: Tier အလိုက် မတူညီသော အလှအပနှင့် Background များ --- [cite: 2026-01-01]
+    st.markdown("""
+        <style>
+        .stApp { background: #0a0e14; color: white; }
+        /* Glassmorphism Buttons */
+        div.stButton > button {
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);
+            transition: 0.3s;
         }
+        /* Scanner Animation [cite: 2026-01-01] */
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        .scanner { position: relative; overflow: hidden; }
+        .scanner::after {
+            content: ""; position: absolute; width: 100%; height: 2px;
+            background: #00f2ff; box-shadow: 0 0 15px #00f2ff;
+            animation: scan 2s linear infinite;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # --- ၂။ HOME PAGE (SIDE-BY-SIDE RECTANGLE) --- [cite: 2026-01-01]
+    if st.session_state.page_state == 'home':
+        st.markdown("<h1 style='text-align:center; font-size:80px; letter-spacing:15px;'>BMT</h1>", unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("\n\nAI CHAT", use_container_width=True):
+                st.session_state.page_state = 'chat_page'; st.rerun()
+        with col2:
+            if st.button("\n\nVIDEO GENERATOR", use_container_width=True):
+                st.session_state.page_state = 'tier_selection'; st.rerun()
+
+    # --- ၃။ TIER SELECTION PAGE (F, S, G, D) --- [cite: 2026-01-01]
+    elif st.session_state.page_state == 'tier_selection':
+        st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
+        t1, t2, t3, t4 = st.columns(4)
+        with t1: 
+            if st.button("F (FREE)", key="f_btn"): st.session_state.page_state = 'f_page'; st.rerun()
+        with t2: 
+            if st.button("S (SILVER)", key="s_btn"): st.session_state.page_state = 's_page'; st.rerun()
+        with t3: 
+            if st.button("G (GOLD)", key="g_btn"): st.session_state.page_state = 'g_page'; st.rerun()
+        with t4: 
+            if st.button("D (DIAMOND)", key="d_btn"): st.session_state.page_state = 'd_page'; st.rerun()
+
+    # --- ၄။ INDIVIDUAL TIER PAGES (F, S, G, D) --- [cite: 2026-01-01]
+    # မှတ်ချက် - Page တစ်ခုချင်းစီတွင် အရောင်နှင့် ပါဝင်ပုံများ မတူညီအောင် ခွဲထားပါသည် [cite: 2026-01-01]
+    elif st.session_state.page_state in ['f_page', 's_page', 'g_page', 'd_page']:
+        tier_data = {
+            'f_page': {'color': '#00ff00', 'name': 'FREE', 'dur': '8s'},
+            's_page': {'color': '#bdc3c7', 'name': 'SILVER', 'dur': '20s'},
+            'g_page': {'color': '#f1c40f', 'name': 'GOLD', 'dur': '60s'},
+            'd_page': {'color': '#9b59b6', 'name': 'DIAMOND', 'dur': '120s'}
+        }
+        current = tier_data[st.session_state.page_state]
         
-        script = st.text_area("ဗီဒီယိုအတွက် စာသားရေးပါ", height=150)
-        tier = st.selectbox("Select Tier", list(plans.keys()))
-        col_res, col_dur = st.columns(2)
-        with col_res: st.selectbox("Resolution", plans[tier]["res"])
-        with col_dur: st.selectbox("Duration", plans[tier]["dur"])
+        # UI Heading
+        st.markdown(f"<h1 style='color:{current['color']}; text-shadow: 0 0 15px {current['color']};'>VIDEO GENERATOR - {current['name']}</h1>", unsafe_allow_html=True)
         
-        if st.button(" START GENERATE", use_container_width=True):
-            st.success("BMT Engine is starting...")
+        # Side-to-Side Layout [cite: 2026-01-01]
+        c_main, c_side = st.columns([3, 1])
+        with c_main:
+            prompt = st.text_area("WRITE YOUR SCRIPT", height=250, placeholder="Enter prompt...")
+            if st.button(f" START {current['name']} GENERATE", use_container_width=True):
+                with st.container():
+                    st.markdown('<div class="scanner">Processing...</div>', unsafe_allow_html=True)
+                    time.sleep(3) # Scanner Effect Duration
+            st.success(f"Video ({current['dur']}) is being generated!")
+        with c_side:
+            st.selectbox("Resolution", ["720p", "1080p", "4K"])
+            st.info(f"Max Duration: {current['dur']}")
+            if st.button(" BACK"): 
+                st.session_state.page_state = 'home'; st.rerun()
+
+ai_empire_terminal()
 
 # ==========================================
 # ၄။ ကြော်ငြာ (ADVERTISEMENTS)
