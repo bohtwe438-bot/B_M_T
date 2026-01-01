@@ -260,8 +260,7 @@ def ai_studio_module():
         
         col_main, col_side = st.columns([3, 1])
         
-        # --- (၁) PAGE LOGIC (Studio နဲ့ Gallery ခွဲခြားခြင်း) --- [cite: 2026-01-01]
-# ERROR FIX: .page ကို .page_state သို့ ပြောင်းလဲထားပါသည် [cite: 2026-01-01]
+        # --- (၁) PAGE LOGIC (Studio နဲ့ Gallery ခွဲခြားခြင်း) ---
 if st.session_state.page_state == 'studio':
     # --- STUDIO MODE ---
     st.markdown('<h1 class="bmt-title">BMT STUDIO</h1>', unsafe_allow_html=True)
@@ -269,50 +268,44 @@ if st.session_state.page_state == 'studio':
     # Script ရိုက်သည့်နေရာ
     prompt = st.text_area("ENTER YOUR SCRIPT", placeholder="Describe your vision...")
     
-    # --- (၂) SETTINGS BAR (Script အောက်ခြေကပ်ရပ်) --- [cite: 2026-01-01]
+    # --- (၂) SETTINGS BAR (Script အောက်ခြေကပ်ရပ်) ---
     col_settings, col_gen = st.columns([0.8, 0.2])
     
     with col_settings:
-        # အလျားလိုက် Setting တန်းလေး (Glassmorphism Style) [cite: 2026-01-01]
         c1, c2, c3, c4 = st.columns(4)
         with c1:
             mode = st.selectbox("MODE", ["VIDEO", "IMAGE"])
         with c2:
-            # Free Tier အတွက် 8s Fix လုပ်ခြင်း [cite: 2025-12-31]
+            # Free Tier အတွက် 8s Fix လုပ်ခြင်း
             if st.session_state.tier == 'FREE' and mode == "VIDEO":
                 duration = st.selectbox("DURATION", ["8s"], disabled=True)
             elif mode == "VIDEO":
-                duration = st.selectbox("DURATION", curr['d_list'])
+                duration = st.selectbox("DURATION", ["15s", "30s"])
             else:
                 duration = "N/A"
         with c3:
-            res = st.selectbox("RESOLUTION", curr['res'])
+            res = st.selectbox("RESOLUTION", ["720p", "1080p", "4K"])
         with c4:
-            ratio = st.selectbox("RATIO", ["16:9", "9:16", "1:1", "4:5", "21:9"])
+            ratio = st.selectbox("RATIO", ["16:9", "9:16", "1:1"])
 
     with col_gen:
-        # Generate ခလုတ်ကို Settings ဘေးမှာ ကပ်လျက်ထားခြင်း [cite: 2026-01-01]
-        st.write("") # Alignment အတွက် Space ချခြင်း
+        st.write("") # Alignment ညှိရန်
         st.write("")
-        if st.button(f"GENERATE"):
-            st.toast(f"Generating your {mode}...")
+        if st.button("GENERATE"):
+            st.toast(f"Generating {mode}...")
 
-# ERROR FIX: .page ကို .page_state သို့ ပြောင်းလဲထားပါသည် [cite: 2026-01-01]
 elif st.session_state.page_state == 'gallery':
-    # --- GALLERY MODE (Settings များ လုံးဝမပါတော့ပါ) --- [cite: 2026-01-01]
+    # Gallery Mode မှာ Setting Bar လုံးဝ မပါရ
     st.markdown('<h1 class="bmt-title">BMT GALLERY</h1>', unsafe_allow_html=True)
     
-    # Gallery Grid (ဥပမာပြကွက်)
     cols = st.columns(3)
-    for i in range(6):
-        with cols[i % 3]:
-            st.image("https://placehold.co/600x400", caption=f"Generated {i+1}")
-            # --- (၃) DOT 3 MENU (Download, Delete, Share) --- [cite: 2026-01-01]
-            # ⋮ Icon အတွက် st.popover ကို အသုံးပြုခြင်း
-            with st.popover("⋮ OPTIONS"):
-                st.button(f"📥 Download", key=f"dl_{i}", use_container_width=True)
-                st.button(f"🗑 Delete", key=f"del_{i}", use_container_width=True)
-                st.button(f"🔗 Share", key=f"sh_{i}", use_container_width=True)
+    for i in range(3):
+        with cols[i]:
+            st.image("https://placehold.co/400x300")
+            # --- (၃) DOT 3 MENU ---
+            with st.popover(" OPTIONS"):
+                st.button(f" Download", key=f"dl_{i}")
+                st.button(f" Delete", key=f"del_{i}")
 
         # --- (၂) & (ဂ) INTEGRATED STUDIO & GALLERY SYSTEM ---
         with col_main:
