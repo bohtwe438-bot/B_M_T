@@ -191,20 +191,40 @@ def ai_studio_module():
             else:
                 st.info("No videos in gallery yet.")
 
-            # (ဃ) အောက်ဆုံး - BACK HOME ခလုတ်
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button(" BACK TO MAIN MENU", use_container_width=True):
-                # ၁။ Page state ကို main_menu လို့ အတိအကျ ပြောင်းပေးရပါမယ်
+            # (ဃ) အချိုးကျလှပသော BACK HOME ခလုတ် (Compact Style)
+            st.markdown(f"""
+                <style>
+                div.stButton > button:first-child {{
+                    background-color: transparent;
+                    color: {curr['c']};
+                    border: 2px solid {curr['c']};
+                    border-radius: 12px;
+                    padding: 8px 15px;
+                    font-weight: bold;
+                    width: 200px; /* ခလုတ်အကျယ်ကို ဒီမှာ ထိန်းထားပါတယ် */
+                    display: block;
+                    margin: 0 auto; /* ခလုတ်ကို အလယ်တည့်တည့် ရောက်အောင် လုပ်တာပါ */
+                    transition: all 0.3s ease;
+                    text-shadow: 0 0 10px {curr['c']};
+                    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                }}
+                div.stButton > button:first-child:hover {{
+                    background-color: {curr['c']};
+                    color: black;
+                    box-shadow: 0 0 20px {curr['c']};
+                    transform: translateY(-2px); /* အပေါ်ကို နည်းနည်းလေး ကြွတက်လာတဲ့ animation */
+                }}
+                </style>
+            """, unsafe_allow_html=True)
+
+            # ခလုတ်ကို ဗဟိုချက် (Center) ရောက်အောင် container တစ်ခုထဲ ထည့်ထားပါတယ်
+            st.markdown('<div style="display: flex; justify-content: center;">', unsafe_allow_html=True)
+            if st.button(" BACK TO HOME"):
                 st.session_state.page_state = 'main_menu'
-                
-                # ၂။ လက်ရှိ Video လုပ်ထားတဲ့ status တွေကို ရှင်းပစ်ရပါမယ်
-                if 'video_done' in st.session_state:
-                    del st.session_state.video_done
-                if 'generating' in st.session_state:
-                    st.session_state.generating = False
-                
-                # ၃။ Page ကို Refresh လုပ်ပြီး Home ကို ပြန်ခေါ်သွားပါမယ်
+                if 'video_done' in st.session_state: del st.session_state.video_done
+                if 'generating' in st.session_state: st.session_state.generating = False
                 st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
