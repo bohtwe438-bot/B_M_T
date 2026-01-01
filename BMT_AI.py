@@ -318,38 +318,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- (၂) 3-Dot Popover Menu အပိုင်း ---
-        with st.popover(" OPTIONS"):
-            # (၁) ဒေါင်းလုဒ် ခလုတ်
-            st.button(f" Download", key=f"dl_{i}", use_container_width=True)
-            
-            # (၂) မျှဝေရန် (Share) ခလုတ်
-            st.button(f" Share", key=f"sh_{i}", use_container_width=True)
-            
-            # (၃) ဖျက်ရန် (Delete) ခလုတ်
-            if st.button(f" Delete", key=f"del_{i}", use_container_width=True):
+        with st.popover("⋮ OPTIONS"):
+            st.button(f"📥 Download", key=f"dl_{i}", use_container_width=True)
+            st.button(f"📤 Share", key=f"sh_{i}", use_container_width=True)
+            if st.button(f"🗑 Delete", key=f"del_{i}", use_container_width=True):
                 st.session_state.gallery.pop(-(i+1))
                 st.rerun()
 
-            # LINE 333 FIX: ဒီစာကြောင်းတွေက with ရဲ့ အထဲမှာပဲ ရှိရပါမယ်
-            st.write("---")
-            
-            # BACK TO STUDIO BUTTON (စတိုင်ပုံစံ)
-            st.markdown(f"""
-                <style>
-                div.stButton > button:first-child {{
-                    height: 55px !important;
-                    background: transparent !important;
-                    color: {curr['c']} !important;
-                    border: 2px solid {curr['c']} !important;
-                    border-radius: 4px !important;
-                    font-weight: bold !important;
-                }}
-                </style>
-            """, unsafe_allow_html=True)
-            
-            if st.button(" BACK TO STUDIO", key=f"back_{i}", use_container_width=True):
-                st.session_state.view = 'studio'
-                st.rerun()
+        # ⚠️ အရေးကြီးဆုံး- ဒီအပိုင်းတွေက with ရဲ့ အပြင်ဘက်မှာ ရှိရပါမယ် (with နဲ့ တစ်တန်းတည်း ညှိပါ)
+        st.write("---")
+        
+        # BACK TO STUDIO Button Style
+        st.markdown(f"<style>div.stButton > button[key='back_{i}'] {{ height: 55px !important; color: {curr['c']} !important; border: 2px solid {curr['c']} !important; }}</style>", unsafe_allow_html=True)
+        
+        if st.button("⬅️ BACK TO STUDIO", key=f"back_{i}", use_container_width=True):
+            st.session_state.view = 'studio'
+            st.rerun()
 
         st.stop() # Gallery ပြနေချိန် ကျန်တာတွေ ဆက်မပြရန်
 
