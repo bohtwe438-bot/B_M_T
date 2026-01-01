@@ -100,37 +100,84 @@ def ai_studio_module():
     # --- ၄။ INDIVIDUAL VIDEO PAGES (F, S, G, D) ---
     elif st.session_state.page_state in ['f_page', 's_page', 'g_page', 'd_page']:
         configs = {
-            'f_page': {'bg': '#051005', 'c': '#00ff00', 'n': 'FREE', 'd_list': ["5s", "8s"], 'res': ["480p", "720p"]},
-            's_page': {'bg': '#0f0f0f', 'c': '#bdc3c7', 'n': 'SILVER', 'd_list': ["10s", "20s"], 'res': ["720p", "1080p"]},
-            'g_page': {'bg': '#1a1605', 'c': '#f1c40f', 'n': 'GOLD', 'd_list': ["30s", "60s"], 'res': ["1080p", "2k"]},
-            'd_page': {'bg': '#10051a', 'c': '#9b59b6', 'n': 'DIAMOND', 'd_list': ["30s", "60s", "90s", "120s"], 'res': ["1080p", "2k", "4k"]}
+            'f_page': {'bg': '#021202', 'c': '#00ff00', 'n': 'FREE', 'd_list': ["5s", "8s"], 'res': ["480p", "720p"]},
+            's_page': {'bg': '#121212', 'c': '#bdc3c7', 'n': 'SILVER', 'd_list': ["10s", "20s"], 'res': ["720p", "1080p"]},
+            'g_page': {'bg': '#141101', 'c': '#f1c40f', 'n': 'GOLD', 'd_list': ["30s", "60s"], 'res': ["1080p", "2k"]},
+            'd_page': {'bg': '#0d0114', 'c': '#9b59b6', 'n': 'DIAMOND', 'd_list': ["30s", "60s", "90s", "120s"], 'res': ["1080p", "2k", "4k"]}
         }
         curr = configs[st.session_state.page_state]
 
-        # Background ကို Tier အလိုက် ချက်ချင်းပြောင်းလဲခြင်း [cite: 2026-01-01]
+        # Background CSS (မူရင်းအတိုင်း)
         st.markdown(f"""
             <style>
-            .stApp {{
-                background-color: {curr['bg']} !important;
-                transition: background-color 0.8s ease;
-            }}
+            [data-testid="stAppViewContainer"] {{ background-color: {curr['bg']} !important; }}
+            [data-testid="stHeader"] {{ background-color: rgba(0,0,0,0) !important; }}
             </style>
         """, unsafe_allow_html=True)
+
+        # (က) အပေါ်ပိုင်း - GOOGLE ADS SECTION (ဘောင်ကျကျ)
+        st.markdown(f'<div style="border:1px solid {curr["c"]}; border-radius:10px; padding:10px; margin-bottom:20px; background:rgba(0,0,0,0.3);">', unsafe_allow_html=True)
+        # အပေါ်မှာရှိခဲ့တဲ့ ads_manager function ကို ဒီမှာ လှမ်းခေါ်သုံးထားတာပါ
+        # Diamond Tier (D) ဆိုရင် 60s/Ads ၂ ခု၊ ကျန်တာ 30s/Ads ၁ ခု
+        ad_mode = 'long' if st.session_state.page_state == 'd_page' else 'short'
+        ads_manager(ad_mode) 
+        st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 20px {curr['c']};'>VIDEO STUDIO - {curr['n']}</h1>", unsafe_allow_html=True)
         
         col_main, col_side = st.columns([3, 1])
         with col_main:
-            prompt = st.text_area("WRITE YOUR SCRIPT", height=320)
-            if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
-                st.markdown(f'<div class="scanner-box" style="border-color:{curr["c"]}"><div class="scanner-line" style="background:{curr["c"]}"></div><span style="color:{curr["c"]}">SCANNING...</span></div>', unsafe_allow_html=True)
-                time.sleep(3)
-                st.success(f"{curr['n']} Generation Started!")
-        
+            # ဗီဒီယို မထုတ်ခင် ပြမည့် Script Area
+            if 'generating' not in st.session_state: st.session_state.generating = False
+            
+            if not st.session_state.generating and 'video_done' not in st.session_state:
+                prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
+                if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
+                    st.session_state.generating = True
+                    st.rerun()
+
+            # (ခ) အောက်ပိုင်း - % PROGRESS BAR (အရောင်စုံ)
+            if st.session_state.generating:
+                wait_time = 60 if ad_mode == 'long' else 30
+                st.markdown(f'<div class="scanner-box" style="border-color:{curr["c"]}"><div class="scanner-line" style="background:{curr["c"]}"></div><span style="color:{curr["c"]}">AI RENDERING...</span></div>', unsafe_allow_html=True)
+                
+                bar_placeholder = st.progress(0)
+                percent_text = st.empty()
+                
+                for p in range(101):
+                    time.sleep(wait_time / 100)
+                    bar_placeholder.progress(p)
+                    percent_text.markdown(f"<h2 style='text-align:center; color:{curr['c']};'>{p}%</h2>", unsafe_allow_html=True)
+                
+                st.session_state.generating = False
+                st.session_state.video_done = True
+                st.rerun()
+
+            # (ဂ) ဗီဒီယို ထွက်လာပြီးနောက် ပြသမည့် Player နှင့် Dot 3 Menu
+            if st.session_state.get('video_done'):
+                v_header_col, v_menu_col = st.columns([0.9, 0.1])
+                with v_header_col:
+                    st.markdown(f"<h3 style='color:{curr['c']}'>PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
+                with v_menu_col:
+                    # Dot 3 Menu
+                    with st.popover("⋮"):
+                        st.button("⏬ Download", use_container_width=True)
+                        st.button("🔗 Share", use_container_width=True)
+
+if st.button("🗑️ Delete", use_container_width=True):
+                            del st.session_state.video_done
+                            st.rerun()
+                
+                # Video Player (Placeholder)
+                st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+
         with col_side:
             st.selectbox("Resolution", curr['res'])
             st.selectbox("Duration", curr['d_list'])
-            if st.button("⬅️ BACK"): st.session_state.page_state = 'tier_selection'; st.rerun()
+            if st.button("⬅️ BACK"): 
+                if 'video_done' in st.session_state: del st.session_state.video_done
+                st.session_state.page_state = 'tier_selection'
+                st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
