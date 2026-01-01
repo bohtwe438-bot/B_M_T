@@ -163,8 +163,7 @@ def ai_studio_module():
                     with st.popover("⋮"):
                         st.button("⏬ Download", use_container_width=True)
                         st.button("🔗 Share", use_container_width=True)
-
-if st.button("🗑️ Delete", use_container_width=True):
+                        if st.button("🗑️ Delete", use_container_width=True):
                             del st.session_state.video_done
                             st.rerun()
                 
