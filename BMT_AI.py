@@ -499,7 +499,7 @@ elif st.session_state.page == 'gallery':
                 st.session_state.ad_done = True 
                 
                 # ၂။ Owner Dashboard ထဲ မဝင်စေရန်
-                if 'admin_mode' in st.session_state:
+            if 'admin_mode' in st.session_state:
                     st.session_state.admin_mode = False
                 
                 # ၃။ Generating လုပ်နေတာရှိရင် ရပ်ပစ်ရန်
