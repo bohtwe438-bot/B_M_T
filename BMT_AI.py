@@ -136,11 +136,91 @@ def ai_studio_module():
 
         # --- (၂) Main Input Area (ဘယ်ဘက်ခြမ်း) ---
         with col_main:
+            # Session State များ ကြိုတင်သတ်မှတ်ခြင်း
             if 'generating' not in st.session_state: st.session_state.generating = False
-            
-            if not st.session_state.generating and 'video_done' not in st.session_state:
+            if 'ad_done' not in st.session_state: st.session_state.ad_done = False
+
+            # --- ⏳ GENERATING MODE (စထုတ်သည်နှင့် ပေါ်လာမည့် စာမျက်နှာအသစ်) ---
+            if st.session_state.generating:
+                main_placeholder = st.empty()
+                with main_placeholder.container():
+                    # ၁။ ကြာချိန် Logic (5s/30s = 30s, 60s/2min = 60s)
+                    wait_time = 60 if ("min" in duration or "60s" in duration) else 30
+                    
+                    # ၂။ အပေါ်ပိုင်း - Google Ads Area (ရုပ်ပုံပါဝင်သော Ads)
+                    # လူကြီးမင်းဆီမှာ Ad ပုံ Link ရှိရင် ဒီအောက်က URL နေရာမှာ အစားထိုးပါ
+                    ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
+                    
+                    st.markdown(f"""
+                        <div style="text-align: center; margin: -20px -10px 40px -10px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
+                            <p style="color: #666; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px;">GOOGLE ADS SPONSOR</p>
+                            <div style="border: 1px solid #333; padding: 5px; border-radius: 12px; display: inline-block;">
+                                <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px;">
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                    # ၃။ အောက်ပိုင်း - %vd Progress (Neon Design)
+                    prog_text = st.empty()
+                    prog_bar = st.empty()
+
+                    for percent in range(101):
+                        time.sleep(wait_time / 100) # သတ်မှတ်ချိန်အလိုက် စောင့်ခြင်း
+                        
+                        # ကြော်ငြာစာသားကို ၆၀ စက္ကန့်ဆိုလျှင် ၂ ခါပြောင်းခြင်း
+                        ad_msg = "UPGRADE FOR 4K QUALITY" if percent < 50 else "ENJOY AD-FREE EXPERIENCE"
+
+                        prog_text.markdown(f"""
+                            <div style="text-align: center; margin-top: 20px;">
+                                <h1 style="color: {curr['c']}; font-size: 85px; font-weight: 900; 
+                                           margin: 0; text-shadow: 0 0 30px {curr['c']}CC;">
+                                    {percent}%
+                                </h1>
+                                <p style="color: #888; letter-spacing: 5px; font-size: 12px; font-weight: bold; margin-bottom: 10px;">
+                                    VIDEO RENDERING...
+                                </p>
+                                <p style="color: {curr['c']}; font-size: 14px; opacity: 0.8;">{ad_msg}</p>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                        prog_bar.markdown(f"""
+                            <div style="width: 85%; background: #111; border-radius: 50px; height: 14px; margin: 20px auto; border: 1px solid #333; padding: 2px;">
+                                <div style="width: {percent}%; height: 100%; border-radius: 50px;
+                                            background: linear-gradient(90deg, {curr['c']}, #fff); 
+                                            box-shadow: 0 0 15px {curr['c']}; transition: width 0.3s;">
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+
+                # ၄။ ပြီးဆုံးလျှင် Gallery သို့ သွားရန်
+                st.session_state.generating = False
+                st.session_state.video_done = True
+                main_placeholder.empty()
+                st.rerun()
+
+            # --- 📝 INPUT MODE (စာရိုက်သည့် အခြေအနေ) ---
+            elif 'video_done' not in st.session_state:
                 prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
-                if st.button(f" START {curr['n']} GENERATE", use_container_width=True):
+                
+                # Start Generator ခလုတ်ကို စတုဂံပုံစံ အလယ်တည့်တည့် ညှိခြင်း
+                st.markdown(f"""
+                    <style>
+                    div.stButton > button {{
+                        width: 260px !important; height: 55px !important;
+                        display: flex !important; align-items: center !important; justify-content: center !important;
+                        background: transparent !important; color: {curr['c']} !important;
+                        border: 2px solid {curr['c']} !important; border-radius: 4px !important;
+                        font-weight: bold !important; margin: 30px auto !important;
+                        font-size: 16px !important; transition: all 0.3s;
+                    }}
+                    div.stButton > button:hover {{
+                        background: {curr['c']} !important; color: black !important;
+                        box-shadow: 0 0 15px {curr['c']};
+                    }}
+                    </style>
+                """, unsafe_allow_html=True)
+
+                if st.button(f"🚀 START {curr['n']} GENERATE"):
                     st.session_state.generating = True
                     st.rerun()
             # (ခ) အောက်ပိုင်း - % PROGRESS BAR
