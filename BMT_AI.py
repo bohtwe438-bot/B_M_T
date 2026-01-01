@@ -370,6 +370,21 @@ else:
             st.session_state.view = 'gallery_page'
             st.rerun()
 
+    # --- (က) GENERATING MODE ---
+    if st.session_state.get('generating'):
+        st.write("Generating video... Please wait.")
+        # လုပ်ဆောင်ချက်များ ထည့်ရန်
+
+    # --- (ခ) PREVIEW SUCCESS ---
+    elif st.session_state.get('video_done'):
+        st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
+        st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+        
+        if st.button(" BACK TO CREATE", use_container_width=True):
+            if 'video_done' in st.session_state:
+                del st.session_state.video_done
+            st.rerun()
+
     # ---  (က) GENERATING MODE ---
 if st.session_state.generating:
     main_placeholder = st.empty()
