@@ -134,69 +134,149 @@ def ai_studio_module():
             resolution = st.selectbox(" RESOLUTION", curr['res'])
             aspect_ratio = st.radio(" RATIO", ["16:9", "9:16", "1:1"])
 
-        # --- (၂) Main Input Area (ဘယ်ဘက်ခြမ်း) ---
+        # --- (၂) & (ဂ) INTEGRATED STUDIO & GALLERY SYSTEM ---
         with col_main:
-            # Session State များ ကြိုတင်သတ်မှတ်ခြင်း
+            # စာမျက်နှာ View နှင့် အခြေအနေများကို ထိန်းချုပ်ရန်
+            if 'view' not in st.session_state: st.session_state.view = 'studio'
             if 'generating' not in st.session_state: st.session_state.generating = False
             if 'ad_done' not in st.session_state: st.session_state.ad_done = False
 
-            # --- ⏳ GENERATING MODE (စထုတ်သည်နှင့် ပေါ်လာမည့် စာမျက်နှာအသစ်) ---
-            if st.session_state.generating:
-                main_placeholder = st.empty()
-                with main_placeholder.container():
-                    # ၁။ ကြာချိန် Logic (5s/30s = 30s, 60s/2min = 60s)
-                    wait_time = 60 if ("min" in duration or "60s" in duration) else 30
-                    
-                    # ၂။ အပေါ်ပိုင်း - Google Ads Area (ရုပ်ပုံပါဝင်သော Ads)
-                    # လူကြီးမင်းဆီမှာ Ad ပုံ Link ရှိရင် ဒီအောက်က URL နေရာမှာ အစားထိုးပါ
-                    ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
-                    
+            # --- 🖼️ (ဂ) GALLERY VIEW MODE (စာမျက်နှာအသစ် လုံးဝပြောင်းသွားမည့်အပိုင်း) ---
+            if st.session_state.view == 'gallery_page':
+                gallery_page_container = st.empty()
+                with gallery_page_container.container():
                     st.markdown(f"""
-                        <div style="text-align: center; margin: -20px -10px 40px -10px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
-                            <p style="color: #666; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px;">GOOGLE ADS SPONSOR</p>
-                            <div style="border: 1px solid #333; padding: 5px; border-radius: 12px; display: inline-block;">
-                                <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px;">
-                            </div>
+                        <div style="text-align: center; padding: 10px;">
+                            <h2 style="color:{curr['c']}; text-shadow: 0 0 10px {curr['c']}55;">🎞️ VIDEO GALLERY</h2>
+                            <p style="color: #888; font-size: 13px;">Manage your created masterpieces</p>
                         </div>
                     """, unsafe_allow_html=True)
+                    
+                    if not st.session_state.get('gallery'):
+                        st.info("No videos in gallery yet.")
+                    else:
+                        # ဗီဒီယိုများကို ၂ ခုစီ စီပြခြင်း
+                        g_cols = st.columns(2)
+                        for i, item in enumerate(reversed(st.session_state.gallery)):
+                            with g_cols[i % 2]:
+                                # ဗီဒီယို Player ကို စတုဂံဘောင်လေးဖြင့်
+                                st.markdown(f'<div style="border:1px solid {curr["c"]}44; border-radius:10px; padding:5px; background:#000; margin-bottom:5px;">', unsafe_allow_html=True)
+                                st.video(item['url'])
+                                st.markdown('</div>', unsafe_allow_html=True)
+                                
+                                # ⋮ Dot-3 Popover Options (အရောင်စုံ ခလုတ်များဖြင့်)
+                                with st.popover("⋮ OPTIONS"):
+                                    # 🔵 Download (Blue Gradient)
+                                    st.markdown(f'<style>div.stButton > button[key="dl_{i}"] {{ background: linear-gradient(90deg, #00C6FF, #0072FF) !important; color: white !important; border:none !important; border-radius:4px !important; }}</style>', unsafe_allow_html=True)
+                                    st.button(f"📥 Download", key=f"dl_{i}", use_container_width=True)
+                                    
+                                    # 🟢 Share (Green Gradient)
+                                    st.markdown(f'<style>div.stButton > button[key="sh_{i}"] {{ background: linear-gradient(90deg, #11998e, #38ef7d) !important; color: white !important; border:none !important; border-radius:4px !important; }}</style>', unsafe_allow_html=True)
+                                    st.button(f"📤 Share", key=f"sh_{i}", use_container_width=True)
+                                    
+                                    # 🔴 Delete (Red Gradient)
+                                    st.markdown(f'<style>div.stButton > button[key="del_{i}"] {{ background: linear-gradient(90deg, #FF4B2B, #FF416C) !important; color: white !important; border:none !important; border-radius:4px !important; }}</style>', unsafe_allow_html=True)
+                                    if st.button(f"🗑️ Delete", key=f"del_{i}", use_container_width=True):
+                                        st.session_state.gallery.pop(-(i+1))
+                                        st.rerun()
+                    
+                    st.write("---")
+                    # 🔙 BACK TO STUDIO BUTTON (စတုဂံပုံစံ)
+                    st.markdown(f"""
+                        <style>
+                        div.stButton > button.back-to-st {{height: 55px !important; background: transparent !important;
+                            color: {curr['c']} !important; border: 2px solid {curr['c']} !important;
+                            border-radius: 4px !important; font-weight: bold !important; font-size: 16px !important;
+                        }}
+                        div.stButton > button.back-to-st:hover {{ background: {curr['c']} !important; color: black !important; }}
+                        </style>
+                    """, unsafe_allow_html=True)
+                    if st.button("⬅️ BACK TO STUDIO", key="back-to-st", use_container_width=True):
+                        st.session_state.view = 'studio'
+                        st.rerun()
+                st.stop() # Gallery ပြနေချိန် ကျန်တာတွေ မပြရန်
 
-                    # ၃။ အောက်ပိုင်း - %vd Progress (Neon Design)
-                    prog_text = st.empty()
-                    prog_bar = st.empty()
+            # --- 🎥 (၂) STUDIO VIEW (ဗီဒီယို Studio နှင့် Input) ---
+            else:
+                # Header နှင့် Gallery Button ကို ဘေးချင်းယှဉ်ပြခြင်း
+                h_col1, h_col2 = st.columns([0.6, 0.4])
+                with h_col1:
+                    st.markdown(f"<h3 style='color:{curr['c']}'>Video studio-{curr['n']}</h3>", unsafe_allow_html=True)
+                with h_col2:
+                    if st.button("🖼️ MY GALLERY", use_container_width=True):
+                        st.session_state.view = 'gallery_page'
+                        st.rerun()
 
-                    for percent in range(101):
-                        time.sleep(wait_time / 100) # သတ်မှတ်ချိန်အလိုက် စောင့်ခြင်း
+                # --- ⏳ (က) GENERATING MODE ---
+                if st.session_state.generating:
+                    main_placeholder = st.empty()
+                    with main_placeholder.container():
+                        wait_time = 60 if ("min" in duration or "60s" in duration) else 30
+                        ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
                         
-                        # ကြော်ငြာစာသားကို ၆၀ စက္ကန့်ဆိုလျှင် ၂ ခါပြောင်းခြင်း
-                        ad_msg = "UPGRADE FOR 4K QUALITY" if percent < 50 else "ENJOY AD-FREE EXPERIENCE"
-
-                        prog_text.markdown(f"""
-                            <div style="text-align: center; margin-top: 20px;">
-                                <h1 style="color: {curr['c']}; font-size: 85px; font-weight: 900; 
-                                           margin: 0; text-shadow: 0 0 30px {curr['c']}CC;">
-                                    {percent}%
-                                </h1>
-                                <p style="color: #888; letter-spacing: 5px; font-size: 12px; font-weight: bold; margin-bottom: 10px;">
-                                    VIDEO RENDERING...
-                                </p>
-                                <p style="color: {curr['c']}; font-size: 14px; opacity: 0.8;">{ad_msg}</p>
+                        st.markdown(f"""
+                            <div style="text-align: center; margin-bottom: 30px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
+                                <p style="color: #666; font-size: 10px; letter-spacing: 2px;">GOOGLE ADS SPONSOR</p>
+                                <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px; margin-top:10px;">
                             </div>
                         """, unsafe_allow_html=True)
-                        
-                        prog_bar.markdown(f"""
-                            <div style="width: 85%; background: #111; border-radius: 50px; height: 14px; margin: 20px auto; border: 1px solid #333; padding: 2px;">
-                                <div style="width: {percent}%; height: 100%; border-radius: 50px;
-                                            background: linear-gradient(90deg, {curr['c']}, #fff); 
-                                            box-shadow: 0 0 15px {curr['c']}; transition: width 0.3s;">
+
+                        prog_text = st.empty()
+                        prog_bar = st.empty()
+
+                        for percent in range(101):
+                            time.sleep(wait_time / 100)
+                            ad_msg = "UPGRADE FOR 4K QUALITY" if percent < 50 else "ENJOY AD-FREE EXPERIENCE"
+                            prog_text.markdown(f"""
+                                <div style="text-align: center;">
+                                    <h1 style="color: {curr['c']}; font-size: 75px; font-weight: 900; margin: 0; text-shadow: 0 0 20px {curr['c']}CC;">{percent}%</h1>
+                                    <p style="color: #888; letter-spacing: 5px; font-size: 12px;">RENDERING VIDEO...</p>
+                                    <p style="color: {curr['c']}; font-size: 14px;">{ad_msg}</p>
                                 </div>
-                            </div>
-                        """, unsafe_allow_html=True)
+                            """, unsafe_allow_html=True)
+                            prog_bar.markdown(f"""
+                                <div style="width: 90%; background: #111; border-radius: 50px; height: 12px; margin: 20px auto; border: 1px solid #333; padding: 2px;">
+                                    <div style="width: {percent}%; height: 100%; border-radius: 50px; background: linear-gradient(90deg, {curr['c']}, #fff); box-shadow: 0 0 10px {curr['c']}; transition: width 0.3s;"></div>
+                                </div>
+                            """, unsafe_allow_html=True)
 
-                # ၄။ ပြီးဆုံးလျှင် Gallery သို့ သွားရန်
-                st.session_state.generating = False
-                st.session_state.video_done = True
-                main_placeholder.empty()
-                st.rerun()
+                    st.session_state.generating = False
+                    st.session_state.video_done = True
+                    st.session_state.view = 'studio' # ပြီးရင် Studio မှာပဲ Preview ပြရန်
+                    st.rerun()# --- ✅ (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
+                elif st.session_state.get('video_done'):
+                    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>🎯 PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
+                    st.markdown(f'<div style="border:2px solid {curr["c"]}; border-radius:12px; padding:10px; background:#000; margin-bottom:20px;">', unsafe_allow_html=True)
+                    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+                    col_dl, col_sh = st.columns(2)
+                    col_dl.button("📥 DOWNLOAD VIDEO", use_container_width=True)
+                    col_sh.button("📤 SHARE VIDEO", use_container_width=True)
+
+                    if st.button("⬅️ BACK TO CREATE", use_container_width=True):
+                        del st.session_state.video_done
+                        st.session_state.ad_done = True 
+                        st.rerun()
+
+                # --- 📝 (ဂ) INPUT MODE (စာရိုက်သည့်အချိန်) ---
+                else:
+                    prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
+                    st.markdown(f"""
+                        <style>
+                        div.stButton > button.start-gen-btn {{
+                            width: 100% !important; height: 60px !important;
+                            background: transparent !important; color: {curr['c']} !important;
+                            border: 2px solid {curr['c']} !important; border-radius: 4px !important;
+                            font-weight: bold !important; font-size: 18px !important;
+                        }}
+                        div.stButton > button.start-gen-btn:hover {{ background: {curr['c']} !important; color: black !important; box-shadow: 0 0 20px {curr['c']}; }}
+                        </style>
+                    """, unsafe_allow_html=True)
+
+                    if st.button(f"🚀 START {curr['n']} GENERATE", key="start-gen-btn"):
+                        st.session_state.generating = True
+                        st.rerun()
 
             # --- 📝 INPUT MODE (စာရိုက်သည့် အခြေအနေ) ---
             elif 'video_done' not in st.session_state:
@@ -239,81 +319,6 @@ def ai_studio_module():
                 st.session_state.generating = False
                 st.session_state.video_done = True
                 st.rerun()
-
-            # ---  (ဂ) ဗီဒီယို Player နှင့် Gallery သီးသန့်အပိုင်း (FULL PAGE MODE) ---
-        if st.session_state.get('video_done'):
-            # စာမျက်နှာအဟောင်း (Input Area) ကို လုံးဝဖျက်ပြီး အသစ်ပြရန် Empty Container သုံးခြင်း
-            gallery_page = st.empty()
-            
-            with gallery_page.container():
-                # ၁။ ထိပ်ပိုင်း ခေါင်းစဉ်နှင့် အလှဆင်ခြင်း
-                st.markdown(f"""
-                    <div style="text-align: center; padding: 10px;">
-                        <h2 style="color:{curr['c']}; text-shadow: 0 0 10px {curr['c']}55;"> PREVIEW SUCCESS</h2>
-                        <p style="color: #888; font-size: 13px;">Your AI Video is ready!</p>
-                    </div>
-                """, unsafe_allow_html=True)
-
-                # ၂။ ဗီဒီယို Player ကို စတုဂံဘောင်ဖြင့် ပြသခြင်း
-                st.markdown(f"""
-                    <div style="border: 2px solid {curr['c']}; border-radius: 12px; padding: 10px; 
-                                background: #000; box-shadow: 0 0 20px {curr['c']}33; margin-bottom: 20px;">
-                """, unsafe_allow_html=True)
-                
-                st.video("https://www.w3schools.com/html/mov_bbb.mp4") # လူကြီးမင်း၏ Video Source
-                
-                st.markdown("</div>", unsafe_allow_html=True)
-
-                # ၃။ ACTION BUTTONS (Download / Share / Back)
-                col_dl, col_sh = st.columns(2)
-                with col_dl:
-                    st.button(" DOWNLOAD", use_container_width=True)
-                with col_sh:
-                    st.button(" SHARE", use_container_width=True)
-
-                # စတုဂံပုံစံ BACK Button (ဒီခလုတ်နှိပ်ရင် Input Page ပြန်ရောက်ပါမယ်)
-                st.markdown(f"""
-                    <style>
-                    div.stButton > button {{
-                        height: 55px !important;
-                        background: transparent !important;
-                        color: {curr['c']} !important;
-                        border: 2px solid {curr['c']} !important;
-                        border-radius: 4px !important; /* စတုဂံပုံစံ */
-                        font-weight: bold !important;
-                        font-size: 16px !important;
-                        margin-top: 15px !important;
-                    }}
-                    div.stButton > button:hover {{
-                        background: {curr['c']} !important;
-                        color: black !important;
-                    }}
-                    </style>
-                """, unsafe_allow_html=True)
-
-                if st.button(" BACK TO CREATE VIDEO", use_container_width=True):
-                    # Video Done ကို ဖျက်ပြီး Input စာမျက်နှာကို ပြန်ခေါ်ခြင်း
-                    del st.session_state.video_done
-                    st.session_state.ad_done = True 
-                    st.rerun()
-
-                # --- MY GALLERY (အောက်ခြေပိုင်းတွင် ပြန်စီခြင်း) ---
-                st.markdown(f"<hr style='border:1px solid {curr['c']}55; margin-top: 40px;'>", unsafe_allow_html=True)
-                st.markdown(f"<h3 style='color:{curr['c']}; text-align: center;'> MY GALLERY</h3>", unsafe_allow_html=True)
-                
-                if 'gallery' not in st.session_state: st.session_state.gallery = []
-
-                if st.session_state.gallery:
-                    g_cols = st.columns(2)
-                    for i, item in enumerate(reversed(st.session_state.gallery)):
-                        with g_cols[i % 2]:
-                            st.video(item['url'])
-                            st.caption(f" {item['tier']} | {item['res']}")
-                else:
-                    st.markdown("<p style='text-align: center; color: #666;'>No videos yet.</p>", unsafe_allow_html=True)
-            
-            # Gallery စာမျက်နှာကို ပြသပြီးရင် အောက်က code တွေ ဆက်မပွားအောင် ရပ်လိုက်ပါမယ်
-            st.stop()
 
             # ---  (ဃ) FINAL BACK (COLOR FIXED & NO ADS) ---
             # CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
