@@ -126,15 +126,15 @@ def ai_studio_module():
         st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 20px {curr['c']};'>VIDEO STUDIO - {curr['n']}</h1>", unsafe_allow_html=True)
         
         col_main, col_side = st.columns([3, 1])
-
+        
+        # --- (၁) Sidebar Settings အပိုင်း (ညာဘက်ခြမ်း) ---
         with col_side:
-        st.markdown(f"<h3 style='color:{curr['c']}'> SETTINGS</h3>", unsafe_allow_html=True)
-        duration = st.selectbox(" DURATION", curr['d_list'])
-        resolution = st.selectbox(" RESOLUTION", curr['res'])
-        aspect_ratio = st.radio(" RATIO", ["16:9", "9:16", "1:1"])
+            st.markdown(f"<h3 style='color:{curr['c']}'> SETTINGS</h3>", unsafe_allow_html=True)
+            duration = st.selectbox(" DURATION", curr['d_list'])
+            resolution = st.selectbox(" RESOLUTION", curr['res'])
+            aspect_ratio = st.radio(" RATIO", ["16:9", "9:16", "1:1"])
 
-        with col_main:
-            if 'generating' not in st.session_state: st.session_state.generating = False
+        # --- (၂) Main Input Area (ဘယ်ဘက်ခြမ်း) ---
         with col_main:
             if 'generating' not in st.session_state: st.session_state.generating = False
             
@@ -143,7 +143,6 @@ def ai_studio_module():
                 if st.button(f" START {curr['n']} GENERATE", use_container_width=True):
                     st.session_state.generating = True
                     st.rerun()
-
             # (ခ) အောက်ပိုင်း - % PROGRESS BAR
             if st.session_state.generating:
                 wait_time = 60 if ad_mode == 'long' else 30
