@@ -259,36 +259,14 @@ def ai_studio_module():
         st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 20px {curr['c']};'>VIDEO STUDIO - {curr['n']}</h1>", unsafe_allow_html=True)
         
         col_main, col_side = st.columns([3, 1])
-        
-    # Import တွေရဲ့အောက်၊ st.set_page_config() ရဲ့ အောက်မှာ ထည့်ပေးပါ
-#if 'page_state' not in st.session_state:
-    st.session_state.page_state = 'studio' # ဒါက Line 264 အတွက် အသက်ပါ [cite: 2026-01-01]
 
-#if 'tier' not in st.session_state:
-    st.session_state.tier = 'FREE' # လူကြီးမင်းရဲ့ Free Tier သတ်မှတ်ချက်အတွက်ပါ [cite: 2025-12-31]
-        
-        # Line 264 (အပေါ်ဆုံးက if နဲ့ ညီအောင် ထားပါ)
-if st.session_state.page_state == 'studio':
-    # --- STUDIO MODE (ဒီအောက်က စာကြောင်းတွေကို Space ၄ ချက် ခြားပါ) --- [cite: 2026-01-01]
-    st.markdown('<h1 class="bmt-title">BMT STUDIO</h1>', unsafe_allow_html=True)
-    
-    # Script Box
-    prompt = st.text_area("ENTER YOUR SCRIPT", placeholder="Describe your vision...")
 
-    # Setting Bar (အလျားလိုက်) [cite: 2026-01-01]
-    col_settings, col_gen = st.columns([0.8, 0.2])
-    with col_settings:
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            mode = st.selectbox("MODE", ["VIDEO", "IMAGE"])
-        with c2:
-            # Free Tier အတွက် 8s Fix [cite: 2025-12-31]
-            dur = "8s" if st.session_state.tier == 'FREE' else "30s"
-            st.selectbox("DURATION", [dur], disabled=(st.session_state.tier == 'FREE'))
-        with c3:
-            st.selectbox("RESOLUTION", ["720p", "1080p"])
-        with c4:
-            st.selectbox("RATIO", ["16:9", "9:16", "1:1"])
+        # --- (၁) Sidebar Settings အပိုင်း (ညာဘက်ခြမ်း) ---
+        with col_side:
+            st.markdown(f"<h3 style='color:{curr['c']}'> SETTINGS</h3>", unsafe_allow_html=True)
+            duration = st.selectbox(" DURATION", curr['d_list'])
+            resolution = st.selectbox(" RESOLUTION", curr['res'])
+            aspect_ratio = st.radio(" RATIO", ["16:9", "9:16", "1:1"])
 
     with col_gen:
         st.write("") # Alignment ညှိရန်
