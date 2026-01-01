@@ -277,15 +277,6 @@ def ai_studio_module():
                     if st.button(f"🚀 START {curr['n']} GENERATE", key="start-gen-btn"):
                         st.session_state.generating = True
                         st.rerun()
-
-            if st.button(" BACK TO CREATE", use_container_width=True):
-    # အခြေအနေအားလုံးကို Reset လုပ်ခြင်း (ဒါမှ Input ဆီ ပြန်ရောက်မှာပါ)
-    st.session_state.generating = False
-    st.session_state.ad_done = False
-    if 'video_done' in st.session_state:
-        del st.session_state.video_done
-    
-    st.rerun()
             # (ခ) အောက်ပိုင်း - % PROGRESS BAR
             if st.session_state.generating:
                 wait_time = 60 if ad_mode == 'long' else 30
