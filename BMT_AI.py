@@ -484,28 +484,31 @@ if st.session_state.generating:
     st.session_state.video_done = True
     st.rerun()
 
-            # ---  (ဂ) FINAL BACK (COLOR FIXED & NO ADS) ---
-            # CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
-            st.markdown(f"""
-                <style>
-                div.stButton > button:first-child {{
-                    background-color: transparent !important;
-                    color: {curr['c']} !important;
-                    border: 1px solid {curr['c']} !important;
-                    border-radius: 4px !important;
-                    width: 150px !important;
-                    height: 40px !important;
-                    display: block !important;
-                    margin: 30px auto !important;
-                    font-weight: bold !important;
-                }}
-                div.stButton > button:first-child:hover {{
-                    background-color: {curr['c']} !important;
-                    color: black !important;
-                    border: 1px solid {curr['c']} !important;
-                }}
-                </style>
-            """, unsafe_allow_html=True)
+            # --- (ဂ) FINAL BACK (COLOR FIXED & NO ADS) ---
+# CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
+st.markdown(
+    f"""
+    <style>
+    div.stButton > button:first-child {{
+        background-color: transparent !important;
+        color: {curr['c']} !important;
+        border: 1px solid {curr['c']} !important;
+        border-radius: 4px !important;
+        width: 150px !important;
+        height: 40px !important;
+        display: block !important;
+        margin: 30px auto !important;
+        font-weight: bold !important;
+    }}
+    div.stButton > button:first-child:hover {{
+        background-color: {curr['c']} !important;
+        color: black !important;
+        border: 1px solid {curr['c']} !important;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
             # ခလုတ်ကို နှိပ်လိုက်လျှင် လုပ်ဆောင်မည့် Logic
             if st.button(" BACK "):
