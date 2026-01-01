@@ -498,22 +498,25 @@ elif st.session_state.page == 'gallery':
                 # ၁။ ကြော်ငြာကို အတင်းကျော်ရန် (ad_done ကို True ပေးရမည်)
                 st.session_state.ad_done = True 
                 
-                # ၂။ Owner Dashboard ထဲ မဝင်စေရန်
-            if 'admin_mode' in st.session_state:
-                    st.session_state.admin_mode = False
-                
-                # ၃။ Generating လုပ်နေတာရှိရင် ရပ်ပစ်ရန်
-                st.session_state.generating = False
-                
-                # ၄။ ပင်မစာမျက်နှာသို့ ပြန်ရန်
-                st.session_state.page_state = 'tier_selection'
-                
-                # ၅။ အပြောင်းအလဲကို ချက်ချင်းသက်ရောက်စေရန်
-                st.rerun()
+                # --- ၂။ Owner Dashboard Check (Line 501 မှစတင်၍ ပြင်ရန်) --- [cite: 2026-01-01]
+    if 'admin_mode' in st.session_state:
+        # ဒီအောက်က စာကြောင်းတွေကို ရှေ့ကို Space ၄ ချက်စီ ပုတ်ပေးထားပါတယ်
+        st.session_state.admin_mode = False 
+        st.session_state.generating = False 
+        st.session_state.page_state = 'tier_selection'
+        st.rerun()
 
-    # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
+# --- ဤနေရာတွင် Studio Page ကို ထည့်သွင်းနိုင်ပါသည် --- [cite: 2026-01-01]
+    elif st.session_state.page_state == 'studio':
+        # စာရိုက်သည့်နေရာ
+        prompt = st.text_area("ENTER YOUR SCRIPT")
+        # ၎င်းအောက်တွင် Setting Bar ထားရှိခြင်း [cite: 2026-01-01]
+        st.write("Settings: Duration, Res, Ratio")
+
+# --- ၅။ AI CHAT PAGE (မူရင်း Line 514 အပိုင်း) --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
         st.markdown("<h1>BMT AI CHAT</h1>", unsafe_allow_html=True)
+        # ... ကျန်တာများကို မူရင်းအတိုင်း ထားပါ ...
         if st.button(" BACK TO EMPIRE"): st.session_state.page_state = 'home'; st.rerun()
         st.chat_input("မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...")
 
