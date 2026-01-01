@@ -278,31 +278,56 @@ def ai_studio_module():
                         st.session_state.generating = True
                         st.rerun()
 
-            # --- 📝 INPUT MODE (စာရိုက်သည့် အခြေအနေ) ---
+            # ---  INPUT MODE (Advanced AI Video Studio) ---
             elif 'video_done' not in st.session_state:
-                prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
+                # ၁။ ထိပ်ဆုံးမှာ Video Aspect Ratio ရွေးချယ်ခြင်း (လှပသော ခလုတ်လေးများဖြင့်)
+                st.markdown(f"<p style='color:#888; font-size:12px; margin-bottom:10px;'>DIMENSIONS & RATIO</p>", unsafe_allow_html=True)
+                ratio_col1, ratio_col2, ratio_col3 = st.columns(3)
+                with ratio_col1:
+                    is_tiktok = st.checkbox(" 9:16 (TikTok)")
+                with ratio_col2:
+                    is_youtube = st.checkbox(" 16:9 (YouTube)")
+                with ratio_col3:
+                    is_insta = st.checkbox(" 1:1 (Post)")
+
+                # ၂။ Script Area (အမြင့်ကို နည်းနည်းလျှော့ပြီး အောက်မှာ Option တွေ ထည့်ထားပါတယ်)
+                prompt = st.text_area("WRITE YOUR SCRIPT", height=180, placeholder="Example: A futuristic city with flying cars in neon lights...")
                 
-                # Start Generator ခလုတ်ကို စတုဂံပုံစံ အလယ်တည့်တည့် ညှိခြင်း
+                # စာလုံးအရေအတွက်ပြခြင်း
+                st.markdown(f"<p style='text-align:right; color:{curr['c']}; font-size:11px;'>Length: {len(prompt)} characters</p>", unsafe_allow_html=True)
+
+                # ၃။ Advanced AI Options (Expander လေးနဲ့ သေသပ်စွာ ထည့်ခြင်း)
+                with st.expander(" ADVANCED SETTINGS"):
+                    st.markdown(f"<div style='padding:10px; border-left:2px solid {curr['c']};'>", unsafe_allow_html=True)
+                    quality = st.select_slider("Video Quality", options=["SD", "HD", "Full HD", "4K Ultra"])
+                    motion = st.slider("Motion Intensity", 1, 10, 5)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                # ၄။ Start Generator Button (စတုဂံ Neon Style)
                 st.markdown(f"""
                     <style>
                     div.stButton > button {{
-                        width: 260px !important; height: 55px !important;
-                        display: flex !important; align-items: center !important; justify-content: center !important;
+                        width: 100% !important; height: 60px !important;
                         background: transparent !important; color: {curr['c']} !important;
                         border: 2px solid {curr['c']} !important; border-radius: 4px !important;
-                        font-weight: bold !important; margin: 30px auto !important;
-                        font-size: 16px !important; transition: all 0.3s;
+                        font-weight: bold !important; font-size: 18px !important;
+                        margin-top: 20px !important; transition: all 0.4s ease;
+                        letter-spacing: 2px !important;
                     }}
                     div.stButton > button:hover {{
                         background: {curr['c']} !important; color: black !important;
-                        box-shadow: 0 0 15px {curr['c']};
+                        box-shadow: 0 0 25px {curr['c']};
+                        transform: translateY(-2px);
                     }}
                     </style>
                 """, unsafe_allow_html=True)
 
-                if st.button(f"🚀 START {curr['n']} GENERATE"):
-                    st.session_state.generating = True
-                    st.rerun()
+                if st.button(f" START {curr['n']} GENERATE"):
+                    if not prompt.strip():
+                        st.error("Please enter a script to generate video!")
+                    else:
+                        st.session_state.generating = True
+                        st.rerun()
             # (ခ) အောက်ပိုင်း - % PROGRESS BAR
             if st.session_state.generating:
                 wait_time = 60 if ad_mode == 'long' else 30
