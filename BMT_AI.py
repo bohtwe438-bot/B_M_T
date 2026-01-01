@@ -329,24 +329,25 @@ with st.popover("⋮ OPTIONS"):
 st.write("---")
 
 # BACK TO STUDIO Button Style
-st.markdown(f"<style>div.stButton > button[key='back_{i}'] {{ height: 55px !important; color: {curr['c']} !important; border: 2px solid {curr['c']} !important; }}</style>", unsafe_allow_html=True)
+        st.markdown(f"<style>div.stButton > button[key='back_{i}'] {{ height: 55px !important; color: {curr['c']} !important; border: 2px solid {curr['c']} !important; }}</style>", unsafe_allow_html=True)
 
-if st.button("⬅️ BACK TO STUDIO", key=f"back_{i}", use_container_width=True):
-    st.session_state.view = 'studio'
-    st.rerun()
+        if st.button(" BACK TO STUDIO", key=f"back_{i}", use_container_width=True):
+            st.session_state.view = 'studio'
+            st.rerun()
 
-st.stop() # Gallery ပြနေချိန် ကျန်တာတွေ ဆက်မပြရန်
+        #  st.stop() ကို ညာဘက်ကို Space ၈ ချက် (if နဲ့ တစ်တန်းတည်း) သေချာသွင်းထားပါတယ်
+        st.stop() # Gallery ပြနေချိန် ကျန်တာတွေ ဆက်မပြရန်
 
-            # --- 🎥 (၂) STUDIO VIEW (ဗီဒီယို Studio နှင့် Input) ---
-            else:
-                # Header နှင့် Gallery Button ကို ဘေးချင်းယှဉ်ပြခြင်း
-                h_col1, h_col2 = st.columns([0.6, 0.4])
-                with h_col1:
-                    st.markdown(f"<h3 style='color:{curr['c']}'>Video studio-{curr['n']}</h3>", unsafe_allow_html=True)
-                with h_col2:
-                    if st.button("🖼️ MY GALLERY", use_container_width=True):
-                        st.session_state.view = 'gallery_page'
-                        st.rerun()
+# ---  (၂) STUDIO VIEW (ဗီဒီယို Studio နှင့် Input) ---
+else: # ဒီ else က အပေါ်ဆုံးက Gallery if နဲ့ တစ်တန်းတည်း ဖြစ်ရပါမယ်
+    # Header နှင့် Gallery Button ကို ဘေးချင်းယှဉ်ပြခြင်း
+    h_col1, h_col2 = st.columns([0.6, 0.4])
+    with h_col1:
+        st.markdown(f"<h3 style='color:{curr['c']}'>Video studio-{curr['n']}</h3>", unsafe_allow_html=True)
+    with h_col2:
+        if st.button(" MY GALLERY", use_container_width=True):
+            st.session_state.view = 'gallery_page'
+            st.rerun()
 
                 # --- ⏳ (က) GENERATING MODE ---
                 if st.session_state.generating:
