@@ -97,6 +97,60 @@ def ai_studio_module():
         if t4.button("D (DIAMOND)"): st.session_state.page_state = 'd_page'; st.rerun()
         if st.button(" BACK"): st.session_state.page_state = 'home'; st.rerun()
 
+    Bo Htwe, [1/1/2026 7:33 AM]
+def ai_studio_module():
+    # ၁။ စာမျက်နှာ အခြေအနေ မှတ်သားခြင်း [cite: 2026-01-01]
+    if 'page_state' not in st.session_state:
+        st.session_state.page_state = 'home'
+
+    # --- CSS: Tier အလိုက် မတူညီသော အရောင်နှင့် Scanner Effect များ --- [cite: 2026-01-01]
+    st.markdown("""
+        <style>
+        .stApp { background: #0a0e14; color: white; }
+        /* Glassmorphism Buttons [cite: 2026-01-01] */
+        div.stButton > button {
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);
+            font-weight: bold; transition: 0.3s;
+        }
+        /* Scanner Animation [cite: 2026-01-01] */
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        .scanner-box { 
+            position: relative; overflow: hidden; height: 60px; 
+            border: 1px solid #00f2ff; background: rgba(0,242,255,0.05);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .scanner-line {
+            position: absolute; width: 100%; height: 2px;
+            background: #00f2ff; box-shadow: 0 0 15px #00f2ff;
+            animation: scan 2s linear infinite;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # --- ၂။ HOME PAGE (SIDE-BY-SIDE RECTANGLE) --- [cite: 2026-01-01]
+    if st.session_state.page_state == 'home':
+        st.markdown("<div style='text-align:center; padding: 40px 0;'><h1 style='font-size:100px; letter-spacing:20px; margin:0;'>BMT</h1></div>", unsafe_allow_html=True)
+        
+        col_chat, col_vid = st.columns(2)
+        with col_chat:
+            if st.button("\n\nAI SMART CHAT", key="home_chat", use_container_width=True):
+                st.session_state.page_state = 'chat_page'; st.rerun()
+        with col_vid:
+            if st.button("\n\nVIDEO GENERATOR", key="home_vid", use_container_width=True):
+                st.session_state.page_state = 'tier_selection'; st.rerun()
+
+    # --- ၃။ TIER SELECTION PAGE (F, S, G, D) --- [cite: 2026-01-01]
+    elif st.session_state.page_state == 'tier_selection':
+        st.markdown("<h2 style='text-align:center; padding: 20px;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
+        t1, t2, t3, t4 = st.columns(4)
+        # ခလုတ်တစ်ခုစီတွင် မတူညီသော အရောင် Glow များ ထည့်သွင်းမည် [cite: 2026-01-01]
+        if t1.button("F (FREE)"): st.session_state.page_state = 'f_page'; st.rerun()
+        if t2.button("S (SILVER)"): st.session_state.page_state = 's_page'; st.rerun()
+        if t3.button("G (GOLD)"): st.session_state.page_state = 'g_page'; st.rerun()
+        if t4.button("D (DIAMOND)"): st.session_state.page_state = 'd_page'; st.rerun()
+        if st.button(" BACK"): st.session_state.page_state = 'home'; st.rerun()
+
     # --- ၄။ INDIVIDUAL VIDEO PAGES (F, S, G, D) --- [cite: 2026-01-01]
     elif st.session_state.page_state in ['f_page', 's_page', 'g_page', 'd_page']:
         # Tier အလိုက် Layout နှင့် အလှအပ ခြားနားချက်များ [cite: 2026-01-01]
@@ -126,6 +180,47 @@ def ai_studio_module():
             st.selectbox("Resolution", curr['res'])
             st.info(f"Duration: {curr['d']}")
             if st.button(" BACK"): st.session_state.page_state = 'tier_selection'; st.rerun()
+
+    # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
+    elif st.session_state.page_state == 'chat_page':
+        st.markdown("<h1>BMT AI CHAT</h1>", unsafe_allow_html=True)
+        if st.button(" BACK TO EMPIRE"): st.session_state.page_state = 'home'; st.rerun()
+        st.chat_input("မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...")
+
+# --- ၄။ INDIVIDUAL VIDEO PAGES (F, S, G, D) ---
+    elif st.session_state.page_state in ['f_page', 's_page', 'g_page', 'd_page']:
+        configs = {
+            'f_page': {'bg': '#051005', 'c': '#00ff00', 'n': 'FREE', 'd_list': ["5s", "8s"], 'res': ["480p", "720p"]},
+            's_page': {'bg': '#0f0f0f', 'c': '#bdc3c7', 'n': 'SILVER', 'd_list': ["10s", "20s"], 'res': ["720p", "1080p"]},
+            'g_page': {'bg': '#1a1605', 'c': '#f1c40f', 'n': 'GOLD', 'd_list': ["30s", "60s"], 'res': ["1080p", "2k"]},
+            'd_page': {'bg': '#10051a', 'c': '#9b59b6', 'n': 'DIAMOND', 'd_list': ["30s", "60s", "90s", "120s"], 'res': ["1080p", "2k", "4k"]}
+        }
+        curr = configs[st.session_state.page_state]
+
+        # Background ကို Tier အလိုက် ချက်ချင်းပြောင်းလဲခြင်း [cite: 2026-01-01]
+        st.markdown(f"""
+            <style>
+            .stApp {{
+                background-color: {curr['bg']} !important;
+                transition: background-color 0.8s ease;
+            }}
+            </style>
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 20px {curr['c']};'>VIDEO STUDIO - {curr['n']}</h1>", unsafe_allow_html=True)
+        
+        col_main, col_side = st.columns([3, 1])
+        with col_main:
+            prompt = st.text_area("WRITE YOUR SCRIPT", height=320)
+            if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
+                st.markdown(f'<div class="scanner-box" style="border-color:{curr["c"]}"><div class="scanner-line" style="background:{curr["c"]}"></div><span style="color:{curr["c"]}">SCANNING...</span></div>', unsafe_allow_html=True)
+                time.sleep(3)
+                st.success(f"{curr['n']} Generation Started!")
+        
+        with col_side:
+            st.selectbox("Resolution", curr['res'])
+            st.selectbox("Duration", curr['d_list'])
+            if st.button("⬅️ BACK"): st.session_state.page_state = 'tier_selection'; st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
