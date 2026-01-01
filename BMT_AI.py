@@ -122,7 +122,7 @@ def ai_studio_module():
         ad_mode = 'long' if st.session_state.page_state == 'd_page' else 'short' 
         
         # Owner ဖြစ်ရင် Ads ကျော်မယ်၊ User ဖြစ်ရင် ad_mode အတိုင်း Ads ပြပါမယ် 
-        ads_manager(ad_mode) [cite: 2026-01-01]
+        ads_manager(ad_mode) 
         
         st.markdown('</div>', unsafe_allow_html=True)
 
