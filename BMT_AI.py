@@ -325,98 +325,40 @@ if 'view' not in st.session_state:
     st.session_state.view = 'studio'
 
 
-# =======================
+import streamlit as st
+import time
+
+# ==========================================
 # (၁) GALLERY VIEW
-# =======================
-if st.session_state.view == 'gallery_page':
-
-    for i, curr in enumerate(gallery_data):  # i ကို သေချာ define
-        # BACK TO STUDIO Button Style
-        st.markdown(
-            f"""
-            <style>
-            div.stButton > button {{
-                height: 55px !important;
-                color: {curr['c']} !important;
-                border: 2px solid {curr['c']} !important;
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-
+# ==========================================
+if st.session_state.get('view') == 'gallery_page':
+    for i, curr in enumerate(gallery_data):
+        st.markdown(f"<style>div.stButton > button {{ height: 55px !important; color: {curr['c']} !important; border: 2px solid {curr['c']} !important; }}</style>", unsafe_allow_html=True)
+        
         if st.button(" BACK TO STUDIO", key=f"back_{i}", use_container_width=True):
             st.session_state.view = 'studio'
             st.rerun()
+    st.stop()
 
-        st.stop()  # Gallery ပြနေချိန် အောက်က Studio မပြအောင်
+# ==========================================
+# (၂) STUDIO LOGIC (IF / ELIF / ELSE အစီအစဉ်အတိုင်း)
+# ==========================================
 
-
-# --- (က) GENERATING MODE ---
+# --- (က) GENERATING MODE (ဗီဒီယို ဖန်တီးနေစဉ်) ---
 if st.session_state.get('generating'):
-    st.write("Generating video... Please wait.")
-    # လုပ်ဆောင်ချက်များ ထည့်ရန်
-
-# --- (ခ) PREVIEW SUCCESS ---
-elif st.session_state.get('video_done'):
-    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
-    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-    
-    if st.button(" BACK TO CREATE", use_container_width=True):
-        if 'video_done' in st.session_state:
-            del st.session_state.video_done
-        st.rerun()
-
-# --- (၁) OPTION MENU (Line 322 ဝန်းကျင်အတွက်) ---
-with st.popover("⋮ OPTIONS"):
-    # i နေရာမှာ Error မတက်အောင် "opt" လို့ နာမည်ပြောင်းထားပါတယ်
-    st.button("📥 Download", key="dl_opt_main", use_container_width=True)
-    st.button("📤 Share", key="sh_opt_main", use_container_width=True)
-
-# --- (၂) STUDIO VIEW (Line 364 မှ 450 အထိ အကုန်အစားထိုးရန်) ---
-if st.session_state.get('generating'):
-    st.write("Generating video... Please wait.")
-    # Generating ကုဒ်များ ဤနေရာတွင် ထည့်ပါ
-
-elif st.session_state.get('video_done'):
-    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>🎯 PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
-    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-    if st.button("⬅️ BACK TO CREATE", use_container_width=True):
-        if 'video_done' in st.session_state:
-            del st.session_state.video_done
-        st.rerun()
-
-else:
-    # Header အပိုင်း
-    h_col1, h_col2 = st.columns([0.6, 0.4])
-    with h_col1:
-        # စာအသုံးအနှုန်း အမှန်
-        st.markdown(f"<h3 style='color:{curr['c']}'>Video Studio - {curr['n']}</h3>", unsafe_allow_html=True)
-    
-    with h_col2:
-        if st.button(" MY GALLERY", use_container_width=True):
-            st.session_state.view = 'gallery_page'
-            st.rerun()
-
-    # ---  (က) GENERATING MODE ---
-if st.session_state.generating:
     main_placeholder = st.empty()
-
     with main_placeholder.container():
-        wait_time = 60 if ("min" in duration or "60s" in duration) else 30
+        # Duration check
+        wait_time = 60 if (locals().get('duration') and ("min" in duration or "60s" in duration)) else 30
         ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
 
-        st.markdown(
-            f"""
+        st.markdown(f"""
             <div style="text-align: center; margin-bottom: 30px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
                 <p style="color: #666; font-size: 10px; letter-spacing: 2px;">GOOGLE ADS SPONSOR</p>
                 <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px; margin-top:10px;">
             </div>
-            """,
-            unsafe_allow_html=True
-        )
+        """, unsafe_allow_html=True)
 
-        #  prog_text နဲ့ prog_bar တို့ကို wait_time တို့နဲ့ တစ်တန်းတည်း (Space ၈ ချက်) ညှိထားပါတယ်
         prog_text = st.empty()
         prog_bar = st.empty()
 
@@ -431,21 +373,18 @@ if st.session_state.generating:
                 </div>
             """, unsafe_allow_html=True)
             
-            #  prog_bar ကို ညာဘက်ကို Space ၁၂ ချက် (for ရဲ့အောက်) ပဲ ထားရပါမယ်
             prog_bar.markdown(f"""
                 <div style="width: 90%; background: #111; border-radius: 50px; height: 12px; margin: 20px auto; border: 1px solid #333; padding: 2px;">
                     <div style="width: {percent}%; height: 100%; border-radius: 50px; background: linear-gradient(90deg, {curr['c']}, #fff); box-shadow: 0 0 10px {curr['c']}; transition: width 0.3s;"></div>
                 </div>
             """, unsafe_allow_html=True)
 
-        #  Generating ပိတ်တဲ့အပိုင်းကို ဘယ်ဘက်ကို ပြန်ဆုတ်ထားပါတယ်
-st.session_state.generating = False
-st.session_state.video_done = True
-st.session_state.view = 'studio'
-st.rerun()
+    st.session_state.generating = False
+    st.session_state.video_done = True
+    st.rerun()
 
-# ---  (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
-if st.session_state.get('video_done'):
+# --- (ခ) PREVIEW SUCCESS (ဗီဒီယို ထွက်လာချိန်) ---
+elif st.session_state.get('video_done'):
     st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
     st.markdown(f'<div style="border:2px solid {curr["c"]}; border-radius:12px; padding:10px; background:#000; margin-bottom:20px;">', unsafe_allow_html=True)
     st.video("https://www.w3schools.com/html/mov_bbb.mp4")
@@ -460,94 +399,38 @@ if st.session_state.get('video_done'):
             del st.session_state.video_done
         st.session_state.ad_done = True 
         st.rerun()
-                # ---  (1) INPUT MODE (စာရိုက်သည့်အချိန်) ---
-if not st.session_state.get('generating', False):
+
+# --- (ဂ) NORMAL STUDIO VIEW (ပုံမှန်စာရိုက်သည့်အချိန်) ---
+else:
+    # Header အပိုင်း
+    h_col1, h_col2 = st.columns([0.6, 0.4])
+    with h_col1:
+        st.markdown(f"<h3 style='color:{curr['c']}'>Video Studio - {curr['n']}</h3>", unsafe_allow_html=True)
+    with h_col2:
+        if st.button(" MY GALLERY", use_container_width=True):
+            st.session_state.view = 'gallery_page'
+            st.rerun()
+
     prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
-    st.markdown(
-        f"""
-        <style>
-        div.stButton > button.start-gen-btn {{
-            width: 100% !important; height: 60px !important;
-            background: transparent !important; color: {curr['c']} !important;
-            border: 2px solid {curr['c']} !important; border-radius: 4px !important;
-            font-weight: bold !important; font-size: 18px !important;
-        }}
-        div.stButton > button.start-gen-btn:hover {{ background: {curr['c']} !important; color: black !important; box-shadow: 0 0 20px {curr['c']}; }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    
+    st.markdown(f"""<style>div.stButton > button.start-gen-btn {{ width: 100% !important; height: 60px !important; background: transparent !important; color: {curr['c']} !important; border: 2px solid {curr['c']} !important; border-radius: 4px !important; font-weight: bold !important; font-size: 18px !important; }} div.stButton > button.start-gen-btn:hover {{ background: {curr['c']} !important; color: black !important; box-shadow: 0 0 20px {curr['c']}; }} </style>""", unsafe_allow_html=True)
 
     if st.button(f" START {curr['n']} GENERATE", key="start-gen-btn"):
         st.session_state.generating = True
         st.rerun()
-            # (ခ) အောက်ပိုင်း - % PROGRESS BAR
-if st.session_state.generating:
-    wait_time = 60 if ad_mode == 'long' else 30
-    st.markdown(
-        f'<div class="scanner-box" style="border-color:{curr["c"]}"><div class="scanner-line" style="background:{curr["c"]}"></div><span style="color:{curr["c"]}">AI RENDERING...</span></div>',
-        unsafe_allow_html=True
-    )
 
-    bar_placeholder = st.progress(0)
-    percent_text = st.empty()
+# ==========================================
+# (၃) FINAL BUTTON & STYLE (အောက်ဆုံးတွင်ထားရန်)
+# ==========================================
+st.markdown(f"""<style> div.stButton > button:first-child {{ background-color: transparent !important; color: {curr['c']} !important; border: 1px solid {curr['c']} !important; border-radius: 4px !important; width: 150px !important; height: 40px !important; display: block !important; margin: 30px auto !important; font-weight: bold !important; }} div.stButton > button:first-child:hover {{ background-color: {curr['c']} !important; color: black !important; border: 1px solid {curr['c']} !important; }} </style>""", unsafe_allow_html=True)
 
-    for p in range(101):
-        time.sleep(wait_time / 100)
-        bar_placeholder.progress(p)
-        percent_text.markdown(
-            f"<h2 style='text-align:center; color:{curr['c']};'>{p}%</h2>",
-            unsafe_allow_html=True
-        )
-
-    st.session_state.generating = False
-    st.session_state.video_done = True
-    st.rerun()
-
-            # --- (ဂ) FINAL BACK (COLOR FIXED & NO ADS) ---
-# CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
-st.markdown(
-    f"""
-    <style>
-    div.stButton > button:first-child {{
-        background-color: transparent !important;
-        color: {curr['c']} !important;
-        border: 1px solid {curr['c']} !important;
-        border-radius: 4px !important;
-        width: 150px !important;
-        height: 40px !important;
-        display: block !important;
-        margin: 30px auto !important;
-        font-weight: bold !important;
-    }}
-    div.stButton > button:first-child:hover {{
-        background-color: {curr['c']} !important;
-        color: black !important;
-        border: 1px solid {curr['c']} !important;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-            # ခလုတ်ကို နှိပ်လိုက်လျှင် လုပ်ဆောင်မည့် Logic
 if st.button(" BACK "):
-    # ၁။ ကြော်ငြာကို အတင်းကျော်ရန် (ad_done ကို True ပေးရမည်)
     st.session_state.ad_done = True
-
-    # --- ၂။ Owner Dashboard Check ---
     if 'admin_mode' in st.session_state:
         st.session_state.admin_mode = False
         st.session_state.generating = False
         st.session_state.page_state = 'tier_selection'
         st.rerun()
-
-# --- ဤနေရာတွင် Studio Page ကို ထည့်သွင်းနိုင်ပါသည် --- [cite: 2026-01-01]
-    elif st.session_state.page_state == 'studio':
-        # စာရိုက်သည့်နေရာ
-        prompt = st.text_area("ENTER YOUR SCRIPT")
-        # ၎င်းအောက်တွင် Setting Bar ထားရှိခြင်း [cite: 2026-01-01]
-        st.write("Settings: Duration, Res, Ratio")
 
 # --- ၅။ AI CHAT PAGE (မူရင်း Line 514 အပိုင်း) --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
