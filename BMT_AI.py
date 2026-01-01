@@ -318,7 +318,7 @@ def ai_studio_module():
             """, unsafe_allow_html=True)
 
             # ခလုတ်ကို နှိပ်လိုက်လျှင် လုပ်ဆောင်မည့် Logic
-            if st.button(" BACK TO MENU"):
+            if st.button(" BACK "):
                 # ၁။ ကြော်ငြာကို အတင်းကျော်ရန် (ad_done ကို True ပေးရမည်)
                 st.session_state.ad_done = True 
                 
@@ -330,7 +330,7 @@ def ai_studio_module():
                 st.session_state.generating = False
                 
                 # ၄။ ပင်မစာမျက်နှာသို့ ပြန်ရန်
-                st.session_state.page_state = 'select_tier'
+                st.session_state.page_state = 'tier_selection'
                 
                 # ၅။ အပြောင်းအလဲကို ချက်ချင်းသက်ရောက်စေရန်
                 st.rerun()
