@@ -378,19 +378,23 @@ else:
             st.session_state.view = 'gallery_page'
             st.rerun()
 
-                # --- ⏳ (က) GENERATING MODE ---
-                if st.session_state.generating:
-                    main_placeholder = st.empty()
-                    with main_placeholder.container():
-                        wait_time = 60 if ("min" in duration or "60s" in duration) else 30
-                        ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
-                        
-                        st.markdown(f"""
-                            <div style="text-align: center; margin-bottom: 30px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
-                                <p style="color: #666; font-size: 10px; letter-spacing: 2px;">GOOGLE ADS SPONSOR</p>
-                                <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px; margin-top:10px;">
-                            </div>
-                        """, unsafe_allow_html=True)
+    # ---  (က) GENERATING MODE ---
+    if st.session_state.generating:
+        main_placeholder = st.empty()
+
+        with main_placeholder.container():
+            wait_time = 60 if ("min" in duration or "60s" in duration) else 30
+            ad_img = "https://img.freepik.com/free-vector/horizontal-banner-template-online-streaming-service_23-2148902804.jpg"
+
+            st.markdown(
+                f"""
+                <div style="text-align: center; margin-bottom: 30px; background: #000; padding: 15px; border-bottom: 2px solid {curr['c']};">
+                    <p style="color: #666; font-size: 10px; letter-spacing: 2px;">GOOGLE ADS SPONSOR</p>
+                    <img src="{ad_img}" style="width: 100%; max-width: 450px; border-radius: 8px; margin-top:10px;">
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
                         prog_text = st.empty()
                         prog_bar = st.empty()
