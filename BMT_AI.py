@@ -261,7 +261,7 @@ def ai_studio_module():
         col_main, col_side = st.columns([3, 1])
         
     # Import တွေရဲ့အောက်၊ st.set_page_config() ရဲ့ အောက်မှာ ထည့်ပေးပါ
-if 'page_state' not in st.session_state:
+#if 'page_state' not in st.session_state:
     st.session_state.page_state = 'studio' # ဒါက Line 264 အတွက် အသက်ပါ [cite: 2026-01-01]
 
 if 'tier' not in st.session_state:
