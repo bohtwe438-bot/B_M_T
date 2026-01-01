@@ -118,11 +118,8 @@ def ai_studio_module():
         # (က) အပေါ်ပိုင်း - GOOGLE ADS SECTION
         st.markdown(f'<div style="border:1px solid {curr["c"]}; border-radius:10px; padding:10px; margin-bottom:20px; background:rgba(0,0,0,0.3);">', unsafe_allow_html=True)
         
-        # Diamond Page ဆိုရင် long (60s)၊ ကျန်တာ short (30s) သတ်မှတ်တာပါ 
-        ad_mode = 'long' if st.session_state.page_state == 'd_page' else 'short' 
-        
-        # Owner ဖြစ်ရင် Ads ကျော်မယ်၊ User ဖြစ်ရင် ad_mode အတိုင်း Ads ပြပါမယ် 
-        ads_manager(ad_mode) 
+        ad_mode = 'long' if st.session_state.page_state == 'd_page' else 'short'
+        ads_manager(ad_mode)
         
         st.markdown('</div>', unsafe_allow_html=True)
 
