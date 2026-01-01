@@ -298,21 +298,37 @@ def ai_studio_module():
                                 st.video(item['url'])
                                 st.markdown('</div>', unsafe_allow_html=True)
                                 
-                                # ⋮ Dot-3 Popover Options (အရောင်စုံ ခလုတ်များဖြင့်)
-                                with st.popover("⋮ OPTIONS"):
-                                    # 🔵 Download (Blue Gradient)
-                                    st.markdown(f'<style>div.stButton > button[key="dl_{i}"] {{ background: linear-gradient(90deg, #00C6FF, #0072FF) !important; color: white !important; border:none !important; border-radius:4px !important; }}</style>', unsafe_allow_html=True)
-                                    st.button(f"📥 Download", key=f"dl_{i}", use_container_width=True)
-                                    
-                                    # 🟢 Share (Green Gradient)
-                                    st.markdown(f'<style>div.stButton > button[key="sh_{i}"] {{ background: linear-gradient(90deg, #11998e, #38ef7d) !important; color: white !important; border:none !important; border-radius:4px !important; }}</style>', unsafe_allow_html=True)
-                                    st.button(f"📤 Share", key=f"sh_{i}", use_container_width=True)
-                                    
-                                    # 🔴 Delete (Red Gradient)
-                                    st.markdown(f'<style>div.stButton > button[key="del_{i}"] {{ background: linear-gradient(90deg, #FF4B2B, #FF416C) !important; color: white !important; border:none !important; border-radius:4px !important; }}</style>', unsafe_allow_html=True)
-                                    if st.button(f"🗑️ Delete", key=f"del_{i}", use_container_width=True):
-                                        st.session_state.gallery.pop(-(i+1))
-                                        st.rerun()
+                                # --- (၁) CSS Style ကို တစ်နေရာတည်းမှာ စုရေးခြင်း (ဒါမှ ခလုတ်တွေ မထပ်မှာပါ) ---
+st.markdown("""
+<style>
+    /* Popover Menu အတွင်းက ခလုတ်များအတွက် Style */
+    div.stPopover > div > div > div > div.stButton > button {
+        border: none !important;
+        border-radius: 8px !important;
+        margin-bottom: 8px !important; /* ခလုတ်ကြား နေရာလွတ် */
+        height: 45px !important;
+        font-weight: bold !important;
+    }
+    
+    /* တစ်ခုချင်းစီအတွက် အရောင်ခွဲခြင်း (Key prefix ကို သုံးထားပါတယ်) */
+    div.stButton > button[key^="dl_"] { background: linear-gradient(90deg, #00C6FF, #0072FF) !important; color: white !important; }
+    div.stButton > button[key^="sh_"] { background: linear-gradient(90deg, #11998e, #38ef7d) !important; color: white !important; }
+    div.stButton > button[key^="del_"] { background: linear-gradient(90deg, #FF4B2B, #FF416C) !important; color: white !important; }
+</style>
+""", unsafe_allow_html=True)
+
+# --- (၂) 3-Dot Popover Menu အပိုင်း ---
+with st.popover(" OPTIONS"):
+    # (၁) ဒေါင်းလုဒ် ခလုတ်
+    st.button(f" Download", key=f"dl_{i}", use_container_width=True)
+    
+    # (၂) မျှဝေရန် (Share) ခလုတ်
+    st.button(f" Share", key=f"sh_{i}", use_container_width=True)
+    
+    # (၃) ဖျက်ရန် (Delete) ခလုတ်
+    if st.button(f" Delete", key=f"del_{i}", use_container_width=True):
+        st.session_state.gallery.pop(-(i+1))
+        st.rerun()
                     
                     st.write("---")
                     # 🔙 BACK TO STUDIO BUTTON (စတုဂံပုံစံ)
