@@ -126,7 +126,6 @@ def ai_studio_module():
         st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 20px {curr['c']};'>VIDEO STUDIO - {curr['n']}</h1>", unsafe_allow_html=True)
         
         col_main, col_side = st.columns([3, 1])
-        col_main, col_side = st.columns([3, 1])
 
 with col_side:
         st.markdown(f"<h3 style='color:{curr['c']}'> SETTINGS</h3>", unsafe_allow_html=True)
