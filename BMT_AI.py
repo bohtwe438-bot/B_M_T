@@ -264,7 +264,7 @@ def ai_studio_module():
 #if 'page_state' not in st.session_state:
     st.session_state.page_state = 'studio' # ဒါက Line 264 အတွက် အသက်ပါ [cite: 2026-01-01]
 
-if 'tier' not in st.session_state:
+#if 'tier' not in st.session_state:
     st.session_state.tier = 'FREE' # လူကြီးမင်းရဲ့ Free Tier သတ်မှတ်ချက်အတွက်ပါ [cite: 2025-12-31]
         
         # Line 264 (အပေါ်ဆုံးက if နဲ့ ညီအောင် ထားပါ)
