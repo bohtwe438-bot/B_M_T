@@ -191,12 +191,19 @@ def ai_studio_module():
             else:
                 st.info("No videos in gallery yet.")
 
-            # ---  (ဃ) BACK HOME ခလုတ် (အမြဲတမ်း အောက်ဆုံးမှာ ရှိနေမည့် Bottom Button) ---
-            st.markdown("<br><br>", unsafe_allow_html=True)
+            # (ဃ) အောက်ဆုံး - BACK HOME ခလုတ်
+            st.markdown("<br>", unsafe_allow_html=True)
             if st.button(" BACK TO MAIN MENU", use_container_width=True):
+                # ၁။ Page state ကို main_menu လို့ အတိအကျ ပြောင်းပေးရပါမယ်
                 st.session_state.page_state = 'main_menu'
-                if 'video_done' in st.session_state: 
+                
+                # ၂။ လက်ရှိ Video လုပ်ထားတဲ့ status တွေကို ရှင်းပစ်ရပါမယ်
+                if 'video_done' in st.session_state:
                     del st.session_state.video_done
+                if 'generating' in st.session_state:
+                    st.session_state.generating = False
+                
+                # ၃။ Page ကို Refresh လုပ်ပြီး Home ကို ပြန်ခေါ်သွားပါမယ်
                 st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
