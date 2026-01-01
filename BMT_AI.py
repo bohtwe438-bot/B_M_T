@@ -396,7 +396,7 @@ if st.session_state.generating:
             unsafe_allow_html=True
         )
 
-        # ⚠️ ဒီနေရာကနေစပြီး ဘယ်ဘက်ကို ပြန်ဆုတ်ပါ (Wait_time နဲ့ တစ်တန်းတည်း ဖြစ်ရပါမယ်)
+        #  prog_text နဲ့ prog_bar တို့ကို wait_time တို့နဲ့ တစ်တန်းတည်း (Space ၈ ချက်) ညှိထားပါတယ်
         prog_text = st.empty()
         prog_bar = st.empty()
 
@@ -410,30 +410,36 @@ if st.session_state.generating:
                     <p style="color: {curr['c']}; font-size: 14px;">{ad_msg}</p>
                 </div>
             """, unsafe_allow_html=True)
-                            prog_bar.markdown(f"""
-                                <div style="width: 90%; background: #111; border-radius: 50px; height: 12px; margin: 20px auto; border: 1px solid #333; padding: 2px;">
-                                    <div style="width: {percent}%; height: 100%; border-radius: 50px; background: linear-gradient(90deg, {curr['c']}, #fff); box-shadow: 0 0 10px {curr['c']}; transition: width 0.3s;"></div>
-                                </div>
-                            """, unsafe_allow_html=True)
+            
+            #  prog_bar ကို ညာဘက်ကို Space ၁၂ ချက် (for ရဲ့အောက်) ပဲ ထားရပါမယ်
+            prog_bar.markdown(f"""
+                <div style="width: 90%; background: #111; border-radius: 50px; height: 12px; margin: 20px auto; border: 1px solid #333; padding: 2px;">
+                    <div style="width: {percent}%; height: 100%; border-radius: 50px; background: linear-gradient(90deg, {curr['c']}, #fff); box-shadow: 0 0 10px {curr['c']}; transition: width 0.3s;"></div>
+                </div>
+            """, unsafe_allow_html=True)
 
-                    st.session_state.generating = False
-                    st.session_state.video_done = True
-                    st.session_state.view = 'studio' # ပြီးရင် Studio မှာပဲ Preview ပြရန်
-                    st.rerun()# --- ✅ (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
-                elif st.session_state.get('video_done'):
-                    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>🎯 PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
-                    st.markdown(f'<div style="border:2px solid {curr["c"]}; border-radius:12px; padding:10px; background:#000; margin-bottom:20px;">', unsafe_allow_html=True)
-                    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-                    st.markdown('</div>', unsafe_allow_html=True)
+        #  Generating ပိတ်တဲ့အပိုင်းကို ဘယ်ဘက်ကို ပြန်ဆုတ်ထားပါတယ်
+        st.session_state.generating = False
+        st.session_state.video_done = True
+        st.session_state.view = 'studio'
+        st.rerun()
 
-                    col_dl, col_sh = st.columns(2)
-                    col_dl.button("📥 DOWNLOAD VIDEO", use_container_width=True)
-                    col_sh.button("📤 SHARE VIDEO", use_container_width=True)
+# ---  (ခ) PREVIEW SUCCESS (ဗီဒီယိုထွက်လာသည့်အချိန်) ---
+# elif ကို generating if နဲ့ တစ်တန်းတည်း (Space ၄ ချက်) မှာ ထားပါတယ်
+    elif st.session_state.get('video_done'):
+        st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'> PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
+        st.markdown(f'<div style="border:2px solid {curr["c"]}; border-radius:12px; padding:10px; background:#000; margin-bottom:20px;">', unsafe_allow_html=True)
+        st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-                    if st.button("⬅️ BACK TO CREATE", use_container_width=True):
-                        del st.session_state.video_done
-                        st.session_state.ad_done = True 
-                        st.rerun()
+        col_dl, col_sh = st.columns(2)
+        col_dl.button(" DOWNLOAD VIDEO", use_container_width=True)
+        col_sh.button(" SHARE VIDEO", use_container_width=True)
+
+        if st.button(" BACK TO CREATE", use_container_width=True):
+            del st.session_state.video_done
+            st.session_state.ad_done = True 
+            st.rerun()
 
                 # --- 📝 (1) INPUT MODE (စာရိုက်သည့်အချိန်) ---
                 else:
