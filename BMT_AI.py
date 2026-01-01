@@ -279,7 +279,7 @@ def ai_studio_module():
                         st.rerun()
 
             # ---  INPUT MODE (Advanced AI Video Studio) ---
-            elif 'video_done' not in st.session_state:
+            if 'video_done' not in st.session_state:
                 # ၁။ ထိပ်ဆုံးမှာ Video Aspect Ratio ရွေးချယ်ခြင်း (လှပသော ခလုတ်လေးများဖြင့်)
                 st.markdown(f"<p style='color:#888; font-size:12px; margin-bottom:10px;'>DIMENSIONS & RATIO</p>", unsafe_allow_html=True)
                 ratio_col1, ratio_col2, ratio_col3 = st.columns(3)
