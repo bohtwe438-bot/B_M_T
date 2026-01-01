@@ -268,25 +268,6 @@ def ai_studio_module():
             resolution = st.selectbox(" RESOLUTION", curr['res'])
             aspect_ratio = st.radio(" RATIO", ["16:9", "9:16", "1:1"])
 
-    with col_gen:
-        st.write("") # Alignment ညှိရန်
-        st.write("")
-        if st.button("GENERATE"):
-            st.toast(f"Generating {mode}...")
-
-elif st.session_state.page_state == 'gallery':
-    # Gallery Mode မှာ Setting Bar လုံးဝ မပါရ
-    st.markdown('<h1 class="bmt-title">BMT GALLERY</h1>', unsafe_allow_html=True)
-    
-    cols = st.columns(3)
-    for i in range(3):
-        with cols[i]:
-            st.image("https://placehold.co/400x300")
-            # --- (၃) DOT 3 MENU ---
-            with st.popover(" OPTIONS"):
-                st.button(f" Download", key=f"dl_{i}")
-                st.button(f" Delete", key=f"del_{i}")
-
         # --- (၂) & (ဂ) INTEGRATED STUDIO & GALLERY SYSTEM ---
         with col_main:
             # စာမျက်နှာ View နှင့် အခြေအနေများကို ထိန်းချုပ်ရန်
