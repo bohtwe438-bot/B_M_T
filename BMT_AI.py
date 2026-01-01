@@ -107,7 +107,7 @@ def ai_studio_module():
         }
         curr = configs[st.session_state.page_state]
 
-        # Background CSS (မူရင်းအတိုင်း)
+        # Background CSS
         st.markdown(f"""
             <style>
             [data-testid="stAppViewContainer"] {{ background-color: {curr['bg']} !important; }}
@@ -115,10 +115,8 @@ def ai_studio_module():
             </style>
         """, unsafe_allow_html=True)
 
-        # (က) အပေါ်ပိုင်း - GOOGLE ADS SECTION (ဘောင်ကျကျ)
+        # (က) အပေါ်ပိုင်း - GOOGLE ADS SECTION
         st.markdown(f'<div style="border:1px solid {curr["c"]}; border-radius:10px; padding:10px; margin-bottom:20px; background:rgba(0,0,0,0.3);">', unsafe_allow_html=True)
-        # အပေါ်မှာရှိခဲ့တဲ့ ads_manager function ကို ဒီမှာ လှမ်းခေါ်သုံးထားတာပါ
-        # Diamond Tier (D) ဆိုရင် 60s/Ads ၂ ခု၊ ကျန်တာ 30s/Ads ၁ ခု
         ad_mode = 'long' if st.session_state.page_state == 'd_page' else 'short'
         ads_manager(ad_mode) 
         st.markdown('</div>', unsafe_allow_html=True)
@@ -127,16 +125,15 @@ def ai_studio_module():
         
         col_main, col_side = st.columns([3, 1])
         with col_main:
-            # ဗီဒီယို မထုတ်ခင် ပြမည့် Script Area
             if 'generating' not in st.session_state: st.session_state.generating = False
             
             if not st.session_state.generating and 'video_done' not in st.session_state:
                 prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
-                if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
+                if st.button(f" START {curr['n']} GENERATE", use_container_width=True):
                     st.session_state.generating = True
                     st.rerun()
 
-            # (ခ) အောက်ပိုင်း - % PROGRESS BAR (အရောင်စုံ)
+            # (ခ) အောက်ပိုင်း - % PROGRESS BAR
             if st.session_state.generating:
                 wait_time = 60 if ad_mode == 'long' else 30
                 st.markdown(f'<div class="scanner-box" style="border-color:{curr["c"]}"><div class="scanner-line" style="background:{curr["c"]}"></div><span style="color:{curr["c"]}">AI RENDERING...</span></div>', unsafe_allow_html=True)
@@ -153,27 +150,25 @@ def ai_studio_module():
                 st.session_state.video_done = True
                 st.rerun()
 
-            # (ဂ) ဗီဒီယို ထွက်လာပြီးနောက် ပြသမည့် Player နှင့် Dot 3 Menu
+            # (ဂ) ဗီဒီယို နှင့် Dot 3 Menu
             if st.session_state.get('video_done'):
                 v_header_col, v_menu_col = st.columns([0.9, 0.1])
                 with v_header_col:
                     st.markdown(f"<h3 style='color:{curr['c']}'>PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
                 with v_menu_col:
-                    # Dot 3 Menu
-                    with st.popover("⋮"):
-                        st.button("⏬ Download", use_container_width=True)
-                        st.button("🔗 Share", use_container_width=True)
-                        if st.button("🗑️ Delete", use_container_width=True):
+                    with st.popover(""):
+                        st.button(" Download", use_container_width=True)
+                        st.button(" Share", use_container_width=True)
+                        if st.button(" Delete", use_container_width=True):
                             del st.session_state.video_done
                             st.rerun()
                 
-                # Video Player (Placeholder)
                 st.video("https://www.w3schools.com/html/mov_bbb.mp4")
 
         with col_side:
             st.selectbox("Resolution", curr['res'])
             st.selectbox("Duration", curr['d_list'])
-            if st.button("⬅️ BACK"): 
+            if st.button(" BACK"): 
                 if 'video_done' in st.session_state: del st.session_state.video_done
                 st.session_state.page_state = 'tier_selection'
                 st.rerun()
