@@ -511,15 +511,14 @@ st.markdown(
 )
 
             # ခလုတ်ကို နှိပ်လိုက်လျှင် လုပ်ဆောင်မည့် Logic
-            if st.button(" BACK "):
-                # ၁။ ကြော်ငြာကို အတင်းကျော်ရန် (ad_done ကို True ပေးရမည်)
-                st.session_state.ad_done = True 
-                
-                # --- ၂။ Owner Dashboard Check (Line 501 မှစတင်၍ ပြင်ရန်) --- [cite: 2026-01-01]
+if st.button(" BACK "):
+    # ၁။ ကြော်ငြာကို အတင်းကျော်ရန် (ad_done ကို True ပေးရမည်)
+    st.session_state.ad_done = True
+
+    # --- ၂။ Owner Dashboard Check ---
     if 'admin_mode' in st.session_state:
-        # ဒီအောက်က စာကြောင်းတွေကို ရှေ့ကို Space ၄ ချက်စီ ပုတ်ပေးထားပါတယ်
-        st.session_state.admin_mode = False 
-        st.session_state.generating = False 
+        st.session_state.admin_mode = False
+        st.session_state.generating = False
         st.session_state.page_state = 'tier_selection'
         st.rerun()
 
