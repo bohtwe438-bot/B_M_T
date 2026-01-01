@@ -191,40 +191,41 @@ def ai_studio_module():
             else:
                 st.info("No videos in gallery yet.")
 
-            # (ဃ) အချိုးကျလှပသော BACK HOME ခလုတ် (Compact Style)
+            # ---  (ဃ) BACK TO HOME (RECTANGLE STYLE & FORCE RESET) ---
             st.markdown(f"""
                 <style>
-                div.stButton > button:first-child {{
-                    background-color: transparent;
-                    color: {curr['c']};
-                    border: 2px solid {curr['c']};
-                    border-radius: 12px;
-                    padding: 8px 15px;
-                    font-weight: bold;
-                    width: 200px; /* ခလုတ်အကျယ်ကို ဒီမှာ ထိန်းထားပါတယ် */
-                    display: block;
-                    margin: 0 auto; /* ခလုတ်ကို အလယ်တည့်တည့် ရောက်အောင် လုပ်တာပါ */
-                    transition: all 0.3s ease;
-                    text-shadow: 0 0 10px {curr['c']};
-                    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                .stButton > button {{
+                    background-color: transparent !important;
+                    color: {curr['c']} !important;
+                    border: 1px solid {curr['c']} !important;
+                    border-radius: 4px !important;
+                    width: 150px !important;
+                    height: 40px !important;
+                    display: block !important;
+                    margin: 30px auto !important;
+                    font-weight: bold !important;
+                    transition: all 0.3s ease !important;
                 }}
-                div.stButton > button:first-child:hover {{
-                    background-color: {curr['c']};
-                    color: black;
-                    box-shadow: 0 0 20px {curr['c']};
-                    transform: translateY(-2px); /* အပေါ်ကို နည်းနည်းလေး ကြွတက်လာတဲ့ animation */
+                .stButton > button:hover {{
+                    background-color: {curr['c']} !important;
+                    color: black !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
 
-            # ခလုတ်ကို ဗဟိုချက် (Center) ရောက်အောင် container တစ်ခုထဲ ထည့်ထားပါတယ်
-            st.markdown('<div style="display: flex; justify-content: center;">', unsafe_allow_html=True)
             if st.button(" BACK TO HOME"):
+                # ၁။ Page State ကို Main Menu သို့ အတင်းပြောင်းမည်
                 st.session_state.page_state = 'main_menu'
-                if 'video_done' in st.session_state: del st.session_state.video_done
-                if 'generating' in st.session_state: st.session_state.generating = False
+                
+                # ၂။ တခြား ပိတ်မိနေနိုင်သော Logic အားလုံးကို Reset လုပ်ခြင်း
+                st.session_state.ad_done = True 
+                if 'video_done' in st.session_state:
+                    del st.session_state['video_done']
+                if 'generating' in st.session_state:
+                    st.session_state.generating = False
+                
+                # ၃။ App ကို အစကနေ ပြန်ပွင့်စေခြင်း
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
