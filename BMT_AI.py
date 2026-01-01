@@ -191,43 +191,45 @@ def ai_studio_module():
             else:
                 st.info("No videos in gallery yet.")
 
-            # ---  (ဃ) BACK TO HOME (FORCE BYPASS ALL) ---
+            # ---  (ဃ) FINAL BACK (COLOR FIXED & NO ADS) ---
+            # CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
             st.markdown(f"""
                 <style>
-                div.stButton > button {{
+                div.stButton > button:first-child {{
                     background-color: transparent !important;
                     color: {curr['c']} !important;
                     border: 1px solid {curr['c']} !important;
                     border-radius: 4px !important;
-                    width: 140px !important;
-                    height: 38px !important;
+                    width: 150px !important;
+                    height: 40px !important;
                     display: block !important;
-                    margin: 25px auto !important;
+                    margin: 30px auto !important;
                     font-weight: bold !important;
+                }}
+                div.stButton > button:first-child:hover {{
+                    background-color: {curr['c']} !important;
+                    color: black !important;
+                    border: 1px solid {curr['c']} !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
 
-            if st.button(" BACK"):
-                # ၁။ ဗီဒီယိုထုတ်နေတာ (Generating) ရှိရင် ချက်ချင်းရပ်မည်
-                st.session_state.generating = False
-                
-                # ၂။ ဗီဒီယိုပြီးသွားတဲ့ Preview ရှိရင် ဖျက်မည်
-                if 'video_done' in st.session_state:
-                    del st.session_state['video_done']
-                
-                # ၃။ အရေးကြီးဆုံးအချက် - ကြော်ငြာ logic ဝင်မလာအောင် အတင်းပိတ်မည်
-                # ad_done ကို True ပေးလိုက်မှ ကြော်ငြာ function က ကျော်သွားမှာပါ
+            # ခလုတ်ကို နှိပ်လိုက်လျှင် လုပ်ဆောင်မည့် Logic
+            if st.button(" BACK TO MENU"):
+                # ၁။ ကြော်ငြာကို အတင်းကျော်ရန် (ad_done ကို True ပေးရမည်)
                 st.session_state.ad_done = True 
                 
-                # ၄။ Owner/Admin Dashboard ကိုပါ ကျော်ရန် (လူကြီးမင်းအတွက်)
+                # ၂။ Owner Dashboard ထဲ မဝင်စေရန်
                 if 'admin_mode' in st.session_state:
                     st.session_state.admin_mode = False
                 
-                # ၅။ Main Menu (SELECT YOUR TIER) သို့ တိုက်ရိုက်ပြန်မည်
+                # ၃။ Generating လုပ်နေတာရှိရင် ရပ်ပစ်ရန်
+                st.session_state.generating = False
+                
+                # ၄။ ပင်မစာမျက်နှာသို့ ပြန်ရန်
                 st.session_state.page_state = 'main_menu'
                 
-                # ၆။ အားလုံးကို အသစ်ပြန်ဖြစ်သွားစေရန် Force Rerun လုပ်မည်
+                # ၅။ အပြောင်းအလဲကို ချက်ချင်းသက်ရောက်စေရန်
                 st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
