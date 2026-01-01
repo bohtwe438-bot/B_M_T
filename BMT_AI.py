@@ -2,20 +2,148 @@ import streamlit as st
 from groq import Groq
 import time
 
+import streamlit as st
+
 # ==========================================
-# ၁။ အလှအပ (STYLING & THEME)
+# ၁။ အလှအပ (ULTRA-PREMIUM UI DESIGN)
 # ==========================================
 def apply_bmt_style():
-    st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
+    # Page Setting (Cloud အတွက် အကောင်းဆုံးဖြစ်အောင်)
+    st.set_page_config(page_title="BMT AI EMPIRE", layout="wide", initial_sidebar_state="collapsed")
+    
     st.markdown("""
         <style>
-        .stApp { background-color: #0f172a; color: white; }
-        .bmt-title { font-size: 80px; font-weight: 900; text-align: center; color: #3b82f6; letter-spacing: 15px; }
-        .bmt-sub { text-align: center; font-size: 18px; color: #60a5fa; margin-bottom: 30px; letter-spacing: 3px; }
-        .glass-card { background: rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }
-        .owner-tag { color: #facc15; font-weight: bold; border: 1px solid #facc15; padding: 5px; border-radius: 5px; text-align: center; }
+        /* Streamlit ၏ မလိုအပ်သော Header များကို ဖျောက်ခြင်း */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+
+        /* Deep Space Moving Background */
+        .stApp {
+            background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+            background-size: 200% 200%;
+            animation: spaceMove 15s ease-in-out infinite;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes spaceMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Metallic BMT Title with Glow */
+        .bmt-title {
+            font-size: clamp(35px, 8vw, 85px);
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(to bottom, #ffffff 40%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.6));
+            letter-spacing: clamp(5px, 2vw, 15px);
+            margin: 20px 0 5px 0;
+            text-transform: uppercase;
+        }
+
+        .bmt-sub {
+            text-align: center;
+            font-size: clamp(12px, 2vw, 18px);
+            color: #60a5fa;
+            letter-spacing: 5px;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* Glassmorphism Tier Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 25px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border: 1px solid rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Gold Tag for Limits */
+        .tier-tag {
+            color: #facc15;
+            font-weight: 800;
+            border: 1px solid #facc15;
+            padding: 6px 15px;
+            border_radius: 10px;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.2);
+        }
+
+        /* Premium Buttons */
+        div.stButton > button {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+            border-radius: 15px;
+            padding: 12px 20px;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        div.stButton > button:hover {
+            background: #3b82f6 !important;
+            color: white !important;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+        }
         </style>
         """, unsafe_allow_html=True)
+
+# ==========================================
+# ၂။ APP MAIN INTERFACE
+# ==========================================
+def main():
+    apply_bmt_style()
+
+    # Branding
+    st.markdown('<div class="bmt-title">BMT AI EMPIRE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="bmt-sub">The Future of AI Video Generation</div>', unsafe_allow_html=True)
+
+    # Tier Selection Logic
+    col1, col2, col3, col4 = st.columns(4)tiers = [
+        {"id": "FREE", "name": "Free Tier", "limit": "8 SECONDS", "col": col1},
+        {"id": "SILVER", "name": "Silver Tier", "limit": "30 SECONDS", "col": col2},
+        {"id": "GOLD", "name": "Gold Tier", "limit": "60 SECONDS", "col": col3},
+        {"id": "DIAMOND", "name": "Diamond Tier", "limit": "UNLIMITED", "col": col4}
+    ]
+
+    for t in tiers:
+        with t["col"]:
+            st.markdown(f"""
+                <div class="glass-card">
+                    <h3 style="margin-bottom: 5px;">{t['name']}</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">High-Quality AI Gen</p>
+                    <div class="tier-tag">{t['limit']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"ENTER {t['id']}", key=t['id']):
+                st.session_state.tier = t['id']
+                st.toast(f"Welcome to {t['name']}!")
+
+if name == "main":
+    main()
 
 # ==========================================
 # ၂။ ပိုင်ရှင် KEY များ (OWNER KEYS & API)
