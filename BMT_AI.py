@@ -157,14 +157,16 @@ def ai_studio_module():
                     st.markdown(f"<h3 style='color:{curr['c']}'>PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
                 with v_menu_col:
                     with st.popover(""):
-                        st.button(" Download", use_container_width=True)
-                        st.button(" Share", use_container_width=True)
-                        if st.button(" Delete", use_container_width=True):
+                        st.button("Download", use_container_width=True)
+                        st.button("Share", use_container_width=True)
+                        if st.button("Delete", use_container_width=True):
                             del st.session_state.video_done
                             st.rerun()
                 
+                # အခုနက Line 172 က မှားနေတဲ့စာကြောင်းကို ဒီနေရာမှာ ညှိထားပါတယ်
                 st.video("https://www.w3schools.com/html/mov_bbb.mp4")
 
+        # col_side ရဲ့ Indentation ကိုလည်း ဓာတ်ပုံ ၃ ထဲကထက် ပိုမှန်အောင် ညှိပေးထားပါတယ်
         with col_side:
             st.selectbox("Resolution", curr['res'])
             st.selectbox("Duration", curr['d_list'])
