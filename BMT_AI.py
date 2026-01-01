@@ -390,8 +390,9 @@ else:
     # Header အပိုင်း
     h_col1, h_col2 = st.columns([0.6, 0.4])
     with h_col1:
-        # စာအသုံးအနှုန်း အမှန် (Line 364, 379 အတွက်)
+        # စာအသုံးအနှုန်း အမှန်
         st.markdown(f"<h3 style='color:{curr['c']}'>Video Studio - {curr['n']}</h3>", unsafe_allow_html=True)
+    
     with h_col2:
         if st.button(" MY GALLERY", use_container_width=True):
             st.session_state.view = 'gallery_page'
