@@ -191,51 +191,44 @@ def ai_studio_module():
             else:
                 st.info("No videos in gallery yet.")
 
-            # ---  (ဃ) BACK TO HOME (RECTANGLE BEAUTY) ---
+            # ---  (ဃ) BACK TO HOME (FORCE BYPASS ALL) ---
             st.markdown(f"""
                 <style>
-                /* ခလုတ်ကို စတုဂံပုံစံ သေသပ်အောင် လုပ်ခြင်း */
                 div.stButton > button {{
                     background-color: transparent !important;
                     color: {curr['c']} !important;
-                    border: 2px solid {curr['c']} !important;
+                    border: 1px solid {curr['c']} !important;
                     border-radius: 4px !important;
-                    width: 150px !important;
-                    height: 42px !important;
+                    width: 140px !important;
+                    height: 38px !important;
                     display: block !important;
-                    margin: 30px auto !important;
+                    margin: 25px auto !important;
                     font-weight: bold !important;
-                    text-transform: uppercase;
-                    transition: all 0.3s ease;
-                }}
-                /* Mouse တင်လိုက်လျှင် အရောင်ပြည့်သွားစေရန် */
-                div.stButton > button:hover {{
-                    background-color: {curr['c']} !important;
-                    color: black !important;
-                    box-shadow: 0 0 15px {curr['c']} !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
 
-            # ခလုတ်၏ Logic အပိုင်း
             if st.button(" BACK"):
-                # Preview Screen ပြနေရင် Preview ကို အရင်ပိတ်မယ်
-                if st.session_state.get('video_done'):
-                    del st.session_state['video_done']
-                    st.rerun()
+                # ၁။ ဗီဒီယိုထုတ်နေတာ (Generating) ရှိရင် ချက်ချင်းရပ်မည်
+                st.session_state.generating = False
                 
-                # Preview မရှိတော့ရင် "SELECT YOUR TIER" (Main Menu) ကို အတင်းပြန်သွားမယ်
-                else:
-                    # အရေးကြီးဆုံးအချက်- အပေါ်ဆုံးမှာ ပေးထားတဲ့ Main Menu နာမည်နဲ့ တူရပါမယ်
-                    st.session_state.page_state = 'main_menu'
-                    
-                    # တခြား Dashboard တွေ ကြော်ငြာတွေထဲ မရောက်အောင် အကုန်ပိတ်ခြင်း
-                    st.session_state.ad_done = True 
-                    if 'admin_mode' in st.session_state:
-                        st.session_state.admin_mode = False
-                    
-                    # Force Rerun လုပ်ပြီး Home ပြန်ခေါ်ခြင်း
-                    st.rerun()
+                # ၂။ ဗီဒီယိုပြီးသွားတဲ့ Preview ရှိရင် ဖျက်မည်
+                if 'video_done' in st.session_state:
+                    del st.session_state['video_done']
+                
+                # ၃။ အရေးကြီးဆုံးအချက် - ကြော်ငြာ logic ဝင်မလာအောင် အတင်းပိတ်မည်
+                # ad_done ကို True ပေးလိုက်မှ ကြော်ငြာ function က ကျော်သွားမှာပါ
+                st.session_state.ad_done = True 
+                
+                # ၄။ Owner/Admin Dashboard ကိုပါ ကျော်ရန် (လူကြီးမင်းအတွက်)
+                if 'admin_mode' in st.session_state:
+                    st.session_state.admin_mode = False
+                
+                # ၅။ Main Menu (SELECT YOUR TIER) သို့ တိုက်ရိုက်ပြန်မည်
+                st.session_state.page_state = 'main_menu'
+                
+                # ၆။ အားလုံးကို အသစ်ပြန်ဖြစ်သွားစေရန် Force Rerun လုပ်မည်
+                st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
