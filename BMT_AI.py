@@ -122,28 +122,30 @@ def main():
     st.markdown('<div class="bmt-sub">The Future of AI Video Generation</div>', unsafe_allow_html=True)
 
     # Tier Selection Logic
-    col1, col2, col3, col4 = st.columns(4)tiers = [
-        {"id": "FREE", "name": "Free Tier", "limit": "8 SECONDS", "col": col1},
-        {"id": "SILVER", "name": "Silver Tier", "limit": "30 SECONDS", "col": col2},
-        {"id": "GOLD", "name": "Gold Tier", "limit": "60 SECONDS", "col": col3},
-        {"id": "DIAMOND", "name": "Diamond Tier", "limit": "UNLIMITED", "col": col4}
-    ]
+    col1, col2, col3, col4 = st.columns(4)
 
-    for t in tiers:
-        with t["col"]:
-            st.markdown(f"""
-                <div class="glass-card">
-                    <h3 style="margin-bottom: 5px;">{t['name']}</h3>
-                    <p style="color: #94a3b8; font-size: 0.9rem;">High-Quality AI Gen</p>
-                    <div class="tier-tag">{t['limit']}</div>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button(f"ENTER {t['id']}", key=t['id']):
-                st.session_state.tier = t['id']
-                st.toast(f"Welcome to {t['name']}!")
+    tiers = [
+        {"id": "FREE", "name": "Free Tier", "limit": "8 SECONDS", "col": col1},
+        {"id": "SILVER", "name": "Silver Tier", "limit": "30 SECONDS", "col": col2},
+        {"id": "GOLD", "name": "Gold Tier", "limit": "60 SECONDS", "col": col3},
+        {"id": "DIAMOND", "name": "Diamond Tier", "limit": "UNLIMITED", "col": col4}
+    ]
+
+    for t in tiers:
+        with t["col"]:
+            st.markdown(f"""
+                <div class="glass-card">
+                    <h3 style="margin-bottom: 5px;">{t['name']}</h3>
+                    <p style="color: #94a3b8; font-size: 0.9rem;">High-Quality AI Gen</p>
+                    <div class="tier-tag">{t['limit']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"ENTER {t['id']}", key=t['id']):
+                st.session_state.tier = t['id']
+                st.toast(f"Welcome to {t['name']}!")
 
 if name == "main":
-    main()
+    main()
 
 # ==========================================
 # ၂။ ပိုင်ရှင် KEY များ (OWNER KEYS & API)
