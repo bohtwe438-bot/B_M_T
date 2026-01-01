@@ -178,7 +178,7 @@ def ai_studio_module():
 # ==========================================
 # ၄။ ကြော်ငြာ (ADVERTISEMENTS)
 # ==========================================
-def ads_manager():
+def ads_manager(ad_mode):
     if not st.session_state.is_owner:
         st.divider()
         st.markdown("""
