@@ -119,7 +119,7 @@ def ai_studio_module():
         st.markdown(f'<div style="border:1px solid {curr["c"]}; border-radius:10px; padding:10px; margin-bottom:20px; background:rgba(0,0,0,0.3);">', unsafe_allow_html=True)
         
         ad_mode = 'long' if st.session_state.page_state == 'd_page' else 'short'
-        ads_manager(ad_mode)
+        ads_manager()
         
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -178,7 +178,7 @@ def ai_studio_module():
 # ==========================================
 # ၄။ ကြော်ငြာ (ADVERTISEMENTS)
 # ==========================================
-def ads_manager(ad_mode):
+def ads_manager():
     if not st.session_state.is_owner:
         st.divider()
         st.markdown("""
@@ -209,5 +209,5 @@ if 'video_history' not in st.session_state: st.session_state.video_history = []
 apply_bmt_style()       # ၁။ အလှပြင်
 manage_owner_keys()     # ၂။ Key စစ်/ထည့်
 ai_studio_module()      # ၃။ Chat & Video
-ads_manager(ad_mode)           # ၄။ ကြော်ငြာ
+ads_manager()           # ၄။ ကြော်ငြာ
 owner_dashboard()       # ၅။ ပိုင်ရှင်ကြည့်ရန်
