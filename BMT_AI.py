@@ -191,7 +191,7 @@ def ai_studio_module():
             else:
                 st.info("No videos in gallery yet.")
 
-            # ---  (ဃ) BACK TO HOME (RECTANGLE STYLE & FORCE RESET) ---
+            # (ဃ) BACK TO MAIN MENU (SELECT YOUR TIER PAGE)
             st.markdown(f"""
                 <style>
                 .stButton > button {{
@@ -202,30 +202,29 @@ def ai_studio_module():
                     width: 150px !important;
                     height: 40px !important;
                     display: block !important;
-                    margin: 30px auto !important;
-                    font-weight: bold !important;
-                    transition: all 0.3s ease !important;
-                }}
-                .stButton > button:hover {{
-                    background-color: {curr['c']} !important;
-                    color: black !important;
+                    margin: 20px auto !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
 
-            if st.button(" BACK TO HOME"):
-                # ၁။ Page State ကို Main Menu သို့ အတင်းပြောင်းမည်
-                st.session_state.page_state = 'main_menu'
-                
-                # ၂။ တခြား ပိတ်မိနေနိုင်သော Logic အားလုံးကို Reset လုပ်ခြင်း
-                st.session_state.ad_done = True 
-                if 'video_done' in st.session_state:
+            # ခလုတ်ကို နှိပ်လိုက်လျှင်
+            if st.button(" BACK"):
+                # ၁။ အကယ်၍ Preview ပြနေလျှင် Preview ကိုအရင်ပိတ်မည်
+                if st.session_state.get('video_done'):
                     del st.session_state['video_done']
-                if 'generating' in st.session_state:
-                    st.session_state.generating = False
+                    st.rerun()
                 
-                # ၃။ App ကို အစကနေ ပြန်ပွင့်စေခြင်း
-                st.rerun()
+                # ၂။ အကယ်၍ Preview မရှိလျှင် "SELECT YOUR TIER" စာမျက်နှာသို့ အတင်းအကျပ်ပြန်မည်
+                else:
+                    # ဤနေရာတွင် လူကြီးမင်း၏ Main Menu State နာမည်ကို အသုံးပြုရပါမည်
+                    st.session_state.page_state = 'main_menu'
+                    
+                    # Dashboard နှင့် Ads များထဲသို့ ပြန်မရောက်သွားစေရန် State များကို ရှင်းထုတ်ခြင်း
+                    st.session_state.ad_done = True 
+                    if 'admin_mode' in st.session_state:
+                        st.session_state.admin_mode = False
+                    
+                    st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
