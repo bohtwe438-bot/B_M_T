@@ -318,10 +318,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- (၂) 3-Dot Popover Menu အပိုင်း ---
-with st.popover("⋮ OPTIONS"):
-    st.button(f"📥 Download", key=f"dl_{i}", use_container_width=True)
-    st.button(f"📤 Share", key=f"sh_{i}", use_container_width=True)
-    if st.button(f"🗑 Delete", key=f"del_{i}", use_container_width=True):
+with st.popover(" OPTIONS"):
+    st.button(f" Download", key=f"dl_{i}", use_container_width=True)
+    st.button(f" Share", key=f"sh_{i}", use_container_width=True)
+    if st.button(f" Delete", key=f"del_{i}", use_container_width=True):
         st.session_state.gallery.pop(-(i+1))
         st.rerun()
 
