@@ -260,33 +260,28 @@ def ai_studio_module():
         
         col_main, col_side = st.columns([3, 1])
         
-        # --- (၁) PAGE LOGIC (Studio နဲ့ Gallery ခွဲခြားခြင်း) ---
+        # Line 264 (အပေါ်ဆုံးက if နဲ့ ညီအောင် ထားပါ)
 if st.session_state.page_state == 'studio':
-    # --- STUDIO MODE ---
+    # --- STUDIO MODE (ဒီအောက်က စာကြောင်းတွေကို Space ၄ ချက် ခြားပါ) --- [cite: 2026-01-01]
     st.markdown('<h1 class="bmt-title">BMT STUDIO</h1>', unsafe_allow_html=True)
     
-    # Script ရိုက်သည့်နေရာ
+    # Script Box
     prompt = st.text_area("ENTER YOUR SCRIPT", placeholder="Describe your vision...")
-    
-    # --- (၂) SETTINGS BAR (Script အောက်ခြေကပ်ရပ်) ---
+
+    # Setting Bar (အလျားလိုက်) [cite: 2026-01-01]
     col_settings, col_gen = st.columns([0.8, 0.2])
-    
     with col_settings:
         c1, c2, c3, c4 = st.columns(4)
         with c1:
             mode = st.selectbox("MODE", ["VIDEO", "IMAGE"])
         with c2:
-            # Free Tier အတွက် 8s Fix လုပ်ခြင်း
-            if st.session_state.tier == 'FREE' and mode == "VIDEO":
-                duration = st.selectbox("DURATION", ["8s"], disabled=True)
-            elif mode == "VIDEO":
-                duration = st.selectbox("DURATION", ["15s", "30s"])
-            else:
-                duration = "N/A"
+            # Free Tier အတွက် 8s Fix [cite: 2025-12-31]
+            dur = "8s" if st.session_state.tier == 'FREE' else "30s"
+            st.selectbox("DURATION", [dur], disabled=(st.session_state.tier == 'FREE'))
         with c3:
-            res = st.selectbox("RESOLUTION", ["720p", "1080p", "4K"])
+            st.selectbox("RESOLUTION", ["720p", "1080p"])
         with c4:
-            ratio = st.selectbox("RATIO", ["16:9", "9:16", "1:1"])
+            st.selectbox("RATIO", ["16:9", "9:16", "1:1"])
 
     with col_gen:
         st.write("") # Alignment ညှိရန်
