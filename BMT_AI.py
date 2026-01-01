@@ -367,19 +367,31 @@ elif st.session_state.get('video_done'):
             del st.session_state.video_done
         st.rerun()
 
-# =======================
-# (၂) STUDIO VIEW (ဒီအပိုင်းကမှ ELSE အောက်မှာ ရှိရပါမယ်)
-# =======================
+# --- (၁) OPTION MENU (Line 322 ဝန်းကျင်အတွက်) ---
+with st.popover("⋮ OPTIONS"):
+    # i နေရာမှာ Error မတက်အောင် "opt" လို့ နာမည်ပြောင်းထားပါတယ်
+    st.button("📥 Download", key="dl_opt_main", use_container_width=True)
+    st.button("📤 Share", key="sh_opt_main", use_container_width=True)
+
+# --- (၂) STUDIO VIEW (Line 364 မှ 450 အထိ အကုန်အစားထိုးရန်) ---
+if st.session_state.get('generating'):
+    st.write("Generating video... Please wait.")
+    # Generating ကုဒ်များ ဤနေရာတွင် ထည့်ပါ
+
+elif st.session_state.get('video_done'):
+    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>🎯 PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
+    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+    if st.button("⬅️ BACK TO CREATE", use_container_width=True):
+        if 'video_done' in st.session_state:
+            del st.session_state.video_done
+        st.rerun()
+
 else:
-    # Header နှင့် Gallery Button ကို ဘေးချင်းယှဉ်
+    # Header အပိုင်း
     h_col1, h_col2 = st.columns([0.6, 0.4])
-
     with h_col1:
-        st.markdown(
-            f"<h3 style='color:{curr['c']}'>Video Studio - {curr['n']}</h3>",
-            unsafe_allow_html=True
-        )
-
+        # စာအသုံးအနှုန်း အမှန် (Line 364, 379 အတွက်)
+        st.markdown(f"<h3 style='color:{curr['c']}'>Video Studio - {curr['n']}</h3>", unsafe_allow_html=True)
     with h_col2:
         if st.button(" MY GALLERY", use_container_width=True):
             st.session_state.view = 'gallery_page'
