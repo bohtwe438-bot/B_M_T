@@ -160,13 +160,12 @@ def ai_studio_module():
                 st.session_state.video_done = True
                 st.rerun()
 
-            # (ဂ) ဗီဒီယို ထွက်လာပြီးနောက် ပြသမည့် Player နှင့် Dot 3 Menu
+            # (ဂ) ဗီဒီယို Player နှင့် Gallery သီးသန့်အပိုင်း
             if st.session_state.get('video_done'):
                 v_header_col, v_menu_col = st.columns([0.9, 0.1])
                 with v_header_col:
                     st.markdown(f"<h3 style='color:{curr['c']}'>PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
                 with v_menu_col:
-                    # Dot 3 Menu
                     with st.popover(""):
                         st.button("Download", use_container_width=True)
                         st.button("Share", use_container_width=True)
@@ -174,32 +173,31 @@ def ai_studio_module():
                             del st.session_state.video_done
                             st.rerun()
                 
-                # မူရင်း ဗီဒီယို Player
                 st.video("https://www.w3schools.com/html/mov_bbb.mp4")
 
-                # --- ထပ်တိုး VIDEO GALLERY SECTION ---
-                st.markdown(f"<hr style='border:1px solid {curr['c']}'>", unsafe_allow_html=True)
-                st.markdown(f"<h3 style='color:{curr['c']}'> MY GALLERY</h3>", unsafe_allow_html=True)
-                
-                if 'gallery' not in st.session_state:
-                    st.session_state.gallery = []
+            # ---  MY GALLERY (ဗီဒီယိုရှိလျှင် အမြဲပေါ်နေမည့်အပိုင်း) ---
+            st.markdown(f"<hr style='border:1px solid {curr['c']}'>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='color:{curr['c']}'> MY GALLERY</h3>", unsafe_allow_html=True)
+            
+            if 'gallery' not in st.session_state:
+                st.session_state.gallery = []
 
-                if st.session_state.gallery:
-                    g_cols = st.columns(2)
-                    for i, item in enumerate(reversed(st.session_state.gallery)):
-                        with g_cols[i % 2]:
-                            st.video(item['url'])
-                            st.caption(f" {item['tier']} | {item['res']} | {item['dur']}")
-                else:
-                    st.info("No videos in gallery yet.")
+            if st.session_state.gallery:
+                g_cols = st.columns(2)
+                for i, item in enumerate(reversed(st.session_state.gallery)):
+                    with g_cols[i % 2]:
+                        st.video(item['url'])
+                        st.caption(f" {item['tier']} | {item['res']} | {item['dur']}")
+            else:
+                st.info("No videos in gallery yet.")
 
-                # (ဃ) အောက်ဆုံး - BACK HOME ခလုတ်
-                st.markdown("<br>", unsafe_allow_html=True)
-                if st.button(" BACK TO MAIN MENU", use_container_width=True):
-                    st.session_state.page_state = 'main_menu'
-                    if 'video_done' in st.session_state: 
-                        del st.session_state.video_done
-                    st.rerun()
+            # ---  (ဃ) BACK HOME ခလုတ် (အမြဲတမ်း အောက်ဆုံးမှာ ရှိနေမည့် Bottom Button) ---
+            st.markdown("<br><br>", unsafe_allow_html=True)
+            if st.button(" BACK TO MAIN MENU", use_container_width=True):
+                st.session_state.page_state = 'main_menu'
+                if 'video_done' in st.session_state: 
+                    del st.session_state.video_done
+                st.rerun()
 
     # --- ၅။ AI CHAT PAGE --- [cite: 2026-01-01]
     elif st.session_state.page_state == 'chat_page':
