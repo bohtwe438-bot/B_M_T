@@ -259,7 +259,7 @@ def ai_studio_module():
                         st.session_state.ad_done = True 
                         st.rerun()
 
-                # --- 📝 (ဂ) INPUT MODE (စာရိုက်သည့်အချိန်) ---
+                # --- 📝 (1) INPUT MODE (စာရိုက်သည့်အချိန်) ---
                 else:
                     prompt = st.text_area("WRITE YOUR SCRIPT", height=250)
                     st.markdown(f"""
@@ -294,7 +294,7 @@ def ai_studio_module():
                 st.session_state.video_done = True
                 st.rerun()
 
-            # ---  (ဃ) FINAL BACK (COLOR FIXED & NO ADS) ---
+            # ---  (ဂ) FINAL BACK (COLOR FIXED & NO ADS) ---
             # CSS Selector ကို အတိအကျ ပြင်ထားပါတယ်
             st.markdown(f"""
                 <style>
@@ -330,7 +330,7 @@ def ai_studio_module():
                 st.session_state.generating = False
                 
                 # ၄။ ပင်မစာမျက်နှာသို့ ပြန်ရန်
-                st.session_state.page_state = 'main_menu'
+                st.session_state.page_state = 'select_tier'
                 
                 # ၅။ အပြောင်းအလဲကို ချက်ချင်းသက်ရောက်စေရန်
                 st.rerun()
