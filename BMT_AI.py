@@ -209,5 +209,5 @@ if 'video_history' not in st.session_state: st.session_state.video_history = []
 apply_bmt_style()       # ၁။ အလှပြင်
 manage_owner_keys()     # ၂။ Key စစ်/ထည့်
 ai_studio_module()      # ၃။ Chat & Video
-ads_manager()           # ၄။ ကြော်ငြာ
+ads_manager(ad_mode)           # ၄။ ကြော်ငြာ
 owner_dashboard()       # ၅။ ပိုင်ရှင်ကြည့်ရန်
