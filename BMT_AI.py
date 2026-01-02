@@ -58,6 +58,6 @@ class BMTAiEmpire:
         pass
 
 # App Start
-if name == "main":
+if _name_ == "_main_":
     app = BMTAiEmpire()
     app.google_auth_system()
