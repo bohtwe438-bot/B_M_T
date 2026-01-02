@@ -19,6 +19,7 @@ if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
 if 'is_owner' not in st.session_state: st.session_state.is_owner = False
 if 'show_secret_gate' not in st.session_state: st.session_state.show_secret_gate = False
+if 'user_tier' not in st.session_state: st.session_state.user_tier = 'FREE' # Default က FREE
 
 # ၄။ UI Design & Style
 apply_bmt_style()
@@ -27,7 +28,6 @@ apply_bmt_style()
 if not st.session_state.logged_in:
     show_login_screen()
     
-    # 🤫 Invisible Gate: လူတိုင်းမမြင်အောင် စာသားလေးကို နှိပ်မှ ပွင့်ပါမယ်
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("© 2026 BMT AI EMPIRE", help="Owner Access"):
         st.session_state.show_secret_gate = not st.session_state.show_secret_gate
@@ -44,7 +44,7 @@ if not st.session_state.logged_in:
                 else:
                     st.error("မှားယွင်းနေပါသည်")
 else:
-    # --- ၆။ ADMIN CONTROL (Error မတက်အောင် ဤနေရာတွင် ရပ်ထားသည်) ---
+    # --- ၆။ ADMIN CONTROL (Owner အနေနဲ့ Dashboard ဝင်ရန်) ---
     if st.session_state.is_owner:
         with st.sidebar:
             st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 ADMIN ACTIVE</h2>", unsafe_allow_html=True)
@@ -57,13 +57,12 @@ else:
         owner_dashboard() 
         st.stop() 
 
-    # --- ၇။ NORMAL USER AREA (Google Login သမားများအတွက်သာ) ---
+    # --- ၇။ NORMAL USER AREA ---
     with st.sidebar:
         user_profile_header() 
         st.divider()
         manage_owner_access()
 
-    # ဗီဒီယို သတ်မှတ်ချက်များ (Owner ရဲ့ Plan အတိုင်း Free Tier ကို 8s ထားရှိပါသည်)
     configs = {
         'f_page': {'bg': '#021202', 'c': '#00ff00', 'n': 'FREE', 'd_list': ["5s", "8s"], 'res': ["480p", "720p"]},
         's_page': {'bg': '#121212', 'c': '#bdc3c7', 'n': 'SILVER', 'd_list': ["10s", "20s"], 'res': ["720p", "1080p"]},
@@ -79,24 +78,34 @@ else:
         if col_vid.button("VIDEO GENERATOR", use_container_width=True):
             st.session_state.page_state = 'tier_selection'; st.rerun()
     
-    elif st.session_state.page_state == 'chat_page': 
-        chat_interface()
+    elif st.session_state.page_state == 'chat_page': chat_interface()
 
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
         
-        # --- ခလုတ် ၄ ခုစလုံးကို စုံလင်စွာ ပြသခြင်း ---
+        # --- OWNER VS USER ACCESS LOGIC ---
         col1, col2 = st.columns(2)
+
+        # 🟢 FREE TIER (လူတိုင်းသုံးနိုင်သည်)
         with col1:
             if st.button("🟢 F (FREE)", use_container_width=True): 
                 st.session_state.page_state = 'f_page'; st.rerun()
-            if st.button("🟡 G (GOLD)", use_container_width=True): 
-                st.session_state.page_state = 'g_page'; st.rerun()
+
+        # 🔐 Premium Tiers (Owner သာ တန်းဝင်နိုင်သည်)
+        def tier_button(tier_id, tier_name, emoji):
+            if st.button(f"{emoji} {tier_name}", use_container_width=True):
+                # Owner ဖြစ်လျှင် သို့မဟုတ် ဝယ်ထားလျှင် ပေးဝင်မည်
+                if st.session_state.get('is_owner') or st.session_state.get('user_tier') == tier_name:
+                    st.session_state.page_state = tier_id; st.rerun()
+                else:
+                    # မဝယ်ရသေးသော User များအတွက် Plan ပေါ်လာမည်
+                    st.warning(f"⚠️ {tier_name} Tier ကို ဝယ်ယူရန် လိုအပ်ပါသည်။")
+                    st.info("💰 Admin Dashboard ရှိ Pricing တွင် စျေးနှုန်းများကို ကြည့်ရှုနိုင်ပါသည်။")
+
+        with col1: tier_button('g_page', 'GOLD', '🟡 G')
         with col2:
-            if st.button("⚪ S (SILVER)", use_container_width=True): 
-                st.session_state.page_state = 's_page'; st.rerun()
-            if st.button("💎 D (DIAMOND)", use_container_width=True): 
-                st.session_state.page_state = 'd_page'; st.rerun()
+            tier_button('s_page', 'SILVER', '⚪ S')
+            tier_button('d_page', 'DIAMOND', '💎 D')
         
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("⬅️ BACK", use_container_width=True): 
