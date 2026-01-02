@@ -6,7 +6,6 @@ try:
     from ads_center import ads_manager
     from owner_manager import manage_owner_access, owner_dashboard
     from studio_engine import run_video_studio, chat_interface
-    # ဖိုင်အသစ်ကို Import လုပ်ခြင်း
     from auth_manager import show_login_screen, user_profile_header
 except ImportError as e:
     st.error(f"ဖိုင်တစ်ခုခု ပျောက်ဆုံးနေပါတယ် သို့မဟုတ် နာမည်မှားနေပါတယ်: {e}")
@@ -20,23 +19,26 @@ if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
 if 'video_history' not in st.session_state: st.session_state.video_history = []
 
-# ၄။ UI Design နှင့် Login စနစ် စစ်ဆေးခြင်း
+# ၄။ UI Design စတင်အသက်သွင်းခြင်း (Vibration & Sound Logic ပါဝင်ပြီးသား)
 apply_bmt_style()
 
 # Login မဝင်ရသေးလျှင် Login Screen တစ်ခုတည်းသာ ပြမည်
 if not st.session_state.logged_in:
     show_login_screen()
 else:
-    # Login ဝင်ပြီးမှသာ ကျန်သည့် အပိုင်းများ ပေါ်လာမည်
+    # Sidebar အပိုင်း
     with st.sidebar:
         user_profile_header() # Profile Badge & Photo
-        manage_owner_access() # Hidden Owner Access (🛡️)
-    
-    # Owner Verified ဖြစ်လျှင် Dashboard ပြရန်
+        manage_owner_access() # Hidden Owner Access (🛡️) - bmt999 ဖြင့် Login ဝင်ရန်နေရာ
+
+    # --- ၅။ ADMIN & USER LOGIC FLOW ---
+    # Owner အဖြစ် Verified ဖြစ်သွားလျှင် Admin Dashboard ကို တစ်မျက်နှာလုံး အပြည့်ပြမည်
     if st.session_state.get('is_owner'):
         owner_dashboard()
+        # Admin ဖြစ်နေလျှင် အောက်က User Interface များကို ဆက်မပြရန် stop() လုပ်ထားသည်
+        st.stop() 
 
-    # ၅။ Tier Config များ
+    # ၆။ Tier Config များ
     configs = {
         'f_page': {'bg': '#021202', 'c': '#00ff00', 'n': 'FREE', 'd_list': ["5s", "8s"], 'res': ["480p", "720p"]},
         's_page': {'bg': '#121212', 'c': '#bdc3c7', 'n': 'SILVER', 'd_list': ["10s", "20s"], 'res': ["720p", "1080p"]},
@@ -44,7 +46,7 @@ else:
         'd_page': {'bg': '#0d0114', 'c': '#9b59b6', 'n': 'DIAMOND', 'd_list': ["30s", "60s", "90s", "120s"], 'res': ["1080p", "2k", "4k"]}
     }
 
-    # ၆။ Page Logic Flow (မူရင်းအတိုင်း)
+    # ၇။ Page Logic Flow (Normal User Area)
     if st.session_state.page_state == 'home':
         st.markdown('<div class="bmt-title">BMT AI EMPIRE</div>', unsafe_allow_html=True)
         st.markdown('<div class="bmt-sub">The Future of AI Video Generation</div>', unsafe_allow_html=True)
@@ -70,5 +72,5 @@ else:
     elif st.session_state.page_state in configs:
         run_video_studio(configs[st.session_state.page_state])
 
-    # ၇။ Ads (အောက်ဆုံးမှာ ပြရန်)
+    # ၈။ Ads (အောက်ဆုံးမှာ ပြရန်)
     ads_manager()
