@@ -8,6 +8,7 @@ from database import get_api_key
 try:
     import google.generativeai as genai
     from groq import Groq
+    from openai import OpenAI  # OpenAI Library ကို ထပ်တိုးထည့်သွင်းခြင်း
     HAS_LIBS = True
 except ImportError:
     HAS_LIBS = False
@@ -72,7 +73,7 @@ def chat_interface():
     api_key = get_api_key("2. LLM (Chat) API")
     
     if not HAS_LIBS:
-        st.error("⚠️ Error: Library များ မသွင်းရသေးပါ။")
+        st.error("⚠️ Error: Library များ မသွင်းရသေးပါ။ Terminal တွင် pip install openai groq google-generativeai ကို ရိုက်ပါ။")
         return
 
     # AI ၏ နှုတ်ဆက်စာ (Bo ဖန်တီးခဲ့ကြောင်း)
@@ -91,8 +92,8 @@ def chat_interface():
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
-            if not api_key:
-                st.error("Admin Panel မှာ Key အရင်ထည့်ပေးပါ Owner!")
+            if not api_key or api_key == "HIDDEN_KEY_XXXXX":
+                st.error("Admin Panel မှာ Key အရင်ထည့်ပေးပါ Owner Bo!")
                 return
             
             response_placeholder = st.empty()
@@ -100,7 +101,22 @@ def chat_interface():
                 # System Prompt သတ်မှတ်ခြင်း (Identity Fix)
                 system_instruction = "မင်းရဲ့အမည်က BMT AI Chat ဖြစ်ပါတယ်။ မင်းကို Bo ဆိုတဲ့သူက ဖန်တီးပေးထားတာပါ။"
                 
-                if api_key.startswith("gsk_"):
+                # --- API လမ်းကြောင်း ခွဲခြားခြင်း ---
+                
+                # ၁။ OpenAI Key (sk-...)
+                if api_key.startswith("sk-"):
+                    client = OpenAI(api_key=api_key)
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {"role": "system", "content": system_instruction},
+                            {"role": "user", "content": prompt}
+                        ]
+                    )
+                    full_response = response.choices[0].message.content
+
+                # ၂။ Groq Key (gsk_...)
+                elif api_key.startswith("gsk_"):
                     client = Groq(api_key=api_key)
                     completion = client.chat.completions.create(
                         model="llama-3.3-70b-versatile",
@@ -110,8 +126,9 @@ def chat_interface():
                         ]
                     )
                     full_response = completion.choices[0].message.content
+
+                # ၃။ Gemini (သို့မဟုတ် အခြား Key များ)
                 else:
-                    # OpenAI သို့မဟုတ် Gemini အတွက် (System Instruction ပေါင်းထည့်ခြင်း)
                     genai.configure(api_key=api_key)
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     response = model.generate_content(f"{system_instruction}\n\nUser: {prompt}")
@@ -125,10 +142,11 @@ def chat_interface():
                     response_placeholder.markdown(temp_resp + "▌")
                 response_placeholder.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
+                
             except Exception as e:
                 st.error(f"Error: {e}")
 
-# --- VIDEO STUDIO CODE (ကျန်သောအပိုင်းများ မူရင်းအတိုင်း) ---
+# --- VIDEO STUDIO CODE ---
 def run_video_studio(curr):
     add_button_feedback()
     if 'studio_view' not in st.session_state:
@@ -150,7 +168,7 @@ def show_input_page(curr):
     for i, f in enumerate(features):
         with [f_col1, f_col2, f_col3][i]:
             st.markdown(f"<div style='background:rgba(255,255,255,0.05); padding:8px; border-radius:10px; text-align:center; border:1px solid {curr['c']}33;'>{f['icon']}<br><small>{f['label']}</small></div>", unsafe_allow_html=True)
-    
+
     st.write("")
     c1, c2, c3 = st.columns(3)
     with c1: duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]))
