@@ -7,60 +7,80 @@ def run_video_studio(curr):
     
     col_main, col_side = st.columns([3, 1])
 
-    # --- Sidebar Settings ---
+    # --- (၁) Sidebar Settings ---
     with col_side:
         st.markdown(f"<h3 style='color:{curr['c']}'>⚙️ SETTINGS</h3>", unsafe_allow_html=True)
-        
-        # Duration Select
         duration = st.selectbox("⏱ DURATION", curr.get('d_list', ["5s", "8s"]))
-        
-        # Resolution Select (ဒီနေရာမှာ 480p ကနေ 4k အထိ ပေါ်လာပါမယ်)
-        res_list = curr.get('res', ["480p", "720p"]) # Config ထဲကအတိုင်း ယူမယ်
+        res_list = curr.get('res', ["480p", "720p", "1080p", "2k", "4k"])
         resolution = st.selectbox("📺 RESOLUTION", res_list)
         
-        # Ratio အလှဆင်ခြင်း
         st.markdown(f"<p style='color:{curr['c']}; font-weight:bold; margin-top:15px;'>📐 ASPECT RATIO</p>", unsafe_allow_html=True)
         aspect_ratio = st.radio("", ["16:9 (Wide)", "9:16 (TikTok)", "1:1 (Square)"], horizontal=True)
 
-    # --- Main Workspace ---
+    # --- (၂) Main Workspace ---
     with col_main:
-        if st.session_state.get('generating'):
+        if st.session_state.get('view') == 'gallery_page':
+            display_gallery(curr)
+        elif st.session_state.get('generating'):
             show_rendering_animation(curr, duration)
         elif st.session_state.get('video_done'):
             show_video_preview(curr)
         else:
-            st.markdown(f"<h3 style='color:{curr['c']}'>Write Your Script</h3>", unsafe_allow_html=True)
-            prompt = st.text_area("DESCRIBE YOUR VIDEO", height=200, placeholder="Enter your prompt here...")
+            # Header with Gallery Button
+            h_col1, h_col2 = st.columns([0.7, 0.3])
+            with h_col1:
+                st.markdown(f"<h3 style='color:{curr['c']}'>Write Your Script</h3>", unsafe_allow_html=True)
+            with h_col2:
+                # 🖼 Gallery ခလုတ်ကို ဤနေရာတွင် ထည့်ထားပါသည်
+                if st.button("🎞 MY GALLERY", use_container_width=True):
+                    st.session_state.view = 'gallery_page'
+                    st.rerun()
+
+            prompt = st.text_area("DESCRIBE YOUR VIDEO", height=250, placeholder="Enter your prompt here...")
             
             if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
                 st.session_state.generating = True
                 st.rerun()
 
-    # Back Button
-    st.divider()
+    # --- (၃) Back Button (အောက်ဆုံးတွင်) ---
+    st.write("") 
     if st.button("⬅️ BACK TO SELECTION", use_container_width=True):
         if 'video_done' in st.session_state: del st.session_state.video_done
+        st.session_state.view = 'studio'
         st.session_state.page_state = 'tier_selection'
         st.rerun()
 
+# --- (၄) Rendering Animation ---
 def show_rendering_animation(curr, duration):
-    wait_time = 60 if ("60s" in str(duration)) else 30
+    wait_time = 8 if st.session_state.get('tier') == 'FREE' else 30 # User instruction အရ Free tier အတွက် 8s
     prog_text = st.empty()
     prog_bar = st.empty()
     for percent in range(101):
         time.sleep(wait_time / 100)
-        prog_text.markdown(f"<h1 style='color:{curr['c']}; text-align:center;'>{percent}%</h1>", unsafe_allow_html=True)
+        prog_text.markdown(f"<h1 style='color:{curr['c']}; text-align:center;'>{percent}%</h1><p style='text-align:center;'>RENDERING...</p>", unsafe_allow_html=True)
         prog_bar.progress(percent)
     st.session_state.generating = False
     st.session_state.video_done = True
     st.rerun()
 
+# --- (၅) Video Preview ---
 def show_video_preview(curr):
+    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>PREVIEW SUCCESS</h3>", unsafe_allow_html=True)
     st.video("https://www.w3schools.com/html/mov_bbb.mp4")
     if st.button("CREATE ANOTHER ONE", use_container_width=True):
         del st.session_state.video_done
         st.rerun()
 
+# --- (၆) Gallery Display ---
+def display_gallery(curr):
+    st.markdown(f"<h2 style='color:{curr['c']}; text-align:center;'>🎞 VIDEO GALLERY</h2>", unsafe_allow_html=True)
+    st.info("Your generated videos will appear here.")
+    if st.button("⬅️ BACK TO STUDIO", use_container_width=True):
+        st.session_state.view = 'studio'
+        st.rerun()
+
+# --- (၇) AI Chat Interface ---
 def chat_interface():
     st.title("BMT AI CHAT")
     if st.button("BACK"): st.session_state.page_state = 'home'; st.rerun()
+    st.chat_input("မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...")
