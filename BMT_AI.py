@@ -18,6 +18,7 @@ st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
 if 'is_owner' not in st.session_state: st.session_state.is_owner = False
+if 'show_secret_gate' not in st.session_state: st.session_state.show_secret_gate = False
 
 # ၄။ UI Design & Style
 apply_bmt_style()
@@ -26,14 +27,16 @@ apply_bmt_style()
 if not st.session_state.logged_in:
     show_login_screen()
     
-    # 🤫 OWNER အတွက် လျှို့ဝှက်ချက် - Login Screen အောက်ခြေမှာ Password အကွက်ကို ပုံသေထားလိုက်ပါပြီ
-    st.markdown("<br><br><hr>", unsafe_allow_html=True)
-    with st.container():
-        st.markdown("<h3 style='color:#f1c40f; text-align:center;'>🛡️ OWNER PORTAL</h3>", unsafe_allow_html=True)
-        # Form ကို သုံးထားလို့ Password ရိုက်နေစဉ်အတွင်း Page Refresh ဖြစ်လည်း ပျောက်မသွားပါဘူး
+    # 🤫 Invisible Gate: လူတိုင်းမမြင်အောင် စာသားလေးကို နှိပ်မှ ပွင့်ပါမယ်
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    if st.button("© 2026 BMT AI EMPIRE", help="Owner Access"):
+        st.session_state.show_secret_gate = not st.session_state.show_secret_gate
+        st.rerun()
+
+    if st.session_state.show_secret_gate:
         with st.form("stable_admin_form", clear_on_submit=True):
-            admin_pwd = st.text_input("Master Password", type="password", placeholder="Enter Password here...")
-            if st.form_submit_button("UNLOCK ADMIN DASHBOARD", use_container_width=True):
+            admin_pwd = st.text_input("Master Password", type="password")
+            if st.form_submit_button("UNLOCK ADMIN PANEL", use_container_width=True):
                 if admin_pwd == "bmt999":
                     st.session_state.logged_in = True
                     st.session_state.is_owner = True
@@ -41,24 +44,28 @@ if not st.session_state.logged_in:
                 else:
                     st.error("မှားယွင်းနေပါသည်")
 else:
-    # Sidebar
-    with st.sidebar:
-        st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 ADMIN ACTIVE</h2>", unsafe_allow_html=True)
-        if st.session_state.is_owner:
-            if st.button("🚪 EXIT ADMIN MODE", use_container_width=True):
+    # --- ၆။ ADMIN CONTROL (Error မတက်အောင် ဤနေရာတွင် ရပ်ထားသည်) ---
+    if st.session_state.is_owner:
+        # Admin ဆိုရင် sidebar မှာ user info မပြတော့ဘဲ logout ပဲပြပါမယ်
+        with st.sidebar:
+            st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 ADMIN</h2>", unsafe_allow_html=True)
+            if st.button("🚪 LOGOUT ADMIN", use_container_width=True):
                 st.session_state.is_owner = False
                 st.session_state.logged_in = False
+                st.session_state.show_secret_gate = False
                 st.rerun()
+        
+        # Admin Dashboard ကို ခေါ်ယူသည်
+        owner_dashboard() 
+        st.stop() # 🛑 ဒီမှာ ရပ်ထားမှ User Profile Header ဆီကို သွားပြီး Error မတက်မှာပါ
+
+    # --- ၇။ NORMAL USER AREA (Google Login သမားများအတွက်သာ) ---
+    with st.sidebar:
+        user_profile_header() # User Data ရှိမှသာ အလုပ်လုပ်မည်
         st.divider()
-        user_profile_header() 
+        manage_owner_access()
 
-    # --- ၆။ ADMIN CONTROL ---
-    if st.session_state.is_owner:
-        owner_dashboard() # 🔑 API Keys ၁၀ ခု စစ်ရမည့်နေရာ
-        st.stop() 
-
-    # --- ၇။ NORMAL USER AREA ---
-    # ... (User Home Page ကုဒ်များ)
+    # User Home Page Logic များ...
     configs = {
         'f_page': {'bg': '#021202', 'c': '#00ff00', 'n': 'FREE', 'd_list': ["5s", "8s"], 'res': ["480p", "720p"]},
         's_page': {'bg': '#121212', 'c': '#bdc3c7', 'n': 'SILVER', 'd_list': ["10s", "20s"], 'res': ["720p", "1080p"]},
