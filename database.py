@@ -24,5 +24,21 @@ def save_user_tier(username, tier):
 def get_user_tier(username):
     """User ၏ Tier ကို Database ထဲမှ ပြန်ထုတ်သည်"""
     db = load_db()
-    # အကယ်၍ အမည်မရှိပါက FREE ဟု သတ်မှတ်မည်
     return db.get(username, "FREE")
+
+# --- ဤနေရာတွင် function အသစ် ထပ်ဖြည့်ထားပါသည် (Error ပျောက်စေရန်) ---
+def get_api_key(key_name):
+    """Admin Panel မှ သိမ်းထားသော API Key ကို ပြန်ထုတ်ပေးသည်"""
+    # Key များကို သိမ်းမည့် ဖိုင်အမည် (Admin Panel ကုဒ်နှင့် ကိုက်ညီရပါမည်)
+    CONFIG_FILE = "admin_config.json" 
+    
+    if not os.path.exists(CONFIG_FILE):
+        return None
+        
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            config = json.load(f)
+            # Admin Panel ကုဒ်အရ 'api_keys' dictionary ထဲတွင် သိမ်းထားလေ့ရှိသည်
+            return config.get("api_keys", {}).get(key_name, None)
+    except:
+        return None
