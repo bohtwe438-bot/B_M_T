@@ -24,26 +24,28 @@ def save_user_tier(username, tier):
 def get_user_tier(username):
     """User ၏ Tier ကို Database ထဲမှ ပြန်ထုတ်သည်"""
     db = load_db()
+    # အကယ်၍ အမည်မရှိပါက FREE ဟု သတ်မှတ်မည်
     return db.get(username, "FREE")
 
-# --- မူရင်း function ထဲတွင် logic ထပ်ဖြည့်ခြင်း (Admin Panel မရရင်တောင် အလုပ်လုပ်စေရန်) ---
+# --- မူရင်း function ထဲတွင် Admin Panel မှ Key ကိုသာ ဖတ်ရန် ပြင်ဆင်ခြင်း ---
 def get_api_key(key_name):
     """Admin Panel မှ သိမ်းထားသော API Key ကို ပြန်ထုတ်ပေးသည်"""
     
-    # ၁။ ဒီနေရာမှာ Owner ရဲ့ Groq Key အမှန်ကို သေချာစွာ ထည့်ပေးပါ
-    # "Invalid API Key" Error ပျောက်ရန် gsk_ နဲ့ စတဲ့ Key အပြည့်အစုံကို ကွင်းစကွင်းပိတ်ကြားထဲ ထည့်ရပါမယ်
-    if key_name == "2. LLM (Chat) API":
-        # ဥပမာ- return "gsk_yX6..." (ဒီနေရာမှာ Owner ရဲ့ Key အစစ်ကို ထည့်ပါ)
-        return "gsk_xxxx..."  
-        
-    # ၂။ အကယ်၍ အပေါ်က Key မရှိမှ အောက်က မူရင်း Admin Config ကို ဖတ်ပါမယ်
+    # Key များကို သိမ်းထားသည့် ဖိုင်အမည်
     CONFIG_FILE = "admin_config.json" 
+    
+    # ဖိုင်မရှိသေးရင် ဘာမှမလုပ်ဘဲ ပြန်ထွက်မည်
     if not os.path.exists(CONFIG_FILE):
         return None
         
     try:
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
-            return config.get("api_keys", {}).get(key_name, None)
+            # Admin Panel က 'api_keys' ဆိုတဲ့ Dictionary ထဲမှာ Key တွေကို သိမ်းထားတာပါ
+            api_keys_dict = config.get("api_keys", {})
+            
+            # ခေါ်လိုက်တဲ့ key_name (ဥပမာ- "2. LLM (Chat) API") အတိုင်း Key ကို ပြန်ပေးမည်
+            return api_keys_dict.get(key_name, None)
     except:
+        # ဖိုင်ဖတ်ရတာ အဆင်မပြေရင် Error မတက်အောင် ကာကွယ်ခြင်း
         return None
