@@ -1,29 +1,22 @@
-# ==========================================
-# FILE 4: Owner_manager.py
-# PURPOSE: API Management & Revenue Analytics
-# ==========================================
+import streamlit as st
 
-class BMT_Admin:
-    def init(self):
-        self.api_keys = {
-            "Google": "key_01", "Chat": "key_02", "Image": "key_03",
-            "Video": "key_04", "TTS": "key_05", "LipSync": "key_06",
-            "Audio": "key_07", "Payment": "key_08", "Cloud": "key_09", "Enhance": "key_10"
-        }
-        self.tier_prices = {"S": "5$", "G": "10$", "D": "20$"}
+def manage_owner_access():
+    if 'is_owner' not in st.session_state: st.session_state.is_owner = False
+    
+    with st.sidebar:
+        st.header("🔑 BMT Access")
+        pwd = st.text_input("Owner Password", type="password")
+        if pwd == "bmt999":
+            st.session_state.is_owner = True
+            st.markdown('<div style="color:#3b82f6; font-weight:bold;">OWNER VERIFIED ✅</div>', unsafe_allow_html=True)
+        else:
+            st.session_state.is_owner = False
 
-    def update_api_key(self, key_name, new_key):
-        """Admin Panel ကနေ API Key အသစ်လဲရန်"""
-        if key_name in self.api_keys:
-            self.api_keys[key_name] = new_key
-            return f"{key_name} Key Updated!"
-
-    def show_analytics(self):
-        """ဝင်ငွေနှင့် User စာရင်းကို Graph ဖြင့်ပြရန်"""
-        print("Fetching Today's Revenue...")
-        print("Active Users: 1,240 | Premium Users: 450")
-
-    def read_complaints(self):
-        """User များ ပို့ထားသော တိုင်ကြားစာများကို ဖတ်ရန်"""
-        # Logic: Fetch from Database
-        pass
+def owner_dashboard():
+    if st.session_state.get('is_owner'):
+        st.divider()
+        st.subheader("📊 BMT Business Insights")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Daily Users", "150", "+5%")
+        c2.metric("Revenue", "350,000 MMK", "Peak")
+        c3.metric("Tasks", len(st.session_state.get('video_history', [])))
