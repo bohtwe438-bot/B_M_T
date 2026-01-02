@@ -22,7 +22,7 @@ def manage_owner_access():
                     if pwd == "bmt999":
                         st.session_state.is_owner = True
                         st.session_state.show_owner_login = False
-                        st.session_state.user_name = "Owner_Admin" # Owner အမည်ကို မှတ်သား
+                        st.session_state.user_name = "Owner_Admin"
                         st.session_state.page_state = 'admin_dashboard'
                         st.success("OWNER VERIFIED ✅")
                         st.rerun()
@@ -30,7 +30,18 @@ def manage_owner_access():
                         st.error("Access Denied!")
 
 def owner_dashboard():
-    st.markdown("<h1 style='color:#f1c40f; text-align:center;'>👑 BMT ADMIN COMMAND CENTER</h1>", unsafe_allow_html=True)
+    # --- [အသစ်ဖြည့်စွက်ချက်] USE STUDIO ခလုတ်ကို Dashboard ထိပ်ဆုံးတွင် ပြသခြင်း ---
+    col_head, col_btn = st.columns([0.7, 0.3])
+    with col_head:
+        st.markdown("<h1 style='color:#f1c40f; margin:0;'>👑 ADMIN PANEL</h1>", unsafe_allow_html=True)
+    with col_btn:
+        st.write("") # ပုံစံညှိရန်
+        if st.button("🚀 USE STUDIO", use_container_width=True, type="primary"):
+            st.session_state.page_state = 'tier_selection'
+            st.rerun()
+    
+    st.markdown("<p style='color:gray;'>BMT ADMIN COMMAND CENTER</p>", unsafe_allow_html=True)
+    st.divider()
     
     t_keys, t_pricing, t_ads, t_system = st.tabs(["🔑 API KEYS", "💰 PRICING", "📢 ADS CONTROL", "⚙️ SYSTEM"])
 
@@ -44,41 +55,35 @@ def owner_dashboard():
         for key_name in keys_list:
             col_key, col_btn = st.columns([0.8, 0.2])
             with col_key:
-                # Database ဖိုင်ထဲက Key တွေကို အရင်ဖတ်၊ မရှိမှ default value ပြပါမယ်
                 db = load_db()
                 current_val = db.get(f'secret_{key_name}', 'HIDDEN_KEY_XXXXX')
                 st.text_input(key_name, value=current_val, type="password", key=f"input_{key_name}")
             with col_btn:
                 st.write("")
                 if st.button("Update", key=f"upd_{key_name}"):
-                    # Database ထဲမှာ အသေသိမ်းလိုက်ပါပြီ
                     save_user_tier(f'secret_{key_name}', st.session_state[f"input_{key_name}"])
                     st.toast(f"{key_name} Saved to Database!")
 
     with t_pricing:
         st.subheader("Tier Pricing & Promo Control")
-        db = load_db() # Database မှ လက်ရှိဈေးနှုန်းများ ဖတ်ယူ
+        db = load_db()
         
-        # --- SILVER ---
         st.markdown("##### ⚪ SILVER TIER")
         cs1, cs2 = st.columns(2)
         s_price_val = cs1.text_input("Silver Price", value=db.get('s_price', "5,000 MMK"), key="pr_s")
         s_promo_val = cs2.text_input("Silver Promo Tag", value=db.get('s_promo', "Hot Sale!"), key="tr_s")
 
-        # --- GOLD ---
         st.markdown("##### 🟡 GOLD TIER")
         cg1, cg2 = st.columns(2)
         g_price_val = cg1.text_input("Gold Price", value=db.get('g_price', "15,000 MMK"), key="pr_g")
         g_promo_val = cg2.text_input("Gold Promo Tag", value=db.get('g_promo', "Most Popular!"), key="tr_g")
 
-        # --- DIAMOND ---
         st.markdown("##### 💎 DIAMOND TIER")
         cd1, cd2 = st.columns(2)
         d_price_val = cd1.text_input("Diamond Price", value=db.get('d_price', "30,000 MMK"), key="pr_d")
         d_promo_val = cd2.text_input("Diamond Promo Tag", value=db.get('d_promo', "Ultimate Experience!"), key="tr_d")
         
         if st.button("SAVE ALL PRICING", use_container_width=True):
-            # ဈေးနှုန်းအားလုံးကို Database ထဲမှာ အသေသိမ်းခြင်း
             save_user_tier('s_price', s_price_val)
             save_user_tier('s_promo', s_promo_val)
             save_user_tier('g_price', g_price_val)
