@@ -2,6 +2,9 @@ import streamlit as st
 import time
 from datetime import datetime, timedelta
 import streamlit.components.v1 as components
+import google.generativeai as genai
+from groq import Groq
+from database import get_api_key
 
 # --- Button တုန်ခါမှုနှင့် အသံအတွက် JavaScript ---
 def add_button_feedback():
@@ -12,7 +15,7 @@ def add_button_feedback():
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
+             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
@@ -26,9 +29,12 @@ def add_button_feedback():
         </script>
     """, height=0)
 
-# --- [ဖြည့်စွက်ချက်] MESSENGER CHAT INTERFACE ---
+# --- [အဆင့်မြှင့်တင်ထားသော] MESSENGER CHAT INTERFACE ---
 def chat_interface():
     st.markdown("<h2 style='text-align:center; color:#00ff00;'>💬 BMT AI MESSENGER</h2>", unsafe_allow_html=True)
+    
+    # ၁။ Admin Panel မှ Key ကို ဖတ်ခြင်း
+    api_key = get_api_key("2. LLM (Chat) API")
     
     # Home ပြန်ရန် ခလုတ်
     if st.button("⬅️ BACK TO HOME", use_container_width=True):
@@ -45,33 +51,61 @@ def chat_interface():
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-            # Assistant ထံမှ အဖြေဖြစ်ပါက Copy ယူရန် code block ထည့်ပေးခြင်း
             if message["role"] == "assistant":
                 st.code(message["content"], language=None)
 
-    # စာရိုက်သည့်နေရာ (Messenger Input)
+    # စာရိုက်သည့်နေရာ
     if prompt := st.chat_input("BMT AI ကို တစ်ခုခု မေးမြန်းပါ..."):
-        # User Message ကို အရင်ပြသပြီး သိမ်းဆည်းသည်
+        # User Message သိမ်းဆည်းခြင်း
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # AI Response (Owner ၏ LLM API နှင့် ဤနေရာတွင် ချိတ်ဆက်နိုင်သည်)
+        # ၂။ AI Response Logic (Free Key များအတွက် Switch)
         with st.chat_message("assistant"):
+            if not api_key:
+                st.error("Admin Panel (Key No. 2) တွင် Key အရင်ထည့်ပေးပါ Owner!")
+                return
+
             response_placeholder = st.empty()
-            full_response = f"BMT AI မှ အဖြေ: {prompt} နှင့် ပတ်သက်၍ နားလည်ပါပြီ။" # ဥပမာ စာသား
-            
-            # စာရိုက်နေသည့် ပုံစံ (Typing effect)
-            temp_resp = ""
-            for chunk in full_response.split():
-                temp_resp += chunk + " "
-                time.sleep(0.05)
-                response_placeholder.markdown(temp_resp + "▌")
-            
-            response_placeholder.markdown(full_response)
-            st.code(full_response, language=None) # Copy ခလုတ်အတွက်
-            
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+            full_response = ""
+
+            try:
+                # --- [FREE] Groq Engine (gsk_ နဲ့စရင်) ---
+                if api_key.startswith("gsk_"):
+                    client = Groq(api_key=api_key)
+                    completion = client.chat.completions.create(
+                        model="llama-3.3-70b-versatile",
+                        messages=[{"role": "user", "content": prompt}],
+                    )
+                    full_response = completion.choices[0].message.content
+                
+                # --- [FREE/PAID] OpenAI Engine (sk- နဲ့စရင်) ---
+                elif api_key.startswith("sk-"):
+                    full_response = "OpenAI Logic connected! (Please install 'openai' library to use fully)"
+
+                # --- [FREE] Gemini Engine (Default အဖြစ် ထားပါသည်) ---
+                else:
+                    genai.configure(api_key=api_key)
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    response = model.generate_content(prompt)
+                    full_response = response.text
+
+                # Typing Effect (စာရိုက်နေသည့် ပုံစံ)
+                temp_resp = ""
+                for chunk in full_response.split():
+                    temp_resp += chunk + " "
+                    time.sleep(0.03) # Speed ညှိထားပါသည်
+                    response_placeholder.markdown(temp_resp + "▌")
+                
+                response_placeholder.markdown(full_response)
+                st.code(full_response, language=None) # Copy ခလုတ်
+                
+                # History ထဲ သိမ်းခြင်း
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+            except Exception as e:
+                st.error(f"Error: {e}. Key မှန်မမှန် ပြန်စစ်ပေးပါ!")
 
 # --- မူရင်း VIDEO STUDIO CODE များ (မပြောင်းလဲပါ) ---
 def run_video_studio(curr):
@@ -82,7 +116,6 @@ def run_video_studio(curr):
     if 'video_gallery' not in st.session_state:
         st.session_state.video_gallery = []
 
-    # 48hr Auto-Delete
     now = datetime.now()
     st.session_state.video_gallery = [
         vid for vid in st.session_state.video_gallery 
