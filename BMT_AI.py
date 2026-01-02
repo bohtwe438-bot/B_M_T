@@ -5,7 +5,7 @@ import owner_manager as admin
 import ads_center as ads
 
 class BMTAiEmpire:
-    def init(self):
+    def __init__(self):
         # Module အားလုံးကို Initialize လုပ်ပြီး ချိတ်ဆက်ခြင်း
         self.ui = bmt_style.BMT_Styles()
         self.engine = studio.StudioEngine()
@@ -29,6 +29,6 @@ class BMTAiEmpire:
         # Ads ပြသခြင်း
         self.ads.show_banner()
 
-if name == "main":
+if __name__ == "__main__":
     app = BMTAiEmpire()
     app.run_app()
