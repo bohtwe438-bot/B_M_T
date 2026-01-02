@@ -26,6 +26,54 @@ def add_button_feedback():
         </script>
     """, height=0)
 
+# --- [ဖြည့်စွက်ချက်] MESSENGER CHAT INTERFACE ---
+def chat_interface():
+    st.markdown("<h2 style='text-align:center; color:#00ff00;'>💬 BMT AI MESSENGER</h2>", unsafe_allow_html=True)
+    
+    # Home ပြန်ရန် ခလုတ်
+    if st.button("⬅️ BACK TO HOME", use_container_width=True):
+        st.session_state.page_state = 'home'
+        st.rerun()
+    
+    st.divider()
+
+    # Chat History သိမ်းဆည်းရန်
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Messenger ပုံစံ Chat Bubbles များ ပြသခြင်း
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+            # Assistant ထံမှ အဖြေဖြစ်ပါက Copy ယူရန် code block ထည့်ပေးခြင်း
+            if message["role"] == "assistant":
+                st.code(message["content"], language=None)
+
+    # စာရိုက်သည့်နေရာ (Messenger Input)
+    if prompt := st.chat_input("BMT AI ကို တစ်ခုခု မေးမြန်းပါ..."):
+        # User Message ကို အရင်ပြသပြီး သိမ်းဆည်းသည်
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # AI Response (Owner ၏ LLM API နှင့် ဤနေရာတွင် ချိတ်ဆက်နိုင်သည်)
+        with st.chat_message("assistant"):
+            response_placeholder = st.empty()
+            full_response = f"BMT AI မှ အဖြေ: {prompt} နှင့် ပတ်သက်၍ နားလည်ပါပြီ။" # ဥပမာ စာသား
+            
+            # စာရိုက်နေသည့် ပုံစံ (Typing effect)
+            temp_resp = ""
+            for chunk in full_response.split():
+                temp_resp += chunk + " "
+                time.sleep(0.05)
+                response_placeholder.markdown(temp_resp + "▌")
+            
+            response_placeholder.markdown(full_response)
+            st.code(full_response, language=None) # Copy ခလုတ်အတွက်
+            
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+# --- မူရင်း VIDEO STUDIO CODE များ (မပြောင်းလဲပါ) ---
 def run_video_studio(curr):
     add_button_feedback() 
 
@@ -34,7 +82,7 @@ def run_video_studio(curr):
     if 'video_gallery' not in st.session_state:
         st.session_state.video_gallery = []
 
-    # --- 48hr Auto-Delete Logic ---
+    # 48hr Auto-Delete
     now = datetime.now()
     st.session_state.video_gallery = [
         vid for vid in st.session_state.video_gallery 
@@ -52,7 +100,6 @@ def run_video_studio(curr):
 def show_input_page(curr):
     st.markdown(f"<h2 style='color:{curr['c']}; text-shadow: 0 0 15px {curr['c']}; text-align:center; margin-bottom:0;'>BMT STUDIO PRO</h2>", unsafe_allow_html=True)
     
-    # --- ၁။ AI FEATURED SHOWCASE ---
     st.markdown(f"<div style='color:{curr['c']}; font-size:0.7rem; font-weight:bold; margin-top:10px; margin-bottom:5px;'>🔥 EXPLORE AI TRENDS</div>", unsafe_allow_html=True)
     f_col1, f_col2, f_col3 = st.columns(3)
     features = [
@@ -70,8 +117,6 @@ def show_input_page(curr):
             """, unsafe_allow_html=True)
 
     st.write("")
-
-    # --- ၂။ COMPACT SETTINGS ---
     c1, c2, c3 = st.columns(3)
     with c1: duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]))
     with c2: ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
@@ -88,7 +133,6 @@ def show_input_page(curr):
         else:
             st.warning("Prompt စာသား ထည့်ပေးပါ!")
 
-    # Gallery Button & Back
     col_back, col_gal = st.columns(2)
     with col_gal:
         if st.button("🎞 MY GALLERY", use_container_width=True):
@@ -138,7 +182,6 @@ def display_gallery(curr):
                 with v_info:
                     st.caption(f"📝 {vid['prompt'][:50]}...")
                 with v_menu:
-                    # --- 3-DOT MENU (⋮) ---
                     with st.expander("⋮", expanded=False):
                         if st.button("🗑 Del", key=f"del_{idx}", use_container_width=True):
                             st.session_state.video_gallery.pop(idx)
@@ -150,10 +193,3 @@ def display_gallery(curr):
     if st.button("➕ CREATE NEW", use_container_width=True):
         st.session_state.studio_view = 'input_page'
         st.rerun()
-
-def chat_interface():
-    st.markdown("<h1 style='text-align:center;'>BMT AI CHAT</h1>", unsafe_allow_html=True)
-    if st.button("⬅️ BACK TO HOME"):
-        st.session_state.page_state = 'home'
-        st.rerun()
-    st.chat_input("Ask BMT AI anything...")
