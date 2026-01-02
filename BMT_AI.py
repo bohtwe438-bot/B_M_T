@@ -4,7 +4,7 @@ import sys
 import os
 
 # Line 10 ဝန်းကျင် module error မတက်အောင် လမ်းကြောင်းဖွင့်ခြင်း
-sys.path.append(os.path.dirname(file))
+sys.path.append(os.path.dirname(__file__))
 
 try:
     import styles as bmt_style
@@ -13,7 +13,7 @@ except ImportError:
     st.error("styles.py ဖိုင်ကို ရှာမတွေ့ပါဘူး Owner!")
 
 class BMTAiEmpire:
-    def init(self):
+    def __init__(self):
         # Line 32-34 ဝန်းကျင်က error တွေအတွက် variable တွေကို သေချာသတ်မှတ်ခြင်း
         self.ui = bmt_style.BMT_Styles()
         if 'user_session' not in st.session_state:
