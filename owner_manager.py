@@ -1,13 +1,12 @@
 import streamlit as st
+from database import save_user_tier, load_db # Database ချိတ်ဆက်မှု ထည့်သွင်းခြင်း
 
 def manage_owner_access():
-    # Session state initialization
     if 'is_owner' not in st.session_state: st.session_state.is_owner = False
     if 'show_owner_login' not in st.session_state: st.session_state.show_owner_login = False
     
     with st.sidebar:
         st.markdown("---")
-        # Owner Login မဝင်ရသေးမှ Admin Access ခလုတ်ပြမယ်
         if not st.session_state.is_owner:
             if st.button("🛡️ ADMIN ACCESS", use_container_width=True):
                 st.session_state.show_owner_login = not st.session_state.show_owner_login
@@ -23,14 +22,14 @@ def manage_owner_access():
                     if pwd == "bmt999":
                         st.session_state.is_owner = True
                         st.session_state.show_owner_login = False
-                        st.session_state.page_state = 'admin_dashboard' # Dashboard သို့ တိုက်ရိုက်သွားခြင်း
+                        st.session_state.user_name = "Owner_Admin" # Owner အမည်ကို မှတ်သား
+                        st.session_state.page_state = 'admin_dashboard'
                         st.success("OWNER VERIFIED ✅")
                         st.rerun()
                     else:
                         st.error("Access Denied!")
 
 def owner_dashboard():
-    # Dashboard ခေါင်းစဉ်
     st.markdown("<h1 style='color:#f1c40f; text-align:center;'>👑 BMT ADMIN COMMAND CENTER</h1>", unsafe_allow_html=True)
     
     t_keys, t_pricing, t_ads, t_system = st.tabs(["🔑 API KEYS", "💰 PRICING", "📢 ADS CONTROL", "⚙️ SYSTEM"])
@@ -45,51 +44,69 @@ def owner_dashboard():
         for key_name in keys_list:
             col_key, col_btn = st.columns([0.8, 0.2])
             with col_key:
-                # မူရင်းအတိုင်း session state ထဲက Key ကိုယူသည်
-                current_val = st.session_state.get(f'secret_{key_name}', 'HIDDEN_KEY_XXXXX')
+                # Database ဖိုင်ထဲက Key တွေကို အရင်ဖတ်၊ မရှိမှ default value ပြပါမယ်
+                db = load_db()
+                current_val = db.get(f'secret_{key_name}', 'HIDDEN_KEY_XXXXX')
                 st.text_input(key_name, value=current_val, type="password", key=f"input_{key_name}")
             with col_btn:
                 st.write("")
                 if st.button("Update", key=f"upd_{key_name}"):
-                    st.session_state[f'secret_{key_name}'] = st.session_state[f"input_{key_name}"]
-                    st.toast(f"{key_name} Updated!")
+                    # Database ထဲမှာ အသေသိမ်းလိုက်ပါပြီ
+                    save_user_tier(f'secret_{key_name}', st.session_state[f"input_{key_name}"])
+                    st.toast(f"{key_name} Saved to Database!")
 
     with t_pricing:
         st.subheader("Tier Pricing & Promo Control")
+        db = load_db() # Database မှ လက်ရှိဈေးနှုန်းများ ဖတ်ယူ
         
         # --- SILVER ---
         st.markdown("##### ⚪ SILVER TIER")
         cs1, cs2 = st.columns(2)
-        st.session_state.s_price = cs1.text_input("Silver Price", value=st.session_state.get('s_price', "5,000 MMK"), key="pr_s")
-        st.session_state.s_promo = cs2.text_input("Silver Promo Tag", value=st.session_state.get('s_promo', "Hot Sale!"), key="tr_s")
-        st.divider()
+        s_price_val = cs1.text_input("Silver Price", value=db.get('s_price', "5,000 MMK"), key="pr_s")
+        s_promo_val = cs2.text_input("Silver Promo Tag", value=db.get('s_promo', "Hot Sale!"), key="tr_s")
 
         # --- GOLD ---
         st.markdown("##### 🟡 GOLD TIER")
         cg1, cg2 = st.columns(2)
-        st.session_state.g_price = cg1.text_input("Gold Price", value=st.session_state.get('g_price', "15,000 MMK"), key="pr_g")
-        st.session_state.g_promo = cg2.text_input("Gold Promo Tag", value=st.session_state.get('g_promo', "Most Popular!"), key="tr_g")
-        st.divider()
+        g_price_val = cg1.text_input("Gold Price", value=db.get('g_price', "15,000 MMK"), key="pr_g")
+        g_promo_val = cg2.text_input("Gold Promo Tag", value=db.get('g_promo', "Most Popular!"), key="tr_g")
 
         # --- DIAMOND ---
         st.markdown("##### 💎 DIAMOND TIER")
         cd1, cd2 = st.columns(2)
-        st.session_state.d_price = cd1.text_input("Diamond Price", value=st.session_state.get('d_price', "30,000 MMK"), key="pr_d")
-        st.session_state.d_promo = cd2.text_input("Diamond Promo Tag", value=st.session_state.get('d_promo', "Ultimate Experience!"), key="tr_d")
+        d_price_val = cd1.text_input("Diamond Price", value=db.get('d_price', "30,000 MMK"), key="pr_d")
+        d_promo_val = cd2.text_input("Diamond Promo Tag", value=db.get('d_promo', "Ultimate Experience!"), key="tr_d")
         
         if st.button("SAVE ALL PRICING", use_container_width=True):
-            st.success("All Tiers Updated Successfully!")
+            # ဈေးနှုန်းအားလုံးကို Database ထဲမှာ အသေသိမ်းခြင်း
+            save_user_tier('s_price', s_price_val)
+            save_user_tier('s_promo', s_promo_val)
+            save_user_tier('g_price', g_price_val)
+            save_user_tier('g_promo', g_promo_val)
+            save_user_tier('d_price', d_price_val)
+            save_user_tier('d_promo', d_promo_val)
+            st.success("Pricing Saved to Database!")
 
     with t_ads:
         st.subheader("Google Ads Control")
-        st.toggle("Enable Ads Globally", value=True, key="ads_enabled")
-        st.slider("Ads Frequency (per user session)", 1, 10, 3)
+        db = load_db()
+        ads_on = st.toggle("Enable Ads Globally", value=db.get('ads_enabled', True), key="ads_enabled")
+        freq = st.slider("Ads Frequency", 1, 10, db.get('ads_freq', 3))
+        
+        if st.button("Save Ads Settings"):
+            save_user_tier('ads_enabled', ads_on)
+            save_user_tier('ads_freq', freq)
+            st.success("Ads Settings Saved!")
 
     with t_system:
         st.subheader("System Maintenance")
-        m_mode = st.toggle("Activate Maintenance Mode", value=False, key="maintenance_mode")
-        if m_mode: st.error("App is currently in Maintenance Mode!")
-        
+        db = load_db()
+        m_mode = st.toggle("Activate Maintenance Mode", value=db.get('m_mode', False), key="maintenance_mode")
+        if st.button("Save System State"):
+            save_user_tier('m_mode', m_mode)
+            st.success("System State Updated!")
+            
+        st.divider()
         st.subheader("Monitoring")
         c1, c2, c3 = st.columns(3)
         c1.metric("Daily Users", "150", "+5%")
@@ -97,7 +114,6 @@ def owner_dashboard():
         history_count = len(st.session_state.get('video_history', []))
         c3.metric("Tasks", history_count)
 
-    # --- Logout ကို Dashboard ရဲ့ အောက်ခြေမှာပဲ ထားပါတယ် (Error မတက်စေရန်) ---
     st.divider()
     if st.button("🚪 LOGOUT ADMIN", use_container_width=True):
         st.session_state.is_owner = False
