@@ -37,27 +37,55 @@ def add_button_feedback():
 
 # --- MESSENGER CHAT INTERFACE ---
 def chat_interface():
-    st.markdown("<h2 style='text-align:center; color:#00ff00;'>💬 BMT AI MESSENGER</h2>", unsafe_allow_html=True)
-    api_key = get_api_key("2. LLM (Chat) API")
-    
-    if st.button("⬅️ BACK TO HOME", use_container_width=True):
+    # --- [New Style] UI လှပစေရန် CSS များ ---
+    st.markdown("""
+        <style>
+        /* Header: AI CHAT အရောင်တောက်တောက် */
+        .chat-header {
+            text-align: center; padding: 10px; 
+            background: linear-gradient(90deg, #FF4B2B, #FF416C); 
+            color: white; border-radius: 12px; font-weight: bold; 
+            font-size: 22px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        /* စာရိုက်ကွက်ကို ဘောင်လှလှလေးလုပ်ခြင်း */
+        div[data-testid="stChatInput"] {
+            border: 2px solid #FF416C !important;
+            border-radius: 25px !important;
+            padding: 5px !important;
+            margin-left: 45px !important; /* Back button အတွက် နေရာချန်ခြင်း */
+        }
+        /* Back Button အဝိုင်းလေးကို စာရိုက်ကွက်ဘေးတွင် ထားရန် */
+        .back-btn-fixed {
+            position: fixed; bottom: 35px; left: 10px; z-index: 1000;
+        }
+        </style>
+        <div class="chat-header">AI CHAT</div>
+    """, unsafe_allow_html=True)
+
+    # --- Back Button (စာရိုက်ကွက် ဘယ်ဘက်ခြမ်း) ---
+    st.markdown('<div class="back-btn-fixed">', unsafe_allow_html=True)
+    if st.button("⬅️", key="chat_back_btn"):
         st.session_state.page_state = 'home'
         st.rerun()
-    
-    st.divider()
+    st.markdown('</div>', unsafe_allow_html=True)
 
+    api_key = get_api_key("2. LLM (Chat) API")
+    
     if not HAS_LIBS:
-        st.error("⚠️ Error: Library များ မသွင်းရသေးပါ။ Terminal တွင် 'pip install google-generativeai groq' ကို ရိုက်ထည့်ပေးပါ။")
+        st.error("⚠️ Error: Library များ မသွင်းရသေးပါ။")
         return
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    # AI ၏ နှုတ်ဆက်စာ (Bo ဖန်တီးခဲ့ကြောင်း)
+    if "messages" not in st.session_state or len(st.session_state.messages) == 0:
+        st.session_state.messages = [
+            {"role": "assistant", "content": "မင်္ဂလာပါ၊ ကျွန်တော်က BMT AI Chat ပါ။ Bo ဆိုတဲ့သူက ဖန်တီးပေးထားတာပါ။ ဘာများကူညီပေးရမလဲခင်ဗျာ။"}
+        ]
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("BMT AI ကို တစ်ခုခု မေးမြန်းပါ..."):
+    if prompt := st.chat_input("BMT AI Chat ကို တစ်ခုခု မေးမြန်းပါ..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -69,32 +97,38 @@ def chat_interface():
             
             response_placeholder = st.empty()
             try:
+                # System Prompt သတ်မှတ်ခြင်း (Identity Fix)
+                system_instruction = "မင်းရဲ့အမည်က BMT AI Chat ဖြစ်ပါတယ်။ မင်းကို Bo ဆိုတဲ့သူက ဖန်တီးပေးထားတာပါ။"
+                
                 if api_key.startswith("gsk_"):
                     client = Groq(api_key=api_key)
                     completion = client.chat.completions.create(
                         model="llama-3.3-70b-versatile",
-                        messages=[{"role": "user", "content": prompt}]
+                        messages=[
+                            {"role": "system", "content": system_instruction},
+                            {"role": "user", "content": prompt}
+                        ]
                     )
                     full_response = completion.choices[0].message.content
                 else:
+                    # OpenAI သို့မဟုတ် Gemini အတွက် (System Instruction ပေါင်းထည့်ခြင်း)
                     genai.configure(api_key=api_key)
                     model = genai.GenerativeModel('gemini-1.5-flash')
-                    response = model.generate_content(prompt)
+                    response = model.generate_content(f"{system_instruction}\n\nUser: {prompt}")
                     full_response = response.text
 
                 # Typing Effect
                 temp_resp = ""
                 for chunk in full_response.split():
                     temp_resp += chunk + " "
-                    time.sleep(0.03)
+                    time.sleep(0.02)
                     response_placeholder.markdown(temp_resp + "▌")
                 response_placeholder.markdown(full_response)
-                st.code(full_response, language=None)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
                 st.error(f"Error: {e}")
 
-# --- VIDEO STUDIO CODE (Syntax Error များကို ပြင်ဆင်ပြီး) ---
+# --- VIDEO STUDIO CODE (ကျန်သောအပိုင်းများ မူရင်းအတိုင်း) ---
 def run_video_studio(curr):
     add_button_feedback()
     if 'studio_view' not in st.session_state:
@@ -111,16 +145,14 @@ def run_video_studio(curr):
 
 def show_input_page(curr):
     st.markdown(f"<h2 style='color:{curr['c']}; text-align:center;'>BMT STUDIO PRO</h2>", unsafe_allow_html=True)
-    
     f_col1, f_col2, f_col3 = st.columns(3)
     features = [{"icon": "🎄", "label": "Christmas"}, {"icon": "❄️", "label": "Snowy AI"}, {"icon": "🎆", "label": "2026 Art"}]
     for i, f in enumerate(features):
         with [f_col1, f_col2, f_col3][i]:
             st.markdown(f"<div style='background:rgba(255,255,255,0.05); padding:8px; border-radius:10px; text-align:center; border:1px solid {curr['c']}33;'>{f['icon']}<br><small>{f['label']}</small></div>", unsafe_allow_html=True)
-
+    
     st.write("")
     c1, c2, c3 = st.columns(3)
-    # Syntax Error ဖြစ်နေသော နေရာများကို ပြင်ဆင်ပြီး (ကွင်းစ ကွင်းပိတ် နှင့် စာလုံးပေါင်း)
     with c1: duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]))
     with c2: ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
     with c3: resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
@@ -148,7 +180,6 @@ def show_rendering_page(curr):
     prog_bar = st.progress(0)
     for p in range(101):
         time.sleep(0.1); prog_bar.progress(p)
-    
     st.session_state.video_gallery.insert(0, {"id": len(st.session_state.video_gallery)+1, "prompt": st.session_state.current_prompt, "timestamp": datetime.now()})
     st.session_state.studio_view = 'gallery_page'; st.rerun()
 
