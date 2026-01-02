@@ -24,21 +24,26 @@ def save_user_tier(username, tier):
 def get_user_tier(username):
     """User ၏ Tier ကို Database ထဲမှ ပြန်ထုတ်သည်"""
     db = load_db()
+    # အကယ်၍ အမည်မရှိပါက FREE ဟု သတ်မှတ်မည်
     return db.get(username, "FREE")
 
-# --- ဤနေရာတွင် function အသစ် ထပ်ဖြည့်ထားပါသည် (Error ပျောက်စေရန်) ---
+# --- မူရင်း function ထဲတွင် logic ထပ်ဖြည့်ခြင်း (Admin Panel မရရင်တောင် အလုပ်လုပ်စေရန်) ---
 def get_api_key(key_name):
     """Admin Panel မှ သိမ်းထားသော API Key ကို ပြန်ထုတ်ပေးသည်"""
-    # Key များကို သိမ်းမည့် ဖိုင်အမည် (Admin Panel ကုဒ်နှင့် ကိုက်ညီရပါမည်)
-    CONFIG_FILE = "admin_config.json" 
     
+    # ၁။ ဒီနေရာမှာ Owner ရဲ့ Groq Key ကို ထည့်ပေးလိုက်ပါ (အမြန်ဆုံး အလုပ်ဖြစ်ရန်)
+    # Admin Panel မှာ Key ထည့်ရတာ အခက်အခဲရှိနေရင် ဒီကနေ တိုက်ရိုက်သွားပါလိမ့်မယ်
+    if key_name == "2. LLM (Chat) API":
+        return "gsk_xxxx..."  # <--- ဒီနေရာမှာ Groq Key အမှန်ကို ထည့်ပါ
+        
+    # ၂။ အကယ်၍ အပေါ်က Key မရှိမှ အောက်က မူရင်း Admin Config ကို ဖတ်ပါမယ်
+    CONFIG_FILE = "admin_config.json" 
     if not os.path.exists(CONFIG_FILE):
         return None
         
     try:
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
-            # Admin Panel ကုဒ်အရ 'api_keys' dictionary ထဲတွင် သိမ်းထားလေ့ရှိသည်
             return config.get("api_keys", {}).get(key_name, None)
     except:
         return None
