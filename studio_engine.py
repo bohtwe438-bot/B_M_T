@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import streamlit.components.v1 as components
 from database import get_api_key
 
-# --- Library စစ်ဆေးခြင်း (Error မတက်အောင် ဤနေရာတွင် စစ်ပါသည်) ---
+# --- Error ကာကွယ်ရန် Library များကို Safe Import လုပ်ခြင်း ---
 try:
     import google.generativeai as genai
     from groq import Groq
@@ -21,7 +21,7 @@ def add_button_feedback():
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
+             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
@@ -48,9 +48,10 @@ def chat_interface():
     
     st.divider()
 
-    # Library မရှိလျှင် သတိပေးရန်
+    # Library မရှိလျှင် Error ပြမည့်အစား သတိပေးချက်ပြခြင်း
     if not HAS_LIBS:
-        st.error("⚠️ AI Engine များ အလုပ်လုပ်ရန် Library သွင်းရန် လိုအပ်နေပါသည်။ Terminal တွင် 'pip install google-generativeai groq' ဟု ရိုက်ထည့်ပေးပါ။")
+        st.error("⚠️ AI Engine များ အလုပ်လုပ်ရန် လိုအပ်သော Library များ မသွင်းရသေးပါ။")
+        st.info("Terminal တွင် 'pip install google-generativeai groq' ဟု ရိုက်ထည့်ပေးပါ။")
         return
 
     if "messages" not in st.session_state:
@@ -69,14 +70,13 @@ def chat_interface():
 
         with st.chat_message("assistant"):
             if not api_key:
-                st.error("Admin Panel (Key No. 2) တွင် Key အရင်ထည့်ပေးပါ Owner!")
+                st.error("Admin Panel မှာ Key အရင်ထည့်ပေးပါ Owner!")
                 return
 
             response_placeholder = st.empty()
             full_response = ""
 
             try:
-                # --- Groq Logic ---
                 if api_key.startswith("gsk_"):
                     client = Groq(api_key=api_key)
                     completion = client.chat.completions.create(
@@ -84,15 +84,12 @@ def chat_interface():
                         messages=[{"role": "user", "content": prompt}],
                     )
                     full_response = completion.choices[0].message.content
-                
-                # --- Gemini Logic ---
                 else:
                     genai.configure(api_key=api_key)
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     response = model.generate_content(prompt)
                     full_response = response.text
 
-                # Typing Effect
                 temp_resp = ""
                 for chunk in full_response.split():
                     temp_resp += chunk + " "
@@ -104,11 +101,12 @@ def chat_interface():
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
 
             except Exception as e:
-                st.error(f"Error: {e}. Key ပြန်စစ်ပေးပါ!")
+                st.error(f"Error: {e}. Key မှန်မမှန် ပြန်စစ်ပေးပါ!")
 
 # --- မူရင်း VIDEO STUDIO CODE များ (လုံးဝမပြောင်းလဲပါ) ---
 def run_video_studio(curr):
     add_button_feedback() 
+
     if 'studio_view' not in st.session_state:
         st.session_state.studio_view = 'input_page'
     if 'video_gallery' not in st.session_state:
@@ -137,8 +135,8 @@ def show_input_page(curr):
     st.write("")
     c1, c2, c3 = st.columns(3)
     with c1: duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]))
-    with c2: ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
-    with c3: resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
+    with c ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
+    with c3 resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
 
     prompt = st.text_area("DESCRIBE YOUR VISION", placeholder="Enter your idea here...", height=120)
     
