@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import streamlit.components.v1 as components
 from database import get_api_key
 
-# --- ၁။ Module Error မတက်အောင် Safe Import လုပ်ခြင်း ---
+# --- ၁။ Module Safe Import ---
 try:
     import google.generativeai as genai
     from groq import Groq
@@ -13,7 +13,7 @@ try:
 except ImportError:
     HAS_LIBS = False
 
-# --- Button Feedback JavaScript (မူရင်းအတိုင်း) ---
+# --- Button Feedback JavaScript ---
 def add_button_feedback():
     components.html("""
         <script>
@@ -41,23 +41,23 @@ def chat_interface():
     # --- UI Style ပြင်ဆင်ချက်များ ---
     st.markdown("""
         <style>
-        /* ၁။ Ads စာသားကို Header အပေါ်တွင် ထားခြင်း */
+        /* Ads စာသားကို Header အပေါ်တွင်သာ ထားခြင်း (အောက်ခြေ Ads ကို ဖယ်ရှားပြီးသား) */
         .top-ads {
             text-align: center; background-color: rgba(255, 65, 108, 0.05);
             color: #FF416C; font-size: 10px; letter-spacing: 2px;
-            padding: 5px; border-radius: 8px; margin-bottom: 10px;
+            padding: 6px; border-radius: 8px; margin-bottom: 12px;
             border: 0.5px solid rgba(255, 65, 108, 0.1);
         }
 
         /* Header Style */
         .chat-header {
-            text-align: center; padding: 10px; 
+            text-align: center; padding: 12px; 
             background: linear-gradient(90deg, #FF4B2B, #FF416C); 
             color: white !important; border-radius: 12px; font-weight: bold; 
-            font-size: 22px; margin-bottom: 20px;
+            font-size: 22px; margin-bottom: 25px;
         }
 
-        /* ၂။ စာသားအရောင် အဖြူရောင်ပြောင်းခြင်း (စာမမြင်ရသည့်ပြဿနာ ဖြေရှင်းချက်) */
+        /* စာသားအရောင် အဖြူရောင်ပြောင်းခြင်း */
         .stChatMessage div p {
             color: #FFFFFF !important;
         }
@@ -87,20 +87,21 @@ def chat_interface():
 
     api_key = get_api_key("2. LLM (Chat) API")
     
-    # ၃။ User နှင့် AI Icon များ သတ်မှတ်ခြင်း
+    # User နှင့် AI Icon များ
     USER_ICON = "😊"
     AI_ICON = "🤖"
 
-    if "messages" not in st.session_state or len(st.session_state.messages) == 0:
-        st.session_state.messages = [
-            {"role": "assistant", "content": "မင်္ဂလာပါ၊ ကျွန်တော်က BMT AI Chat ပါ။ Bo ဆိုတဲ့သူက ဖန်တီးပေးထားတာပါ။"}
-        ]
+    # Chat Messages History (အလိုအလျောက် နှုတ်ဆက်စာ မပြစေရန် Empty List ထားသည်)
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
+    # Message များကို ပြသခြင်း
     for message in st.session_state.messages:
         avatar = USER_ICON if message["role"] == "user" else AI_ICON
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
 
+    # စာရိုက်ကွက် - "မေးမှသာ ဖြေပါ"
     if prompt := st.chat_input("BMT AI Chat ကို တစ်ခုခု မေးမြန်းပါ..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user", avatar=USER_ICON):
@@ -127,6 +128,7 @@ def chat_interface():
                     response = model.generate_content(f"{system_instruction}\n\nUser: {prompt}")
                     full_response = response.text
 
+                # Typing Effect
                 temp_resp = ""
                 for chunk in full_response.split():
                     temp_resp += chunk + " "
@@ -135,7 +137,7 @@ def chat_interface():
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e: st.error(f"Error: {e}")
 
-# --- VIDEO STUDIO CODE (မူရင်းအတိုင်း) ---
+# --- Video Studio အပိုင်း (မူရင်းအတိုင်း) ---
 def run_video_studio(curr):
     add_button_feedback()
     if 'studio_view' not in st.session_state: st.session_state.studio_view = 'input_page'
