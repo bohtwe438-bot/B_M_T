@@ -2,110 +2,105 @@ import streamlit as st
 import time
 
 def run_video_studio(curr):
-    # --- UI အလှဆင်ရန် Custom CSS ---
-    st.markdown(f"""
-        <style>
-        /* Sidebar ကို Glassmorphism စတိုင်ပြောင်းခြင်း */
-        [data-testid="stSidebar"] {{
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid {curr['c']}33;
-        }}
-        
-        /* ခလုတ်များကို Neon Glow ထည့်ခြင်း */
-        .stButton>button {{
-            background: transparent;
-            color: {curr['c']};
-            border: 1px solid {curr['c']};
-            border-radius: 12px;
-            transition: 0.3s;
-            text-transform: uppercase;
-            font-weight: bold;
-        }}
-        .stButton>button:hover {{
-            background: {curr['c']};
-            color: #000;
-            box-shadow: 0 0 20px {curr['c']};
-        }}
-        
-        /* Card ပုံစံ စာရိုက်သည့်နေရာ */
-        .stTextArea textarea {{
-            background: rgba(255,255,255,0.03) !important;
-            border: 1px solid {curr['c']}33 !important;
-            color: #fff !important;
-            border-radius: 15px;
-        }}
-        </style>
-    """, unsafe_allow_html=True)
+    # View State ကို စစ်ဆေးပြီး စာမျက်နှာခွဲခြားခြင်း
+    current_view = st.session_state.get('studio_view', 'input_page')
 
-    # Studio Title with Neon Glow
-    st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 25px {curr['c']}; text-align:center; font-size: 50px;'>BMT STUDIO PRO</h1>", unsafe_allow_html=True)
-    
-    # --- ဘယ်ဘက် Sidebar မှာ Settings ကို Icon လေးတွေနဲ့ ပြောင်းမယ် ---
-    with st.sidebar:
-        st.markdown(f"<h2 style='color:{curr['c']}'>🎥 CONTROL PANEL</h2>", unsafe_allow_html=True)
-        st.divider()
-        duration = st.select_slider("⏱ VIDEO LENGTH", options=curr.get('d_list', ["5s", "8s"]))
-        resolution = st.selectbox("📺 QUALITY", curr.get('res', ["480p", "720p", "1080p", "2k", "4k"]))
-        v_style = st.radio("🎨 ART STYLE", ["Cinematic", "Anime", "3D Render", "Cyberpunk"], horizontal=False)
-        st.divider()
-        st.markdown(f"<p style='color:{curr['c']}'>📐 ASPECT RATIO</p>", unsafe_allow_html=True)
-        aspect_ratio = st.radio("", ["16:9", "9:16", "1:1"], horizontal=True)
-
-    # --- Main Canvas ---
-    if st.session_state.get('view') == 'gallery_page':
+    if current_view == 'input_page':
+        show_input_page(curr)
+    elif current_view == 'rendering_page':
+        show_rendering_page(curr)
+    elif current_view == 'gallery_page':
         display_gallery(curr)
-    elif st.session_state.get('generating'):
-        show_rendering_animation(curr, duration)
-    elif st.session_state.get('video_done'):
-        show_video_preview(curr)
-    else:
-        # Top Bar
-        c1, c2 = st.columns([0.8, 0.2])
-        with c1: st.markdown(f"<h4 style='color:#888;'>Ready to create your {v_style} masterpiece?</h4>", unsafe_allow_html=True)
-        with c2: 
-            if st.button("🎞 GALLERY"):
-                st.session_state.view = 'gallery_page'
-                st.rerun()
 
-        # Prompt Input
-        prompt = st.text_area("DESCRIBE YOUR VISION...", height=250, placeholder="Example: A futuristic soldier walking in a neon city...")
-        
-        # Action Button
-        if st.button(f"🔥 START {curr['n']} RENDERING", use_container_width=True):
-            st.session_state.generating = True
+# --- (၁) စာရိုက်သည့် စာမျက်နှာ (Settings မပါဘဲ Clean ဖြစ်အောင် လုပ်ထားသည်) ---
+def show_input_page(curr):
+    st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 20px {curr['c']}; text-align:center;'>CREATE MASTERPIECE</h1>", unsafe_allow_html=True)
+    
+    # Gallery Button ကို သီးသန့် အပေါ်မှာ ထားသည်
+    col_space, col_gal = st.columns([0.8, 0.2])
+    with col_gal:
+        if st.button("🎞 MY GALLERY", use_container_width=True):
+            st.session_state.studio_view = 'gallery_page'
             st.rerun()
 
-    # Back Button at Bottom
-    if st.button("⬅️ EXIT STUDIO", use_container_width=True):
+    # Video Settings များကို Input Page မှာပဲ တစ်ခါတည်း ရွေးခိုင်းမည်
+    with st.expander("🛠 VIDEO CONFIGURATION", expanded=True):
+        c1, c2, c3 = st.columns(3)
+        duration = c1.selectbox("⏱ LENGTH", curr.get('d_list', ["5s", "30s", "60s", "120s"]))
+        resolution = c2.selectbox("📺 QUALITY", curr.get('res', ["1080p", "4K"]))
+        ratio = c3.selectbox("📐 RATIO", ["16:9", "9:16", "1:1"])
+
+    prompt = st.text_area("DESCRIBE YOUR VISION...", height=300, placeholder="Enter your script here...")
+    
+    if st.button(f"🔥 START {curr['n']} GENERATE", use_container_width=True):
+        st.session_state.selected_duration = duration # ကြာချိန်ကို မှတ်ထားရန်
+        st.session_state.studio_view = 'rendering_page'
+        st.rerun()
+
+    if st.button("⬅️ BACK TO TIERS"):
         st.session_state.page_state = 'tier_selection'
         st.rerun()
 
-# --- Functions အဟောင်းများကို ဤနေရာတွင် ဆက်ထားပါ ---
-def show_rendering_animation(curr, duration):
-    wait_time = 8 if curr['n'] == 'FREE' else 30
+# --- (၂) Rendering Page (Google Ads + Progress Bar) ---
+def show_rendering_page(curr):
+    # Screen ကို နှစ်ပိုင်းခွဲခြင်း
+    # အပေါ်ပိုင်း - Google Ads Placeholder
+    st.markdown("""
+        <div style="background: rgba(255,255,255,0.05); border: 2px dashed #3b82f6; padding: 40px; border-radius: 20px; text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #3b82f6; margin: 0;">GOOGLE ADS SPACE</h2>
+            <p style="color: #666;">Ad script will be injected here</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # အောက်ပိုင်း - Progress UI
+    duration_val = st.session_state.get('selected_duration', "5s")
+    
+    # ကြာချိန်သတ်မှတ်ချက် (User logic အတိုင်း)
+    # 5s to 30s -> Wait 30s | 60s to 120s -> Wait 60s
+    if any(x in duration_val for x in ["5s", "8s", "10s", "20s", "30s"]):
+        wait_time = 30
+    else:
+        wait_time = 60
+
     prog_text = st.empty()
     prog_bar = st.progress(0)
+
     for percent in range(101):
         time.sleep(wait_time / 100)
-        prog_text.markdown(f"<h2 style='color:{curr['c']}; text-align:center;'>{percent}%</h2><p style='text-align:center;'>AI IS PAINTING YOUR VISION...</p>", unsafe_allow_html=True)
+        prog_text.markdown(f"""
+            <div style="text-align: center;">
+                <h1 style="color: {curr['c']}; font-size: 50px; margin: 0;">{percent}%</h1>
+                <p style="letter-spacing: 5px; color: {curr['c']}; opacity: 0.7;">AI RENDERING IN PROGRESS</p>
+            </div>
+        """, unsafe_allow_html=True)
         prog_bar.progress(percent)
-    st.session_state.generating = False
-    st.session_state.video_done = True
+
+    # Rendering ပြီးလျှင် Gallery သို့ တန်းသွားမည်
+    st.session_state.studio_view = 'gallery_page'
     st.rerun()
 
-def show_video_preview(curr):
-    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>✨ CREATION COMPLETE ✨</h3>", unsafe_allow_html=True)
-    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-    c1, c2 = st.columns(2)
-    with c1: st.button("📥 SAVE TO DEVICE", use_container_width=True)
-    with c2: 
-        if st.button("🔄 CREATE NEW", use_container_width=True):
-            del st.session_state.video_done
-            st.rerun()
-
+# --- (၃) Gallery စာမျက်နှာ ---
 def display_gallery(curr):
-    st.markdown(f"<h2 style='color:{curr['c']}; text-align:center;'>🎞 YOUR COLLECTION</h2>", unsafe_allow_html=True)
-    if st.button("⬅️ BACK TO WORKSPACE", use_container_width=True):
-        st.session_state.view = 'studio'
+    st.markdown(f"<h1 style='color:{curr['c']}; text-align:center;'>🎞 VIDEO GALLERY</h1>", unsafe_allow_html=True)
+    
+    # ဗီဒီယို ထွက်လာသည့်ပုံစံ (နမူနာ)
+    st.success("✅ Your video has been generated and saved!")
+    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+    
+    col1, col2 = st.columns(2)
+    if col1.button("🔄 CREATE ANOTHER"):
+        st.session_state.studio_view = 'input_page'
         st.rerun()
+    if col2.button("📥 DOWNLOAD VIDEO"):
+        st.toast("Downloading...")
+
+    if st.button("⬅️ BACK TO STUDIO"):
+        st.session_state.studio_view = 'input_page'
+        st.rerun()
+
+def chat_interface():
+    st.markdown("<h1 style='text-align:center;'>BMT AI CHAT</h1>", unsafe_allow_html=True)
+    if st.button("⬅️ BACK TO EMPIRE"):
+        st.session_state.page_state = 'home'
+        st.rerun()
+    st.chat_input("မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...")
