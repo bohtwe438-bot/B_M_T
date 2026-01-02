@@ -1,63 +1,44 @@
-# ==========================================
-# FILE 2: BMT_AI.py
-# PURPOSE: Main App Core & Navigation Engine
-# ==========================================
+import streamlit as st
+import traceback
 
-import styles as bmt_style
-import time
+# ၁။ Error ကို Screen ပေါ်မှာ ဖမ်းပြမယ့်စနစ်
+try:
+    # Page Config ကို အပေါ်ဆုံးမှာ ထားရပါမယ်
+    st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
 
-class BMTAiEmpire:
-    def init(self):
-        self.ui = bmt_style.BMT_Design_System()
-        self.user_session = {
-            "name": "BMT User",
-            "tier": "F", 
-            "last_update": 0 # For 7-day name change limit
-        }
-        self.is_owner = False
+    # ၂။ Sidebar မှာ Status ပြပေးခြင်း
+    st.sidebar.title(" BMT System Status")
+    st.sidebar.success("Engine: Online")
+    st.sidebar.info("Plan: 10,000 Lines Project")
 
-    def google_auth_system(self):
-        """Login with Google - Fetch Profile Image & Name"""
-        # Logic: Google Login Integration
-        print("BMT AI EMPIRE: Connected via Google.")
+    # ၃။ Main UI
+    st.markdown("<h1 style='text-align: center; color: #00F3FF;'> BMT AI EMPIRE</h1>", unsafe_allow_html=True)
+    st.write("---")
 
-    def update_profile(self, new_name, new_img):
-        """အမည်နှင့် ပုံကို (၇) ရက်လျှင် တစ်ကြိမ်သာ ပြောင်းလဲခွင့်ပေးရန်"""
-        current_time = time.time()
-        one_week = 7 * 24 * 60 * 60
-        
-        if (current_time - self.user_session["last_update"]) < one_week:
-            print("Notice: ပြင်ဆင်မှုသည် တစ်ပတ်လျှင် တစ်ကြိမ်သာ ရရှိနိုင်ပါသည်။")
-        else:
-            self.user_session["name"] = new_name
-            self.user_session.update({"last_update": current_time})
-            print("Profile Updated Successfully!")
+    # ၄။ Owner ရဲ့ Plan အတိုင်း Buttons များ
+    st.subheader("BMT Main Services")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.button(" AI SMART CHAT", use_container_width=True)
+    with col2:
+        st.button(" VIDEO GENERATOR", use_container_width=True)
 
-    def build_home_screen(self):
-        """ပင်မစာမျက်နှာကို Layout ခွဲထုတ်ခြင်း"""
-        # [HEADER]
-        # Text: "BMT" (Using BMT_LOGO_GLOW)
-        
-        # [MAIN BUTTONS - Side-by-Side]
-        # Left: AI SMART CHAT (Rectangular, Neon Cyan)
-        # Right: VIDEO GENERATOR (Rectangular, Neon Magenta)
-        
-        # [TIER SELECTOR - 1 Row]
-        # Buttons: [F] [S] [G] [D] -> Each with Vibration
-        pass
+    # ၅။ Tier Selection
+    st.write("---")
+    st.subheader("Tier Selection")
+    t1, t2, t3, t4 = st.columns(4)
+    tiers = [(" F Tier", "Free"), (" S Tier", "Silver"), (" G Tier", "Gold"), (" D Tier", "Diamond")]
+    cols = [t1, t2, t3, t4]
+    
+    for i, col in enumerate(cols):
+        with col:
+            if st.button(tiers[i][0], use_container_width=True):
+                st.toast(f"{tiers[i][1]} Activated!")
 
-    def owner_secret_entry(self, input_code, hold_time):
-        """Logo 3s hold -> 'bmt999' password box"""
-        if hold_time >= 3 and input_code == "bmt999":
-            self.is_owner = True
-            print("Welcome back, owner! (Ads Disabled / Unlimited Access)")
+    st.write("---")
+    st.info("Owner ရေ... ဒီ UI ပေါ်လာပြီဆိုရင် ကျွန်တော်တို့ Line 10,000 ဆီ သွားဖို့ အသင့်ဖြစ်ပါပြီ!")
 
-    def report_to_owner(self, user_issue):
-        """Owner ဆီ တိုင်ကြားရန် Feature"""
-        # Logic: Send issue to owner_manager.py
-        pass
-
-# App Start
-if __name__ == "__main__":
-    app = BMTAiEmpire()
-    app.google_auth_system()
+except Exception as e:
+    # Error တက်ရင် အဖြူရောင်ကြီး ဖြစ်မနေဘဲ ဒီစာသားတွေ ပေါ်လာပါလိမ့်မယ်
+    st.error(" BMT AI Error တက်နေပါတယ် Owner!")
+    st.code(traceback.format_exc()) # Error ဖြစ်တဲ့ နေရာကို အတိအကျပြပေးမယ်
