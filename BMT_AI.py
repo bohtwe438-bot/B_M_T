@@ -29,6 +29,6 @@ class BMTAiEmpire:
         # Ads ပြသခြင်း
         self.ads.show_banner()
 
-if __name__ == "__main__":
+if name == "main":
     app = BMTAiEmpire()
     app.run_app()
