@@ -15,16 +15,19 @@ except ImportError as e:
 # ၂။ Page Config
 st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
 
-# ၃။ Session State
+# ၃။ Session State Initialization (Error မတက်အောင် ကြိုတင်သတ်မှတ်ခြင်း)
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'is_owner' not in st.session_state: st.session_state.is_owner = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
 if 'user_name' not in st.session_state: st.session_state.user_name = "Guest"
+# Error တက်စေသော user_data ကို ကြိုဆောက်ထားပါမယ်
+if 'user_data' not in st.session_state: 
+    st.session_state.user_data = {"name": "Guest", "email": "", "photo": None, "tier": "FREE"}
 
-# Database မှ Tier ကို အမြဲဖတ်သည်
+# Tier ကို Database မှ ဖတ်ယူခြင်း
 st.session_state.user_tier = get_user_tier(st.session_state.user_name)
 
-# ၄။ UI Style
+# ၄။ UI Style Apply
 apply_bmt_style()
 
 # --- ၅။ LOGIN & ADMIN ACCESS ---
@@ -43,40 +46,41 @@ if not st.session_state.logged_in:
                     st.session_state.logged_in = True
                     st.session_state.is_owner = True
                     st.session_state.user_name = "Owner_Admin"
+                    # Admin အတွက် data ကြိုဖြည့်ပေးခြင်း
+                    st.session_state.user_data = {"name": "BMT Owner", "email": "admin@bmt.com", "photo": None, "tier": "OWNER"}
                     st.session_state.page_state = 'admin_dashboard'
                     st.rerun()
                 else: st.error("Access Denied!")
 else:
-    # --- ၆။ SIDEBAR (ခလုတ်ပေါ်ရန် အဓိကနေရာ) ---
+    # --- ၆။ SIDEBAR LOGIC (ခလုတ်ပေါ်ရန်နှင့် Error မတက်ရန်) ---
     with st.sidebar:
         if st.session_state.is_owner:
             st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 OWNER MENU</h2>", unsafe_allow_html=True)
             
-            # Dashboard မှာ ရှိနေရင် USE STUDIO ခလုတ်ပြမယ်
+            # Dashboard မှာ ရှိနေစဉ် USE STUDIO ခလုတ်ပြပါမည်
             if st.session_state.page_state == 'admin_dashboard':
                 st.info("Key များပြင်ပြီးလျှင် Studio သို့သွားပါ")
                 if st.button("🚀 USE STUDIO AS OWNER", use_container_width=True, type="primary"):
                     st.session_state.page_state = 'tier_selection'
                     st.rerun()
             else:
-                # Studio ထဲရောက်နေရင် Dashboard ပြန်သွားဖို့ပြမယ်
                 if st.button("⚙️ BACK TO DASHBOARD", use_container_width=True):
                     st.session_state.page_state = 'admin_dashboard'
                     st.rerun()
             st.divider()
         
+        # User Header (အပေါ်မှာ data ကြိုဖြည့်ထားလို့ အခု error မတက်တော့ပါဘူး)
         user_profile_header()
         st.divider()
         manage_owner_access()
 
     # --- ၇။ PAGE ROUTING ---
-
     # A. Admin Dashboard
     if st.session_state.page_state == 'admin_dashboard':
         owner_dashboard()
-        # st.stop() ကို ဖြုတ်ထားရပါမည် (Sidebar အလုပ်လုပ်ရန်)
+        # st.stop() ကို ဖြုတ်ထားရပါမည်
 
-    # B. AI Smart Chat (Messenger UI ခေါ်ယူခြင်း)
+    # B. AI Smart Chat (Messenger UI)
     elif st.session_state.page_state == 'chat_page':
         chat_interface()
 
@@ -85,33 +89,27 @@ else:
         st.markdown('<div class="bmt-title">BMT AI EMPIRE</div>', unsafe_allow_html=True)
         col_chat, col_vid = st.columns(2)
         if col_chat.button("💬 AI SMART CHAT", use_container_width=True): 
-            st.session_state.page_state = 'chat_page'
-            st.rerun()
+            st.session_state.page_state = 'chat_page'; st.rerun()
         if col_vid.button("🎬 VIDEO GENERATOR", use_container_width=True): 
-            st.session_state.page_state = 'tier_selection'
-            st.rerun()
+            st.session_state.page_state = 'tier_selection'; st.rerun()
 
     # D. Tier Selection & Video Studio
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
-        
         def t_btn(t_id, t_name, emi):
             if st.button(f"{emi} {t_name}", use_container_width=True):
                 if st.session_state.is_owner or st.session_state.user_tier == t_name:
                     st.session_state.page_state = t_id; st.rerun()
                 else: st.warning(f"{t_name} Tier ဝယ်ယူရန် လိုအပ်ပါသည်")
-
         with col1:
             if st.button("🟢 FREE", use_container_width=True): st.session_state.page_state='f_page'; st.rerun()
             t_btn('g_page', 'GOLD', '🟡 G')
         with col2:
             t_btn('s_page', 'SILVER', '⚪ S')
             t_btn('d_page', 'DIAMOND', '💎 D')
-
         if st.button("⬅️ BACK", use_container_width=True):
-            st.session_state.page_state = 'admin_dashboard' if st.session_state.is_owner else 'home'
-            st.rerun()
+            st.session_state.page_state = 'admin_dashboard' if st.session_state.is_owner else 'home'; st.rerun()
 
     elif st.session_state.page_state in ['f_page', 's_page', 'g_page', 'd_page']:
         configs = {
