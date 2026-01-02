@@ -46,26 +46,24 @@ if not st.session_state.logged_in:
 else:
     # --- ၆။ ADMIN CONTROL (Error မတက်အောင် ဤနေရာတွင် ရပ်ထားသည်) ---
     if st.session_state.is_owner:
-        # Admin ဆိုရင် sidebar မှာ user info မပြတော့ဘဲ logout ပဲပြပါမယ်
         with st.sidebar:
-            st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 ADMIN</h2>", unsafe_allow_html=True)
+            st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 ADMIN ACTIVE</h2>", unsafe_allow_html=True)
             if st.button("🚪 LOGOUT ADMIN", use_container_width=True):
                 st.session_state.is_owner = False
                 st.session_state.logged_in = False
                 st.session_state.show_secret_gate = False
                 st.rerun()
         
-        # Admin Dashboard ကို ခေါ်ယူသည်
         owner_dashboard() 
-        st.stop() # 🛑 ဒီမှာ ရပ်ထားမှ User Profile Header ဆီကို သွားပြီး Error မတက်မှာပါ
+        st.stop() 
 
     # --- ၇။ NORMAL USER AREA (Google Login သမားများအတွက်သာ) ---
     with st.sidebar:
-        user_profile_header() # User Data ရှိမှသာ အလုပ်လုပ်မည်
+        user_profile_header() 
         st.divider()
         manage_owner_access()
 
-    # User Home Page Logic များ...
+    # ဗီဒီယို သတ်မှတ်ချက်များ (Owner ရဲ့ Plan အတိုင်း Free Tier ကို 8s ထားရှိပါသည်)
     configs = {
         'f_page': {'bg': '#021202', 'c': '#00ff00', 'n': 'FREE', 'd_list': ["5s", "8s"], 'res': ["480p", "720p"]},
         's_page': {'bg': '#121212', 'c': '#bdc3c7', 'n': 'SILVER', 'd_list': ["10s", "20s"], 'res': ["720p", "1080p"]},
@@ -81,13 +79,30 @@ else:
         if col_vid.button("VIDEO GENERATOR", use_container_width=True):
             st.session_state.page_state = 'tier_selection'; st.rerun()
     
-    elif st.session_state.page_state == 'chat_page': chat_interface()
+    elif st.session_state.page_state == 'chat_page': 
+        chat_interface()
+
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
-        t1, t2 = st.columns(2)
-        if t1.button("F (FREE)", use_container_width=True): st.session_state.page_state = 'f_page'; st.rerun()
-        if t2.button("S (SILVER)", use_container_width=True): st.session_state.page_state = 's_page'; st.rerun()
-        if st.button("⬅️ BACK", use_container_width=True): st.session_state.page_state = 'home'; st.rerun()
-    elif st.session_state.page_state in configs: run_video_studio(configs[st.session_state.page_state])
+        
+        # --- ခလုတ် ၄ ခုစလုံးကို စုံလင်စွာ ပြသခြင်း ---
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🟢 F (FREE)", use_container_width=True): 
+                st.session_state.page_state = 'f_page'; st.rerun()
+            if st.button("🟡 G (GOLD)", use_container_width=True): 
+                st.session_state.page_state = 'g_page'; st.rerun()
+        with col2:
+            if st.button("⚪ S (SILVER)", use_container_width=True): 
+                st.session_state.page_state = 's_page'; st.rerun()
+            if st.button("💎 D (DIAMOND)", use_container_width=True): 
+                st.session_state.page_state = 'd_page'; st.rerun()
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("⬅️ BACK", use_container_width=True): 
+            st.session_state.page_state = 'home'; st.rerun()
+
+    elif st.session_state.page_state in configs: 
+        run_video_studio(configs[st.session_state.page_state])
 
     ads_manager()
