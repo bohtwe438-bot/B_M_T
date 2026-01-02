@@ -6,14 +6,12 @@ def manage_owner_access():
     
     with st.sidebar:
         st.markdown("---")
-        # 🛡️ ခလုတ်ကို နှိပ်လိုက်ရင် Login Box ပေါ်လာမယ်
         if st.button("🛡️ ADMIN ACCESS", use_container_width=True):
             st.session_state.show_owner_login = not st.session_state.show_owner_login
             st.rerun()
 
         if st.session_state.show_owner_login:
             st.markdown("<h4 style='color:#f1c40f;'>🔑 BMT OWNER LOGIN</h4>", unsafe_allow_html=True)
-            # Password ကို Form နဲ့ သုံးမှ Enter ခေါက်ရင် တန်းဝင်မှာပါ
             with st.form("admin_login_form"):
                 pwd = st.text_input("Enter Key", type="password")
                 submit = st.form_submit_button("VERIFY", use_container_width=True)
@@ -21,18 +19,16 @@ def manage_owner_access():
                 if submit:
                     if pwd == "bmt999":
                         st.session_state.is_owner = True
-                        st.session_state.show_owner_login = False # Login box ပြန်ဖျောက်မယ်
+                        st.session_state.show_owner_login = False
                         st.success("OWNER VERIFIED ✅")
-                        st.rerun() # UI အသစ်ကို ချက်ချင်းပြောင်းမယ်
+                        st.rerun()
                     else:
                         st.error("Access Denied!")
 
 def owner_dashboard():
-    # ဒီနေရာမှာ is_owner ကို သေချာစစ်ဆေးပါတယ်
     if st.session_state.get('is_owner'):
         st.markdown("<h1 style='color:#f1c40f; text-align:center;'>👑 BMT ADMIN COMMAND CENTER</h1>", unsafe_allow_html=True)
         
-        # Tabs ခွဲခြားခြင်း (Master API ၁၀ ခုလုံး ပါဝင်သည်)
         t_keys, t_pricing, t_ads, t_system = st.tabs(["🔑 API KEYS", "💰 PRICING", "📢 ADS CONTROL", "⚙️ SYSTEM"])
 
         with t_keys:
@@ -45,7 +41,6 @@ def owner_dashboard():
             for key_name in keys_list:
                 col_key, col_btn = st.columns([0.8, 0.2])
                 with col_key:
-                    # Key တွေကို Session မှာ အမြဲသိမ်းထားမယ်
                     current_val = st.session_state.get(f'secret_{key_name}', 'HIDDEN_KEY_XXXXX')
                     new_val = st.text_input(key_name, value=current_val, type="password", key=f"input_{key_name}")
                 with col_btn:
@@ -56,9 +51,31 @@ def owner_dashboard():
 
         with t_pricing:
             st.subheader("Tier Pricing & Promo Control")
-            col1, col2 = st.columns(2)
-            st.session_state.s_price = col1.text_input("Silver Price", "5,000 MMK")
-            st.session_state.s_promo = col2.text_input("Silver Promo Tag", "Hot Sale!")
+            
+            # --- SILVER ---
+            st.markdown("##### ⚪ SILVER TIER")
+            cs1, cs2 = st.columns(2)
+            st.session_state.s_price = cs1.text_input("Silver Price", "5,000 MMK", key="pr_s")
+            st.session_state.s_promo = cs2.text_input("Silver Promo Tag", "Hot Sale!", key="tr_s")
+            
+            st.divider()
+
+            # --- GOLD (ဖြည့်စွက်ချက်) ---
+            st.markdown("##### 🟡 GOLD TIER")
+            cg1, cg2 = st.columns(2)
+            st.session_state.g_price = cg1.text_input("Gold Price", "15,000 MMK", key="pr_g")
+            st.session_state.g_promo = cg2.text_input("Gold Promo Tag", "Most Popular!", key="tr_g")
+            
+            st.divider()
+
+            # --- DIAMOND (ဖြည့်စွက်ချက်) ---
+            st.markdown("##### 💎 DIAMOND TIER")
+            cd1, cd2 = st.columns(2)
+            st.session_state.d_price = cd1.text_input("Diamond Price", "30,000 MMK", key="pr_d")
+            st.session_state.d_promo = cd2.text_input("Diamond Promo Tag", "Ultimate Experience!", key="tr_d")
+            
+            if st.button("SAVE ALL PRICING", use_container_width=True):
+                st.success("All Tiers Updated Successfully!")
 
         with t_ads:
             st.subheader("Google Ads Control")
@@ -74,7 +91,6 @@ def owner_dashboard():
             c1, c2, c3 = st.columns(3)
             c1.metric("Daily Users", "150", "+5%")
             c2.metric("Revenue", "350,000 MMK", "Peak")
-            # Video count logic
             history_count = len(st.session_state.get('video_history', []))
             c3.metric("Tasks", history_count)
 
