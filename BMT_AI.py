@@ -50,14 +50,14 @@ class BMTAiEmpire:
         """Logo 3s hold -> 'bmt999' password box"""
         if hold_time >= 3 and input_code == "bmt999":
             self.is_owner = True
-            print("Welcome back, Owner! (Ads Disabled / Unlimited Access)")
+            print("Welcome back, owner! (Ads Disabled / Unlimited Access)")
 
     def report_to_owner(self, user_issue):
         """Owner ဆီ တိုင်ကြားရန် Feature"""
-        # Logic: Send issue to Owner_manager.py
+        # Logic: Send issue to owner_manager.py
         pass
 
 # App Start
-if _name_ == "_main_":
+if __name__ == "__main__":
     app = BMTAiEmpire()
     app.google_auth_system()
