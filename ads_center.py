@@ -1,18 +1,11 @@
-# ==========================================
-# FILE 5: Ads_center.py
-# PURPOSE: Ad Management & 48-Hour Auto-Delete
-# ==========================================
+import streamlit as st
 
-class BMT_Ads_Service:
-    def init(self, is_owner=False):
-        self.show_ads = not is_owner # Owner Mode ဆိုရင် Ads ပိတ်မည်
-
-    def show_banner_ad(self):
-        if self.show_ads:
-            print("Displaying Banner Ad below Home Buttons...")
-
-    def auto_delete_old_files(self):
-        """၄၈ နာရီပြည့်သည့် ဖိုင်များကို Database မှ ဖျက်ရန်"""
-        # Logic: Check file timestamp
-        # If timestamp > 48 hours -> Delete
-        print("Cleaning up gallery: Old files removed.")
+def ads_manager():
+    if not st.session_state.get('is_owner', False):
+        st.divider()
+        st.markdown("""
+            <div style="background: #1e293b; padding: 15px; border-radius: 10px; border: 1px solid #3b82f6; text-align: center;">
+                <h4 style="color: #3b82f6; margin:0;">BMT SPONSORED AD</h4>
+                <p style="font-size: 14px; color: white;">Upgrade to Diamond for 120s Videos!</p>
+            </div>
+        """, unsafe_allow_html=True)
