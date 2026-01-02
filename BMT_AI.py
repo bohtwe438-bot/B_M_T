@@ -3,7 +3,7 @@
 # PURPOSE: Main App Core & Navigation Engine
 # ==========================================
 
-import Styles as bmt_style
+import styles as bmt_style
 import time
 
 class BMTAiEmpire:
