@@ -87,3 +87,43 @@ else:
         run_video_studio(configs[st.session_state.page_state])
 
     ads_manager()
+# ... (အပေါ်က Import တွေ အရင်အတိုင်းပါ)
+
+# Login စစ်ဆေးခြင်း
+if not st.session_state.logged_in:
+    show_login_screen()
+    
+    # 🤫 လျှို့ဝှက်ချက် - Login Screen ရဲ့ အောက်ခြေ ညာဘက်ထောင့်မှာ ခလုတ်မပါတဲ့ နေရာလေးကို နှိပ်ရင် ပွင့်အောင် လုပ်လို့ရပါတယ်
+    # ဒါပေမဲ့ အခုတော့ မြင်သာအောင် sidebar မှာပဲ အရင်ထားပေးထားပါတယ်
+else:
+    with st.sidebar:
+        # 🔑 Owner Login ကို အပေါ်ဆုံးမှာ သိသိသာသာ ထားပေးထားပါတယ်
+        st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 OWNER PORTAL</h2>", unsafe_allow_html=True)
+        
+        if not st.session_state.is_owner:
+            # Expander ကို အမြဲပွင့်နေအောင် expanded=True ထားထားပါတယ်
+            with st.expander("🛡️ ADMIN UNLOCK", expanded=True):
+                with st.form("admin_verify_form"):
+                    pwd = st.text_input("Enter Master Password", type="password")
+                    if st.form_submit_button("OPEN DASHBOARD", use_container_width=True):
+                        if pwd == "bmt999":
+                            st.session_state.is_owner = True
+                            st.rerun()
+                        else:
+                            st.error("မှားယွင်းနေပါသည်")
+        else:
+            st.success("OWNER MODE: ACTIVE")
+            if st.button("🚪 EXIT ADMIN", use_container_width=True):
+                st.session_state.is_owner = False
+                st.rerun()
+        
+        st.divider()
+        user_profile_header()
+
+    # --- OWNER DASHBOARD ---
+    if st.session_state.is_owner:
+        owner_dashboard() # 🔑 API Keys ၁၀ ခု နေရာ
+        st.stop() 
+
+    # --- REST OF THE CODE (USER VIEW) ---
+    # ...
