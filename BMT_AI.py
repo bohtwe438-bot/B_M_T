@@ -18,7 +18,6 @@ st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
 if 'is_owner' not in st.session_state: st.session_state.is_owner = False
-if 'show_secret_gate' not in st.session_state: st.session_state.show_secret_gate = False
 
 # ၄။ UI Design & Style
 apply_bmt_style()
@@ -29,33 +28,37 @@ if not st.session_state.logged_in:
     
     st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("© 2026 BMT AI EMPIRE", help="Owner Access"):
-        st.session_state.show_secret_gate = not st.session_state.show_secret_gate
+        st.session_state.show_secret_gate = not st.session_state.get('show_secret_gate', False)
         st.rerun()
 
-    if st.session_state.show_secret_gate:
+    if st.session_state.get('show_secret_gate'):
         with st.form("stable_admin_form", clear_on_submit=True):
             admin_pwd = st.text_input("Master Password", type="password")
             if st.form_submit_button("UNLOCK ADMIN PANEL", use_container_width=True):
                 if admin_pwd == "bmt999":
                     st.session_state.logged_in = True
                     st.session_state.is_owner = True
-                    st.session_state.page_state = 'admin_dashboard' # တန်းပြီး dashboard ပို့မယ်
+                    st.session_state.page_state = 'admin_dashboard'
                     st.rerun()
                 else:
                     st.error("မှားယွင်းနေပါသည်")
 else:
-    # --- ၆။ ADMIN/OWNER AREA ---
+    # --- ၆။ OWNER SIDEBAR (ဒီအပိုင်းကို Dashboard အပေါ်မှာ ထားထားပါတယ်) ---
     if st.session_state.is_owner:
         with st.sidebar:
-            st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 ADMIN ACTIVE</h2>", unsafe_allow_html=True)
+            st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 OWNER MENU</h2>", unsafe_allow_html=True)
             
-            # Dashboard နဲ့ Studio ကြား ကူးပြောင်းမည့်ခလုတ်
+            # 🔥 ခလုတ်ကို Dashboard ရောက်နေမှ ပြပါမယ်
             if st.session_state.page_state == 'admin_dashboard':
-                if st.button("🚀 USE STUDIO AS OWNER", use_container_width=True):
-                    st.session_state.page_state = 'tier_selection'; st.rerun()
+                st.info("Key တွေပြင်ပြီးရင် Studio သုံးရန် အောက်ကခလုတ်ကို နှိပ်ပါ")
+                if st.button("🚀 USE STUDIO AS OWNER", use_container_width=True, type="primary"):
+                    st.session_state.page_state = 'tier_selection'
+                    st.rerun()
             else:
-                if st.button("⚙️ BACK TO DASHBOARD", use_container_width=True):
-                    st.session_state.page_state = 'admin_dashboard'; st.rerun()
+                # Studio ထဲရောက်နေရင် Dashboard ပြန်လာဖို့ခလုတ်
+                if st.button("⚙️ BACK TO KEY MANAGER", use_container_width=True):
+                    st.session_state.page_state = 'admin_dashboard'
+                    st.rerun()
             
             st.divider()
             if st.button("🚪 LOGOUT ADMIN", use_container_width=True):
@@ -64,12 +67,12 @@ else:
                 st.session_state.page_state = 'home'
                 st.rerun()
         
-        # Dashboard ပြသမည့် အပိုင်း
+        # Dashboard ကို ခေါ်ပြတဲ့နေရာ (Sidebar logic ပြီးမှ ပြရမှာပါ)
         if st.session_state.page_state == 'admin_dashboard':
             owner_dashboard() 
-            st.stop() 
+            st.stop() # Dashboard ပြနေချိန်မှာ အောက်က code တွေ မပွင့်အောင် ဒီမှာ ရပ်ထားတာပါ
 
-    # --- ၇။ NORMAL USER AREA ---
+    # --- ၇။ NORMAL USER AREA (Google login သမားများအတွက်) ---
     with st.sidebar:
         user_profile_header() 
         st.divider()
@@ -95,7 +98,6 @@ else:
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
-
         with col1:
             if st.button("🟢 F (FREE)", use_container_width=True): 
                 st.session_state.page_state = 'f_page'; st.rerun()
@@ -113,12 +115,12 @@ else:
             tier_button('d_page', 'DIAMOND', '💎 D')
         
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        # BACK ခလုတ် Logic: Owner ဆိုရင် Dashboard ပြန်သွားမယ်၊ User ဆိုရင် Home သွားမယ်
-        back_label = "⚙️ BACK TO DASHBOARD" if st.session_state.is_owner else "⬅️ BACK TO HOME"
-        back_target = 'admin_dashboard' if st.session_state.is_owner else 'home'
-        if st.button(back_label, use_container_width=True): 
-            st.session_state.page_state = back_target; st.rerun()
+        if st.session_state.is_owner:
+            if st.button("⚙️ BACK TO KEY MANAGER", use_container_width=True):
+                st.session_state.page_state = 'admin_dashboard'; st.rerun()
+        else:
+            if st.button("⬅️ BACK TO HOME", use_container_width=True):
+                st.session_state.page_state = 'home'; st.rerun()
 
     elif st.session_state.page_state in configs: 
         run_video_studio(configs[st.session_state.page_state])
