@@ -3,5 +3,5 @@ google-auth
 google-auth-oauthlib
 google-auth-oauthlib2
 requests
-pillow
+PILLOW
 pandas
