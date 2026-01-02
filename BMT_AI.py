@@ -24,7 +24,7 @@ class BMTAiEmpire:
         with col2: st.button(" VIDEO GENERATOR", use_container_width=True)
 
 # App Start (Syntax အမှန်ပြင်ထားသည်)
-if name == "main":
+if __name__ == "__main__":
     app = BMTAiEmpire()
     app.google_auth_system()
     app.build_home_screen()
