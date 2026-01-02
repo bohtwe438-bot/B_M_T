@@ -1,12 +1,13 @@
 import streamlit as st
 
-# ၁။ အခြားဖိုင်များကို Import လုပ်ခြင်း
+# ၁။ အခြားဖိုင်များကို Import လုပ်ခြင်း (Database ပါ ထည့်သွင်းထားသည်)
 try:
     from styles import apply_bmt_style
     from ads_center import ads_manager
     from owner_manager import manage_owner_access, owner_dashboard
     from studio_engine import run_video_studio, chat_interface
     from auth_manager import show_login_screen, user_profile_header
+    from database import get_user_tier  # <--- Database ချိတ်ဆက်မှုအသစ်
 except ImportError as e:
     st.error(f"Error: {e}")
     st.stop()
@@ -18,7 +19,10 @@ st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'is_owner' not in st.session_state: st.session_state.is_owner = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
-if 'user_tier' not in st.session_state: st.session_state.user_tier = 'FREE'
+if 'user_name' not in st.session_state: st.session_state.user_name = "Guest"
+
+# --- [အရေးကြီး] Update တင်ပြီး ပြန်ပွင့်လာတိုင်း Database ထဲက Tier ကို အလိုအလျောက်ပြန်ဖတ်သည် ---
+st.session_state.user_tier = get_user_tier(st.session_state.user_name)
 
 # ၄။ UI Style
 apply_bmt_style()
@@ -39,6 +43,7 @@ if not st.session_state.logged_in:
                 if admin_pwd == "bmt999":
                     st.session_state.logged_in = True
                     st.session_state.is_owner = True
+                    st.session_state.user_name = "Owner_Admin" # Owner အမည်ကို သတ်မှတ်
                     st.session_state.page_state = 'admin_dashboard'
                     st.rerun()
                 else: st.error("Access Denied!")
@@ -65,7 +70,7 @@ else:
                 st.session_state.page_state = 'home'
                 st.rerun()
 
-        # Dashboard ပြသမည့်နေရာ
+        # Dashboard ပြသမည့်နေရာ (Sidebar ဖတ်ပြီးမှ st.stop လုပ်ခြင်း)
         if st.session_state.page_state == 'admin_dashboard':
             owner_dashboard()
             st.stop() 
@@ -95,6 +100,7 @@ else:
         
         def t_btn(t_id, t_name, emi):
             if st.button(f"{emi} {t_name}", use_container_width=True):
+                # Owner ဆိုလျှင် တိုက်ရိုက်ဝင်ခွင့်ပေးမည်
                 if st.session_state.is_owner or st.session_state.user_tier == t_name:
                     st.session_state.page_state = t_id; st.rerun()
                 else: st.warning(f"{t_name} Tier ဝယ်ယူရန် လိုအပ်ပါသည်")
@@ -106,7 +112,6 @@ else:
             t_btn('s_page', 'SILVER', '⚪ S')
             t_btn('d_page', 'DIAMOND', '💎 D')
 
-        # Back Button Logic
         if st.button("⬅️ BACK", use_container_width=True):
             st.session_state.page_state = 'admin_dashboard' if st.session_state.is_owner else 'home'
             st.rerun()
