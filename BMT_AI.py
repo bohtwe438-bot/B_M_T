@@ -1,30 +1,34 @@
-import styles as bmt_style # အသေးပြောင်းထားသည်
-import time
 import streamlit as st
+import styles as bmt_style
+import studio_engine as studio
+import owner_manager as admin
+import ads_center as ads
 
 class BMTAiEmpire:
-    def init(self): # init ဟု ပြင်ထားသည်
-        self.ui = bmt_style.BMT_Styles() # Class နာမည် ညှိထားသည်
-        if 'user_session' not in st.session_state:
-            st.session_state.user_session = {
-                "name": "BMT User",
-                "tier": "F", 
-                "last_update": 0 
-            }
-        self.is_owner = False
+    def init(self):
+        # Module အားလုံးကို Initialize လုပ်ပြီး ချိတ်ဆက်ခြင်း
+        self.ui = bmt_style.BMT_Styles()
+        self.engine = studio.StudioEngine()
+        self.admin = admin.OwnerManager()
+        self.ads = ads.AdsCenter()
+        
+        if 'user_tier' not in st.session_state:
+            st.session_state.user_tier = "F" # Default Tier
 
-    def google_auth_system(self):
-        st.write("BMT AI EMPIRE: Connected via Google.")
-
-    def build_home_screen(self):
-        # Master Plan အရ UI ကို ဒီမှာ ဆက်ရေးပါမည်
-        st.title("BMT AI EMPIRE")
+    def run_app(self):
+        self.ui.apply_main_css()
+        # Owner Plan: Main Buttons
         col1, col2 = st.columns(2)
-        with col1: st.button(" AI SMART CHAT", use_container_width=True)
-        with col2: st.button(" VIDEO GENERATOR", use_container_width=True)
+        with col1:
+            if st.button(" AI SMART CHAT"):
+                self.engine.open_chat(st.session_state.user_tier)
+        with col2:
+            if st.button(" VIDEO GENERATOR"):
+                self.engine.open_video_gen(st.session_state.user_tier)
+        
+        # Ads ပြသခြင်း
+        self.ads.show_banner()
 
-# App Start (Syntax အမှန်ပြင်ထားသည်)
-if __name__ == "__main__":
+if name == "main":
     app = BMTAiEmpire()
-    app.google_auth_system()
-    app.build_home_screen()
+    app.run_app()
