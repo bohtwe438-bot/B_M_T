@@ -26,34 +26,33 @@ apply_bmt_style()
 if not st.session_state.logged_in:
     show_login_screen()
 else:
-    # Sidebar အပိုင်း
+    # --- 🔑 Sidebar: Admin Section ကို အပေါ်ဆုံး တင်လိုက်သည် ---
     with st.sidebar:
-        user_profile_header() 
-        st.divider()
+        st.markdown("<h2 style='color:#f1c40f; text-align:center;'>🛡️ COMMAND</h2>", unsafe_allow_html=True)
         
-        # --- 🔑 Admin Login Section ---
-        st.markdown("<h3 style='color:#f1c40f;'>👑 OWNER ACCESS</h3>", unsafe_allow_html=True)
-        # Form သုံးခြင်းက နှိပ်လိုက်ရင် ပျောက်မသွားစေရန် ဖြစ်သည်
-        with st.form("admin_verify_form"):
-            pwd = st.text_input("Admin Password", type="password")
-            if st.form_submit_button("LOGIN ADMIN", use_container_width=True):
-                if pwd == "bmt999":
-                    st.session_state.is_owner = True
-                    st.rerun()
-                else:
-                    st.error("Wrong Password!")
-        
-        # အကယ်၍ Admin Mode ရောက်နေရင် Exit ခလုတ်ပြရန်
-        if st.session_state.is_owner:
-            if st.button("🚪 EXIT ADMIN MODE", use_container_width=True):
+        if not st.session_state.is_owner:
+            with st.expander("🔑 OWNER LOGIN", expanded=True): # Expander နဲ့ဆိုတော့ ပိုမြင်သာပါတယ်
+                with st.form("admin_verify_form"):
+                    pwd = st.text_input("Admin Password", type="password")
+                    if st.form_submit_button("UNLOCK DASHBOARD", use_container_width=True):
+                        if pwd == "bmt999":
+                            st.session_state.is_owner = True
+                            st.rerun()
+                        else:
+                            st.error("မှားယွင်းနေပါသည်")
+        else:
+            st.success("OWNER VERIFIED ✅")
+            if st.button("🚪 EXIT ADMIN", use_container_width=True):
                 st.session_state.is_owner = False
                 st.rerun()
+        
+        st.divider()
+        user_profile_header() 
 
-    # --- ၅။ ADMIN CONTROL (Owner Only) ---
+    # --- ၅။ ADMIN CONTROL (is_owner True ဖြစ်မှသာ ပေါ်မည်) ---
     if st.session_state.is_owner:
-        # ဒီနေရာရောက်ရင် Key တွေ စစ်လို့ရပါပြီ
-        owner_dashboard()
-        st.stop() # Admin Dashboard ပဲပြပြီး ကျန်တာတွေ မပြစေရန်
+        owner_dashboard() # 🔑 API Keys ၁၀ ခု စစ်ရမည့်နေရာ
+        st.stop() 
 
     # --- ၆။ NORMAL USER AREA ---
     configs = {
@@ -65,8 +64,6 @@ else:
 
     if st.session_state.page_state == 'home':
         st.markdown('<div class="bmt-title">BMT AI EMPIRE</div>', unsafe_allow_html=True)
-        st.markdown('<div class="bmt-sub">The Future of AI Video Generation</div>', unsafe_allow_html=True)
-        
         col_chat, col_vid = st.columns(2)
         if col_chat.button("AI SMART CHAT", use_container_width=True):
             st.session_state.page_state = 'chat_page'; st.rerun()
@@ -78,7 +75,6 @@ else:
 
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
-        # Mobile အတွက် Grid ပုံစံ ညှိထားသည်
         t1, t2 = st.columns(2)
         t3, t4 = st.columns(2)
         if t1.button("F (FREE)", use_container_width=True): st.session_state.page_state = 'f_page'; st.rerun()
@@ -90,5 +86,4 @@ else:
     elif st.session_state.page_state in configs:
         run_video_studio(configs[st.session_state.page_state])
 
-    # Ads
     ads_manager()
