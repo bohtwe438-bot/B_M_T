@@ -50,14 +50,11 @@ def run_video_studio(curr):
         display_gallery(curr)
 
 def show_input_page(curr):
-    # Header
     st.markdown(f"<h2 style='color:{curr['c']}; text-shadow: 0 0 15px {curr['c']}; text-align:center; margin-bottom:0;'>BMT STUDIO PRO</h2>", unsafe_allow_html=True)
     
-    # --- ၁။ AI FEATURED SHOWCASE (ဆွဲဆောင်မှု အသစ်အဆန်းများ) ---
+    # --- ၁။ AI FEATURED SHOWCASE ---
     st.markdown(f"<div style='color:{curr['c']}; font-size:0.7rem; font-weight:bold; margin-top:10px; margin-bottom:5px;'>🔥 EXPLORE AI TRENDS</div>", unsafe_allow_html=True)
     f_col1, f_col2, f_col3 = st.columns(3)
-    
-    # ခရစ်စမတ် နှင့် Trend ပုံစံများ
     features = [
         {"icon": "🎄", "label": "Christmas"},
         {"icon": "❄️", "label": "Snowy AI"},
@@ -74,20 +71,14 @@ def show_input_page(curr):
 
     st.write("")
 
-    # --- ၂။ COMPACT SIDE-TO-SIDE SETTINGS ---
-    # Settings ၃ ခုကို ဘေးတိုက်ကပ်လျက် စီထားခြင်း
+    # --- ၂။ COMPACT SETTINGS ---
     c1, c2, c3 = st.columns(3)
-    with c1:
-        duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]), label_visibility="visible")
-    with c2:
-        ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
-    with c3:
-        resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
+    with c1: duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]))
+    with c2: ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
+    with c3: resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
 
-    # Prompt Area (Settings များအောက်တွင် ကပ်လျက်)
     prompt = st.text_area("DESCRIBE YOUR VISION", placeholder="Enter your idea here...", height=120)
     
-    # Generate Button
     if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
         if prompt:
             st.session_state.selected_duration = duration
@@ -110,16 +101,9 @@ def show_input_page(curr):
 
 def show_rendering_page(curr):
     st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>AI GENERATING...</h3>", unsafe_allow_html=True)
-    
-    # Ads Section
-    st.markdown("""
-        <div style="background: rgba(255,255,255,0.03); border: 1px dashed #444; padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px;">
-            <p style="color: #888; font-size: 0.8rem;">BMT AI Sponsorship Space</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div style="background: rgba(255,255,255,0.03); border: 1px dashed #444; padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px;"><p style="color: #888; font-size: 0.8rem;">BMT AI Sponsorship Space</p></div>""", unsafe_allow_html=True)
 
     duration_val = st.session_state.get('selected_duration', "5s")
-    # Time logic (Free tier 8s max duration constraint applies)
     wait_time = 30 if "s" in duration_val else 60 
 
     prog_container = st.container()
@@ -148,17 +132,20 @@ def display_gallery(curr):
         st.write("No videos yet.")
     else:
         for idx, vid in enumerate(st.session_state.video_gallery):
-            st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-            st.caption(f"Prompt: {vid['prompt'][:50]}...")
-            
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                if st.button("🗑 Del", key=f"del_{idx}"):
-                    st.session_state.video_gallery.pop(idx)
-                    st.rerun()
-            with c2: st.button("📥 Get", key=f"dl_{idx}")
-            with c3: st.button("🔗 Share", key=f"sh_{idx}")
-            st.divider()
+            with st.container():
+                st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+                v_info, v_menu = st.columns([0.85, 0.15])
+                with v_info:
+                    st.caption(f"📝 {vid['prompt'][:50]}...")
+                with v_menu:
+                    # --- 3-DOT MENU (⋮) ---
+                    with st.expander("⋮", expanded=False):
+                        if st.button("🗑 Del", key=f"del_{idx}", use_container_width=True):
+                            st.session_state.video_gallery.pop(idx)
+                            st.rerun()
+                        st.button("📥 Get", key=f"dl_{idx}", use_container_width=True)
+                        st.button("🔗 Sh", key=f"sh_{idx}", use_container_width=True)
+                st.divider()
 
     if st.button("➕ CREATE NEW", use_container_width=True):
         st.session_state.studio_view = 'input_page'
@@ -169,4 +156,4 @@ def chat_interface():
     if st.button("⬅️ BACK TO HOME"):
         st.session_state.page_state = 'home'
         st.rerun()
-    st.chat_input("မေးမြန်းလိုသည်များကို ရိုက်ထည့်ပါ...")
+    st.chat_input("Ask BMT AI anything...")
