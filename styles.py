@@ -22,7 +22,7 @@ def apply_bmt_style():
             osc.stop(audioCtx.currentTime + 0.04);
         };
 
-        // Button အားလုံးကို Event ပတ်ခြင်း (Dynamic ဖြစ်စေရန် အချိန်ခဏခြားပြီး စစ်ပေးသည်)
+        // Button အားလုံးကို Event ပတ်ခြင်း
         setInterval(() => {
             const buttons = parent.document.querySelectorAll('button');
             buttons.forEach(btn => {
@@ -35,7 +35,7 @@ def apply_bmt_style():
         </script>
     """, height=0)
 
-    # ၂။ မူရင်း Style နှင့် Neon Glow Styling
+    # ၂။ UI Styling Logic
     is_admin = st.session_state.get('is_owner', False)
     title_color = "linear-gradient(to bottom, #f1c40f 40%, #926600 100%)" if is_admin else "linear-gradient(to bottom, #ffffff 40%, #3b82f6 100%)"
     glow_color = "rgba(241, 196, 15, 0.6)" if is_admin else "rgba(59, 130, 246, 0.6)"
@@ -79,8 +79,8 @@ def apply_bmt_style():
             transform: translateY(-2px);
         }}
         .stButton>button:active {{
-            transform: scale(0.95);
-        }
+            transform: scale(0.95) !important;
+        }}
 
         .stTabs [data-baseweb="tab-list"] {{ gap: 10px; }}
         .stTabs [data-baseweb="tab"] {{
