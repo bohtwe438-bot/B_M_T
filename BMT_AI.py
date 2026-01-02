@@ -1,34 +1,44 @@
 import streamlit as st
-import styles as bmt_style
-import studio_engine as studio
-import owner_manager as admin
-import ads_center as ads
+import time
+import sys
+import os
+
+# Line 10 ဝန်းကျင် module error မတက်အောင် လမ်းကြောင်းဖွင့်ခြင်း
+sys.path.append(os.path.dirname(file))
+
+try:
+    import styles as bmt_style
+    # studio_engine, ads_center တို့ကိုလည်း အခုလိုမျိုး try/except နဲ့ ခေါ်ထားရင် ပိုစိတ်ချရပါတယ်
+except ImportError:
+    st.error("styles.py ဖိုင်ကို ရှာမတွေ့ပါဘူး Owner!")
 
 class BMTAiEmpire:
     def init(self):
-        # Module အားလုံးကို Initialize လုပ်ပြီး ချိတ်ဆက်ခြင်း
+        # Line 32-34 ဝန်းကျင်က error တွေအတွက် variable တွေကို သေချာသတ်မှတ်ခြင်း
         self.ui = bmt_style.BMT_Styles()
-        self.engine = studio.StudioEngine()
-        self.admin = admin.OwnerManager()
-        self.ads = ads.AdsCenter()
-        
-        if 'user_tier' not in st.session_state:
-            st.session_state.user_tier = "F" # Default Tier
+        if 'user_session' not in st.session_state:
+            st.session_state.user_session = {
+                "name": "BMT User",
+                "tier": "F", 
+                "last_update": time.time()
+            }
+        self.is_owner = False
 
-    def run_app(self):
+    def build_home_screen(self):
         self.ui.apply_main_css()
-        # Owner Plan: Main Buttons
+        st.markdown('<div class="bmt-logo">BMT AI EMPIRE</div>', unsafe_allow_html=True)
+        
+        # Main Buttons (Side-by-Side)
         col1, col2 = st.columns(2)
         with col1:
-            if st.button(" AI SMART CHAT"):
-                self.engine.open_chat(st.session_state.user_tier)
+            if st.button(" AI SMART CHAT", use_container_width=True):
+                st.info("AI Chat Engine Loading...")
         with col2:
-            if st.button(" VIDEO GENERATOR"):
-                self.engine.open_video_gen(st.session_state.user_tier)
-        
-        # Ads ပြသခြင်း
-        self.ads.show_banner()
+            if st.button(" VIDEO GENERATOR", use_container_width=True):
+                st.success("Video Engine Loading...")
 
-if name == "main":
+# --- App Start ---
+# အရေးကြီးဆုံးအပိုင်း (Underscore ၂ ခုစီကို သေချာစစ်ပါ)
+if __name__ == "__main__":
     app = BMTAiEmpire()
-    app.run_app()
+    app.build_home_screen()
