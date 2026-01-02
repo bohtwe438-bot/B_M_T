@@ -1,13 +1,13 @@
 import streamlit as st
 
-# ၁။ အခြားဖိုင်များကို Import လုပ်ခြင်း (Database ပါ ထည့်သွင်းထားသည်)
+# ၁။ အခြားဖိုင်များကို Import လုပ်ခြင်း
 try:
     from styles import apply_bmt_style
     from ads_center import ads_manager
     from owner_manager import manage_owner_access, owner_dashboard
-    from studio_engine import run_video_studio, chat_interface
+    from studio_engine import run_video_studio, chat_interface # <--- Chat Function ပါဝင်မှု သေချာစေရန်
     from auth_manager import show_login_screen, user_profile_header
-    from database import get_user_tier  # <--- Database ချိတ်ဆက်မှုအသစ်
+    from database import get_user_tier
 except ImportError as e:
     st.error(f"Error: {e}")
     st.stop()
@@ -15,13 +15,13 @@ except ImportError as e:
 # ၂။ Page Config
 st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
 
-# ၃။ ဒေတာမပျောက်စေရန် Session State ထိန်းသိမ်းခြင်း
+# ၃။ Session State ထိန်းသိမ်းခြင်း
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'is_owner' not in st.session_state: st.session_state.is_owner = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
 if 'user_name' not in st.session_state: st.session_state.user_name = "Guest"
 
-# --- [အရေးကြီး] Update တင်ပြီး ပြန်ပွင့်လာတိုင်း Database ထဲက Tier ကို အလိုအလျောက်ပြန်ဖတ်သည် ---
+# Database မှ Tier ကို အလိုအလျောက် ပြန်ဖတ်ခြင်း
 st.session_state.user_tier = get_user_tier(st.session_state.user_name)
 
 # ၄။ UI Style
@@ -43,12 +43,12 @@ if not st.session_state.logged_in:
                 if admin_pwd == "bmt999":
                     st.session_state.logged_in = True
                     st.session_state.is_owner = True
-                    st.session_state.user_name = "Owner_Admin" # Owner အမည်ကို သတ်မှတ်
+                    st.session_state.user_name = "Owner_Admin"
                     st.session_state.page_state = 'admin_dashboard'
                     st.rerun()
                 else: st.error("Access Denied!")
 else:
-    # --- ၆။ OWNER SIDEBAR CONTROL (ခလုတ်ပေါ်ရန် ဤနေရာတွင်ထားသည်) ---
+    # --- ၆။ OWNER SIDEBAR CONTROL (USE STUDIO ခလုတ်ပေါ်ရန်) ---
     if st.session_state.is_owner:
         with st.sidebar:
             st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 OWNER MENU</h2>", unsafe_allow_html=True)
@@ -70,7 +70,7 @@ else:
                 st.session_state.page_state = 'home'
                 st.rerun()
 
-        # Dashboard ပြသမည့်နေရာ (Sidebar ဖတ်ပြီးမှ st.stop လုပ်ခြင်း)
+        # Dashboard ပြသမည့်နေရာ
         if st.session_state.page_state == 'admin_dashboard':
             owner_dashboard()
             st.stop() 
@@ -88,11 +88,22 @@ else:
         'd_page': {'bg': '#0d0114', 'c': '#9b59b6', 'n': 'DIAMOND', 'd_list': ["30s", "60s", "90s", "120s"], 'res': ["1080p", "2k", "4k"]}
     }
 
+    # --- PAGE ROUTING ---
     if st.session_state.page_state == 'home':
         st.markdown('<div class="bmt-title">BMT AI EMPIRE</div>', unsafe_allow_html=True)
         col_chat, col_vid = st.columns(2)
-        if col_chat.button("AI SMART CHAT", use_container_width=True): st.session_state.page_state = 'chat_page'; st.rerun()
-        if col_vid.button("VIDEO GENERATOR", use_container_width=True): st.session_state.page_state = 'tier_selection'; st.rerun()
+        # AI SMART CHAT ခလုတ်
+        if col_chat.button("AI SMART CHAT", use_container_width=True): 
+            st.session_state.page_state = 'chat_page'
+            st.rerun()
+        # VIDEO GENERATOR ခလုတ်
+        if col_vid.button("VIDEO GENERATOR", use_container_width=True): 
+            st.session_state.page_state = 'tier_selection'
+            st.rerun()
+
+    # [ဖြည့်စွက်ချက်] AI CHAT စာမျက်နှာ လမ်းကြောင်း
+    elif st.session_state.page_state == 'chat_page':
+        chat_interface()
 
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
@@ -100,7 +111,6 @@ else:
         
         def t_btn(t_id, t_name, emi):
             if st.button(f"{emi} {t_name}", use_container_width=True):
-                # Owner ဆိုလျှင် တိုက်ရိုက်ဝင်ခွင့်ပေးမည်
                 if st.session_state.is_owner or st.session_state.user_tier == t_name:
                     st.session_state.page_state = t_id; st.rerun()
                 else: st.warning(f"{t_name} Tier ဝယ်ယူရန် လိုအပ်ပါသည်")
