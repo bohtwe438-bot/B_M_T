@@ -30,17 +30,30 @@ else:
     with st.sidebar:
         user_profile_header() 
         st.divider()
-        # Admin Password ရိုက်ရန် နေရာ (bmt999 ရိုက်ရန်)
-        manage_owner_access() 
+        
+        # --- 🔑 Admin Login Section ---
+        st.markdown("<h3 style='color:#f1c40f;'>👑 OWNER ACCESS</h3>", unsafe_allow_html=True)
+        # Form သုံးခြင်းက နှိပ်လိုက်ရင် ပျောက်မသွားစေရန် ဖြစ်သည်
+        with st.form("admin_verify_form"):
+            pwd = st.text_input("Admin Password", type="password")
+            if st.form_submit_button("LOGIN ADMIN", use_container_width=True):
+                if pwd == "bmt999":
+                    st.session_state.is_owner = True
+                    st.rerun()
+                else:
+                    st.error("Wrong Password!")
+        
+        # အကယ်၍ Admin Mode ရောက်နေရင် Exit ခလုတ်ပြရန်
+        if st.session_state.is_owner:
+            if st.button("🚪 EXIT ADMIN MODE", use_container_width=True):
+                st.session_state.is_owner = False
+                st.rerun()
 
     # --- ၅။ ADMIN CONTROL (Owner Only) ---
-    if st.session_state.get('is_owner'):
-        # ဤနေရာတွင် Key များ ထည့်သွင်းရန် Dashboard ပေါ်လာမည်
+    if st.session_state.is_owner:
+        # ဒီနေရာရောက်ရင် Key တွေ စစ်လို့ရပါပြီ
         owner_dashboard()
-        if st.button("🚪 EXIT ADMIN MODE", use_container_width=True):
-            st.session_state.is_owner = False
-            st.rerun()
-        st.stop() 
+        st.stop() # Admin Dashboard ပဲပြပြီး ကျန်တာတွေ မပြစေရန်
 
     # --- ၆။ NORMAL USER AREA ---
     configs = {
@@ -65,12 +78,14 @@ else:
 
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
-        t1, t2, t3, t4 = st.columns(4)
-        if t1.button("F (FREE)"): st.session_state.page_state = 'f_page'; st.rerun()
-        if t2.button("S (SILVER)"): st.session_state.page_state = 's_page'; st.rerun()
-        if t3.button("G (GOLD)"): st.session_state.page_state = 'g_page'; st.rerun()
-        if t4.button("D (DIAMOND)"): st.session_state.page_state = 'd_page'; st.rerun()
-        if st.button("BACK"): st.session_state.page_state = 'home'; st.rerun()
+        # Mobile အတွက် Grid ပုံစံ ညှိထားသည်
+        t1, t2 = st.columns(2)
+        t3, t4 = st.columns(2)
+        if t1.button("F (FREE)", use_container_width=True): st.session_state.page_state = 'f_page'; st.rerun()
+        if t2.button("S (SILVER)", use_container_width=True): st.session_state.page_state = 's_page'; st.rerun()
+        if t3.button("G (GOLD)", use_container_width=True): st.session_state.page_state = 'g_page'; st.rerun()
+        if t4.button("D (DIAMOND)", use_container_width=True): st.session_state.page_state = 'd_page'; st.rerun()
+        if st.button("⬅️ BACK", use_container_width=True): st.session_state.page_state = 'home'; st.rerun()
 
     elif st.session_state.page_state in configs:
         run_video_studio(configs[st.session_state.page_state])
