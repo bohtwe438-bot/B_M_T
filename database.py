@@ -24,17 +24,17 @@ def save_user_tier(username, tier):
 def get_user_tier(username):
     """User ၏ Tier ကို Database ထဲမှ ပြန်ထုတ်သည်"""
     db = load_db()
-    # အကယ်၍ အမည်မရှိပါက FREE ဟု သတ်မှတ်မည်
     return db.get(username, "FREE")
 
 # --- မူရင်း function ထဲတွင် logic ထပ်ဖြည့်ခြင်း (Admin Panel မရရင်တောင် အလုပ်လုပ်စေရန်) ---
 def get_api_key(key_name):
     """Admin Panel မှ သိမ်းထားသော API Key ကို ပြန်ထုတ်ပေးသည်"""
     
-    # ၁။ ဒီနေရာမှာ Owner ရဲ့ Groq Key ကို ထည့်ပေးလိုက်ပါ (အမြန်ဆုံး အလုပ်ဖြစ်ရန်)
-    # Admin Panel မှာ Key ထည့်ရတာ အခက်အခဲရှိနေရင် ဒီကနေ တိုက်ရိုက်သွားပါလိမ့်မယ်
+    # ၁။ ဒီနေရာမှာ Owner ရဲ့ Groq Key အမှန်ကို သေချာစွာ ထည့်ပေးပါ
+    # "Invalid API Key" Error ပျောက်ရန် gsk_ နဲ့ စတဲ့ Key အပြည့်အစုံကို ကွင်းစကွင်းပိတ်ကြားထဲ ထည့်ရပါမယ်
     if key_name == "2. LLM (Chat) API":
-        return "gsk_xxxx..."  # <--- ဒီနေရာမှာ Groq Key အမှန်ကို ထည့်ပါ
+        # ဥပမာ- return "gsk_yX6..." (ဒီနေရာမှာ Owner ရဲ့ Key အစစ်ကို ထည့်ပါ)
+        return "gsk_xxxx..."  
         
     # ၂။ အကယ်၍ အပေါ်က Key မရှိမှ အောက်က မူရင်း Admin Config ကို ဖတ်ပါမယ်
     CONFIG_FILE = "admin_config.json" 
