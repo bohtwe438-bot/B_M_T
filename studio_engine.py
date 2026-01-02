@@ -8,9 +8,7 @@ def add_button_feedback():
     components.html("""
         <script>
         const playFeedback = () => {
-            // Vibration (Mobile အတွက်)
             if (window.navigator.vibrate) window.navigator.vibrate(50);
-            // Click Sound (Audio Context သုံးပြီး ထုတ်ခြင်း)
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
@@ -22,7 +20,6 @@ def add_button_feedback():
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.05);
         };
-        // Button အားလုံးကို နားထောင်ပြီး Feedback ပေးခြင်း
         parent.document.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', playFeedback);
         });
@@ -30,7 +27,7 @@ def add_button_feedback():
     """, height=0)
 
 def run_video_studio(curr):
-    add_button_feedback() # အသံနှင့် တုန်ခါမှုစတင်ခြင်း
+    add_button_feedback() 
 
     if 'studio_view' not in st.session_state:
         st.session_state.studio_view = 'input_page'
@@ -53,45 +50,77 @@ def run_video_studio(curr):
         display_gallery(curr)
 
 def show_input_page(curr):
-    st.markdown(f"<h1 style='color:{curr['c']}; text-shadow: 0 0 20px {curr['c']}; text-align:center;'>BMT STUDIO PRO</h1>", unsafe_allow_html=True)
+    # Header
+    st.markdown(f"<h2 style='color:{curr['c']}; text-shadow: 0 0 15px {curr['c']}; text-align:center; margin-bottom:0;'>BMT STUDIO PRO</h2>", unsafe_allow_html=True)
     
-    col_space, col_gal = st.columns([0.8, 0.2])
+    # --- ၁။ AI FEATURED SHOWCASE (ဆွဲဆောင်မှု အသစ်အဆန်းများ) ---
+    st.markdown(f"<div style='color:{curr['c']}; font-size:0.7rem; font-weight:bold; margin-top:10px; margin-bottom:5px;'>🔥 EXPLORE AI TRENDS</div>", unsafe_allow_html=True)
+    f_col1, f_col2, f_col3 = st.columns(3)
+    
+    # ခရစ်စမတ် နှင့် Trend ပုံစံများ
+    features = [
+        {"icon": "🎄", "label": "Christmas"},
+        {"icon": "❄️", "label": "Snowy AI"},
+        {"icon": "🎆", "label": "2026 Art"}
+    ]
+    for i, f in enumerate(features):
+        with [f_col1, f_col2, f_col3][i]:
+            st.markdown(f"""
+                <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:10px; text-align:center; border:1px solid {curr['c']}33;">
+                    <div style="font-size:1.2rem;">{f['icon']}</div>
+                    <div style="font-size:0.6rem; color:white;">{f['label']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    st.write("")
+
+    # --- ၂။ COMPACT SIDE-TO-SIDE SETTINGS ---
+    # Settings ၃ ခုကို ဘေးတိုက်ကပ်လျက် စီထားခြင်း
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]), label_visibility="visible")
+    with c2:
+        ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
+    with c3:
+        resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
+
+    # Prompt Area (Settings များအောက်တွင် ကပ်လျက်)
+    prompt = st.text_area("DESCRIBE YOUR VISION", placeholder="Enter your idea here...", height=120)
+    
+    # Generate Button
+    if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
+        if prompt:
+            st.session_state.selected_duration = duration
+            st.session_state.current_prompt = prompt
+            st.session_state.studio_view = 'rendering_page'
+            st.rerun()
+        else:
+            st.warning("Prompt စာသား ထည့်ပေးပါ!")
+
+    # Gallery Button & Back
+    col_back, col_gal = st.columns(2)
     with col_gal:
-        # Tier အလိုက် Glow ဖြစ်နေမည့် Button
-        if st.markdown(f'<style>div.stButton > button {{ border: 2px solid {curr["c"]} !important; box-shadow: 0 0 10px {curr["c"]}; }}</style>', unsafe_allow_html=True): pass
         if st.button("🎞 MY GALLERY", use_container_width=True):
             st.session_state.studio_view = 'gallery_page'
             st.rerun()
-
-    with st.expander("🛠 VIDEO SETTINGS", expanded=True):
-        c1, c2, c3 = st.columns(3)
-        duration = c1.selectbox("⏱ DURATION", curr.get('d_list', ["5s", "30s", "60s", "120s"]))
-        resolution = c2.selectbox("📺 QUALITY", curr.get('res', ["1080p", "4K"]))
-        ratio = c3.selectbox("📐 RATIO", ["16:9", "9:16", "1:1"])
-
-    prompt = st.text_area("DESCRIBE YOUR VISION", height=200)
-    
-    if st.button(f"🚀 START {curr['n']} GENERATE", use_container_width=True):
-        st.session_state.selected_duration = duration
-        st.session_state.current_prompt = prompt
-        st.session_state.studio_view = 'rendering_page'
-        st.rerun()
-
-    if st.button("⬅️ BACK TO SELECTION"):
-        st.session_state.page_state = 'tier_selection'
-        st.rerun()
+    with col_back:
+        if st.button("⬅️ SELECTION", use_container_width=True):
+            st.session_state.page_state = 'tier_selection'
+            st.rerun()
 
 def show_rendering_page(curr):
-    st.empty() 
+    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>AI GENERATING...</h3>", unsafe_allow_html=True)
+    
+    # Ads Section
     st.markdown("""
-        <div style="background: rgba(255,255,255,0.05); border: 2px dashed #3b82f6; padding: 60px; border-radius: 20px; text-align: center; margin-bottom: 40px;">
-            <h2 style="color: #3b82f6; margin: 0;">ADVERTISING SPACE</h2>
-            <p style="color: #666;">Google Ads Script Loading...</p>
+        <div style="background: rgba(255,255,255,0.03); border: 1px dashed #444; padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 20px;">
+            <p style="color: #888; font-size: 0.8rem;">BMT AI Sponsorship Space</p>
         </div>
     """, unsafe_allow_html=True)
 
     duration_val = st.session_state.get('selected_duration', "5s")
-    wait_time = 60 if any(x in duration_val for x in ["60s", "90s", "120s"]) else 30
+    # Time logic (Free tier 8s max duration constraint applies)
+    wait_time = 30 if "s" in duration_val else 60 
 
     prog_container = st.container()
     with prog_container:
@@ -99,10 +128,9 @@ def show_rendering_page(curr):
         prog_bar = st.progress(0)
         for percent in range(101):
             time.sleep(wait_time / 100)
-            prog_text.markdown(f"<h1 style='color:{curr['c']}; text-align:center; font-size:70px; text-shadow: 0 0 15px {curr['c']};'>{percent}%</h1>", unsafe_allow_html=True)
+            prog_text.markdown(f"<h1 style='color:{curr['c']}; text-align:center; font-size:60px; text-shadow: 0 0 15px {curr['c']};'>{percent}%</h1>", unsafe_allow_html=True)
             prog_bar.progress(percent)
 
-    # ဗီဒီယိုဒေတာသိမ်းချိန်တွင် Timestamp ပါ တစ်ခါတည်းထည့်မည်
     new_video = {
         "id": len(st.session_state.video_gallery)+1, 
         "prompt": st.session_state.current_prompt,
@@ -113,35 +141,26 @@ def show_rendering_page(curr):
     st.rerun()
 
 def display_gallery(curr):
-    st.markdown(f"<h1 style='color:{curr['c']}; text-align:center;'>🎞 YOUR COLLECTION</h1>", unsafe_allow_html=True)
-    
-    # ၄၈ နာရီ အသိပေးချက်
-    st.markdown(f"""
-        <div style="background: rgba(255,0,0,0.1); border: 1px solid red; padding: 10px; border-radius: 10px; text-align: center; color: #ff4b4b; margin-bottom: 20px;">
-            ⚠️ Videos are automatically deleted after 48 hours.
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<h2 style='color:{curr['c']}; text-align:center;'>🎞 COLLECTION</h2>", unsafe_allow_html=True)
+    st.info("⚠️ Videos are deleted after 48 hours.")
     
     if not st.session_state.video_gallery:
-        st.info("No videos found.")
+        st.write("No videos yet.")
     else:
         for idx, vid in enumerate(st.session_state.video_gallery):
-            with st.container():
-                v_col, m_col = st.columns([0.85, 0.15])
-                with v_col:
-                    st.video("https://www.w3schools.com/html/mov_bbb.mp4")
-                    st.caption(f"Prompt: {vid['prompt'][:50]}...")
-                
-                with m_col:
-                    with st.expander("⋮"):
-                        if st.button("🗑 Delete", key=f"del_{idx}"):
-                            st.session_state.video_gallery.pop(idx)
-                            st.rerun()
-                        st.button("📥 Get", key=f"dl_{idx}")
-                        st.button("🔗 Share", key=f"sh_{idx}")
-                st.divider()
+            st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+            st.caption(f"Prompt: {vid['prompt'][:50]}...")
+            
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                if st.button("🗑 Del", key=f"del_{idx}"):
+                    st.session_state.video_gallery.pop(idx)
+                    st.rerun()
+            with c2: st.button("📥 Get", key=f"dl_{idx}")
+            with c3: st.button("🔗 Share", key=f"sh_{idx}")
+            st.divider()
 
-    if st.button("➕ CREATE NEW VIDEO", use_container_width=True):
+    if st.button("➕ CREATE NEW", use_container_width=True):
         st.session_state.studio_view = 'input_page'
         st.rerun()
 
