@@ -6,7 +6,7 @@ import google.generativeai as genai
 from groq import Groq
 from database import get_api_key
 
-# --- Button တုန်ခါမှုနှင့် အသံအတွက် JavaScript ---
+# --- Button တုန်ခါမှုနှင့် အသံအတွက် JavaScript (မူရင်းအတိုင်း) ---
 def add_button_feedback():
     components.html("""
         <script>
@@ -61,7 +61,7 @@ def chat_interface():
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # ၂။ AI Response Logic (Free Key များအတွက် Switch)
+        # ၂။ AI Response Logic (Gemini/Groq Auto Switch - မူရင်းကို အားဖြည့်ခြင်း)
         with st.chat_message("assistant"):
             if not api_key:
                 st.error("Admin Panel (Key No. 2) တွင် Key အရင်ထည့်ပေးပါ Owner!")
@@ -71,7 +71,7 @@ def chat_interface():
             full_response = ""
 
             try:
-                # --- [FREE] Groq Engine (gsk_ နဲ့စရင်) ---
+                # --- [FREE] Groq Engine (gsk_ နဲ့စရင် သုံးမယ်) ---
                 if api_key.startswith("gsk_"):
                     client = Groq(api_key=api_key)
                     completion = client.chat.completions.create(
@@ -80,26 +80,26 @@ def chat_interface():
                     )
                     full_response = completion.choices[0].message.content
                 
-                # --- [FREE/PAID] OpenAI Engine (sk- နဲ့စရင်) ---
+                # --- [FREE/PAID] OpenAI Engine (sk- နဲ့စရင် သုံးမယ်) ---
                 elif api_key.startswith("sk-"):
                     full_response = "OpenAI Logic connected! (Please install 'openai' library to use fully)"
 
-                # --- [FREE] Gemini Engine (Default အဖြစ် ထားပါသည်) ---
+                # --- [FREE] Gemini Engine (Default အဖြစ် ထားရှိပါတယ်) ---
                 else:
                     genai.configure(api_key=api_key)
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     response = model.generate_content(prompt)
                     full_response = response.text
 
-                # Typing Effect (စာရိုက်နေသည့် ပုံစံ)
+                # Typing Effect (မူရင်း Style အတိုင်း)
                 temp_resp = ""
                 for chunk in full_response.split():
                     temp_resp += chunk + " "
-                    time.sleep(0.03) # Speed ညှိထားပါသည်
+                    time.sleep(0.03) 
                     response_placeholder.markdown(temp_resp + "▌")
                 
                 response_placeholder.markdown(full_response)
-                st.code(full_response, language=None) # Copy ခလုတ်
+                st.code(full_response, language=None) 
                 
                 # History ထဲ သိမ်းခြင်း
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
@@ -107,7 +107,7 @@ def chat_interface():
             except Exception as e:
                 st.error(f"Error: {e}. Key မှန်မမှန် ပြန်စစ်ပေးပါ!")
 
-# --- မူရင်း VIDEO STUDIO CODE များ (မပြောင်းလဲပါ) ---
+# --- မူရင်း VIDEO STUDIO CODE များ (လုံးဝမပြောင်းလဲပါ) ---
 def run_video_studio(curr):
     add_button_feedback() 
 
