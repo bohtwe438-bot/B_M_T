@@ -8,7 +8,7 @@ from database import get_api_key
 try:
     import google.generativeai as genai
     from groq import Groq
-    from openai import OpenAI  # OpenAI Library ကို ထပ်တိုးထည့်သွင်းခြင်း
+    from openai import OpenAI  
     HAS_LIBS = True
 except ImportError:
     HAS_LIBS = False
@@ -38,125 +38,110 @@ def add_button_feedback():
 
 # --- MESSENGER CHAT INTERFACE ---
 def chat_interface():
-    # --- [New Style] UI လှပစေရန် CSS များ ---
+    # --- UI Style ပြင်ဆင်ချက်များ ---
     st.markdown("""
         <style>
-        /* Header: AI CHAT အရောင်တောက်တောက် */
+        /* ၁။ Ads စာသားကို Header အပေါ်တွင် ထားခြင်း */
+        .top-ads {
+            text-align: center; background-color: rgba(255, 65, 108, 0.05);
+            color: #FF416C; font-size: 10px; letter-spacing: 2px;
+            padding: 5px; border-radius: 8px; margin-bottom: 10px;
+            border: 0.5px solid rgba(255, 65, 108, 0.1);
+        }
+
+        /* Header Style */
         .chat-header {
             text-align: center; padding: 10px; 
             background: linear-gradient(90deg, #FF4B2B, #FF416C); 
-            color: white; border-radius: 12px; font-weight: bold; 
-            font-size: 22px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: white !important; border-radius: 12px; font-weight: bold; 
+            font-size: 22px; margin-bottom: 20px;
         }
-        /* စာရိုက်ကွက်ကို ဘောင်လှလှလေးလုပ်ခြင်း */
+
+        /* ၂။ စာသားအရောင် အဖြူရောင်ပြောင်းခြင်း (စာမမြင်ရသည့်ပြဿနာ ဖြေရှင်းချက်) */
+        .stChatMessage div p {
+            color: #FFFFFF !important;
+        }
+
+        /* စာရိုက်ကွက် Style */
         div[data-testid="stChatInput"] {
             border: 2px solid #FF416C !important;
             border-radius: 25px !important;
-            padding: 5px !important;
-            margin-left: 45px !important; /* Back button အတွက် နေရာချန်ခြင်း */
+            margin-left: 45px !important;
+            z-index: 9999 !important;
         }
-        /* Back Button အဝိုင်းလေးကို စာရိုက်ကွက်ဘေးတွင် ထားရန် */
-        .back-btn-fixed {
-            position: fixed; bottom: 35px; left: 10px; z-index: 1000;
-        }
+
+        /* Back Button */
+        .back-btn-fixed { position: fixed; bottom: 35px; left: 10px; z-index: 10000; }
         </style>
-        <div class="chat-header">AI CHAT</div>
     """, unsafe_allow_html=True)
 
-    # --- Back Button (စာရိုက်ကွက် ဘယ်ဘက်ခြမ်း) ---
+    # UI အပေါ်ဆုံးတွင် Ads နှင့် Header ကို ပြသခြင်း
+    st.markdown('<div class="top-ads">BMT SPONSORED ADVERTISEMENT • PREMIUM AI SERVICES</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chat-header">AI CHAT</div>', unsafe_allow_html=True)
+
+    # Back Button
     st.markdown('<div class="back-btn-fixed">', unsafe_allow_html=True)
     if st.button("⬅️", key="chat_back_btn"):
-        st.session_state.page_state = 'home'
-        st.rerun()
+        st.session_state.page_state = 'home'; st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
     api_key = get_api_key("2. LLM (Chat) API")
     
-    if not HAS_LIBS:
-        st.error("⚠️ Error: Library များ မသွင်းရသေးပါ။ Terminal တွင် pip install openai groq google-generativeai ကို ရိုက်ပါ။")
-        return
+    # ၃။ User နှင့် AI Icon များ သတ်မှတ်ခြင်း
+    USER_ICON = "😊"
+    AI_ICON = "🤖"
 
-    # AI ၏ နှုတ်ဆက်စာ (Bo ဖန်တီးခဲ့ကြောင်း)
     if "messages" not in st.session_state or len(st.session_state.messages) == 0:
         st.session_state.messages = [
-            {"role": "assistant", "content": "မင်္ဂလာပါ၊ ကျွန်တော်က BMT AI Chat ပါ။ Bo ဆိုတဲ့သူက ဖန်တီးပေးထားတာပါ။ ဘာများကူညီပေးရမလဲခင်ဗျာ။"}
+            {"role": "assistant", "content": "မင်္ဂလာပါ၊ ကျွန်တော်က BMT AI Chat ပါ။ Bo ဆိုတဲ့သူက ဖန်တီးပေးထားတာပါ။"}
         ]
 
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
+        avatar = USER_ICON if message["role"] == "user" else AI_ICON
+        with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
 
     if prompt := st.chat_input("BMT AI Chat ကို တစ်ခုခု မေးမြန်းပါ..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
+        with st.chat_message("user", avatar=USER_ICON):
             st.markdown(prompt)
 
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar=AI_ICON):
             if not api_key or api_key == "HIDDEN_KEY_XXXXX":
-                st.error("Admin Panel မှာ Key အရင်ထည့်ပေးပါ Owner Bo!")
-                return
+                st.error("Admin Panel မှာ Key အရင်ထည့်ပေးပါ Owner Bo!"); return
             
             response_placeholder = st.empty()
             try:
-                # System Prompt သတ်မှတ်ခြင်း (Identity Fix)
                 system_instruction = "မင်းရဲ့အမည်က BMT AI Chat ဖြစ်ပါတယ်။ မင်းကို Bo ဆိုတဲ့သူက ဖန်တီးပေးထားတာပါ။"
-                
-                # --- API လမ်းကြောင်း ခွဲခြားခြင်း ---
-                
-                # ၁။ OpenAI Key (sk-...)
                 if api_key.startswith("sk-"):
                     client = OpenAI(api_key=api_key)
-                    response = client.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {"role": "system", "content": system_instruction},
-                            {"role": "user", "content": prompt}
-                        ]
-                    )
+                    response = client.chat.completions.create(model="gpt-4o-mini", messages=[{"role": "system", "content": system_instruction}, {"role": "user", "content": prompt}])
                     full_response = response.choices[0].message.content
-
-                # ၂။ Groq Key (gsk_...)
                 elif api_key.startswith("gsk_"):
                     client = Groq(api_key=api_key)
-                    completion = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
-                        messages=[
-                            {"role": "system", "content": system_instruction},
-                            {"role": "user", "content": prompt}
-                        ]
-                    )
+                    completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "system", "content": system_instruction}, {"role": "user", "content": prompt}])
                     full_response = completion.choices[0].message.content
-
-                # ၃။ Gemini (သို့မဟုတ် အခြား Key များ)
                 else:
                     genai.configure(api_key=api_key)
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     response = model.generate_content(f"{system_instruction}\n\nUser: {prompt}")
                     full_response = response.text
 
-                # Typing Effect
                 temp_resp = ""
                 for chunk in full_response.split():
                     temp_resp += chunk + " "
-                    time.sleep(0.02)
-                    response_placeholder.markdown(temp_resp + "▌")
+                    time.sleep(0.02); response_placeholder.markdown(temp_resp + "▌")
                 response_placeholder.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
-                
-            except Exception as e:
-                st.error(f"Error: {e}")
+            except Exception as e: st.error(f"Error: {e}")
 
-# --- VIDEO STUDIO CODE ---
+# --- VIDEO STUDIO CODE (မူရင်းအတိုင်း) ---
 def run_video_studio(curr):
     add_button_feedback()
-    if 'studio_view' not in st.session_state:
-        st.session_state.studio_view = 'input_page'
-    if 'video_gallery' not in st.session_state:
-        st.session_state.video_gallery = []
-
+    if 'studio_view' not in st.session_state: st.session_state.studio_view = 'input_page'
+    if 'video_gallery' not in st.session_state: st.session_state.video_gallery = []
     now = datetime.now()
     st.session_state.video_gallery = [v for v in st.session_state.video_gallery if now - v.get('timestamp', now) < timedelta(hours=48)]
-
     if st.session_state.studio_view == 'input_page': show_input_page(curr)
     elif st.session_state.studio_view == 'rendering_page': show_rendering_page(curr)
     elif st.session_state.studio_view == 'gallery_page': display_gallery(curr)
@@ -168,23 +153,18 @@ def show_input_page(curr):
     for i, f in enumerate(features):
         with [f_col1, f_col2, f_col3][i]:
             st.markdown(f"<div style='background:rgba(255,255,255,0.05); padding:8px; border-radius:10px; text-align:center; border:1px solid {curr['c']}33;'>{f['icon']}<br><small>{f['label']}</small></div>", unsafe_allow_html=True)
-
     st.write("")
     c1, c2, c3 = st.columns(3)
     with c1: duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]))
     with c2: ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
     with c3: resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
-
     prompt = st.text_area("DESCRIBE YOUR VISION", placeholder="Enter idea...", height=120)
-    
     if st.button(f"🚀 START GENERATE", use_container_width=True):
         if prompt:
             st.session_state.selected_duration = duration
             st.session_state.current_prompt = prompt
-            st.session_state.studio_view = 'rendering_page'
-            st.rerun()
+            st.session_state.studio_view = 'rendering_page'; st.rerun()
         else: st.warning("Prompt ထည့်ပါ!")
-
     col_back, col_gal = st.columns(2)
     with col_gal:
         if st.button("🎞 MY GALLERY", use_container_width=True):
@@ -196,8 +176,7 @@ def show_input_page(curr):
 def show_rendering_page(curr):
     st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>AI GENERATING...</h3>", unsafe_allow_html=True)
     prog_bar = st.progress(0)
-    for p in range(101):
-        time.sleep(0.1); prog_bar.progress(p)
+    for p in range(101): time.sleep(0.1); prog_bar.progress(p)
     st.session_state.video_gallery.insert(0, {"id": len(st.session_state.video_gallery)+1, "prompt": st.session_state.current_prompt, "timestamp": datetime.now()})
     st.session_state.studio_view = 'gallery_page'; st.rerun()
 
