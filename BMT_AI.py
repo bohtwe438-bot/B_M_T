@@ -15,22 +15,21 @@ except ImportError as e:
 # ၂။ Page Config
 st.set_page_config(page_title="BMT AI EMPIRE", layout="wide")
 
-# ၃။ Session State Initialization (Error ကာကွယ်ရန်)
+# ၃။ Session State Initialization
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'is_owner' not in st.session_state: st.session_state.is_owner = False
 if 'page_state' not in st.session_state: st.session_state.page_state = 'home'
 if 'user_name' not in st.session_state: st.session_state.user_name = "Guest"
 
-# --- [အရေးကြီး] AttributeError မတက်စေရန် user_data ကို အလွတ်တစ်ခု ကြိုဆောက်ထားခြင်း ---
+# user_data setup
 if 'user_data' not in st.session_state or st.session_state.user_data is None:
     st.session_state.user_data = {
         "name": "Guest",
         "email": "",
-        "photo": "https://cdn-icons-png.flaticon.com/512/149/149071.png", # Default Icon
+        "photo": "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         "tier": "FREE"
     }
 
-# Tier ကို Database မှ ဖတ်ယူခြင်း
 st.session_state.user_tier = get_user_tier(st.session_state.user_name)
 
 # ၄။ UI Style Apply
@@ -52,23 +51,21 @@ if not st.session_state.logged_in:
                     st.session_state.logged_in = True
                     st.session_state.is_owner = True
                     st.session_state.user_name = "Owner_Admin"
-                    # Admin အတွက် လိုအပ်သော data များ အပြည့်အစုံ ဖြည့်ပေးခြင်း
                     st.session_state.user_data = {
                         "name": "BMT OWNER",
                         "email": "admin@bmt.com",
-                        "photo": "https://cdn-icons-png.flaticon.com/512/1864/1864509.png", # Admin Icon
+                        "photo": "https://cdn-icons-png.flaticon.com/512/1864/1864509.png",
                         "tier": "OWNER"
                     }
                     st.session_state.page_state = 'admin_dashboard'
                     st.rerun()
                 else: st.error("Access Denied!")
 else:
-    # --- ၆။ SIDEBAR LOGIC (Use Studio ခလုတ် ပေါ်စေရန်) ---
+    # --- ၆။ SIDEBAR LOGIC ---
     with st.sidebar:
         if st.session_state.is_owner:
             st.markdown("<h2 style='color:#f1c40f; text-align:center;'>👑 OWNER MENU</h2>", unsafe_allow_html=True)
             
-            # Dashboard မှာ ရှိနေစဉ် USE STUDIO ခလုတ်ပြပါမည်
             if st.session_state.page_state == 'admin_dashboard':
                 st.info("Key များပြင်ပြီးလျှင် Studio သို့သွားပါ")
                 if st.button("🚀 USE STUDIO AS OWNER", use_container_width=True, type="primary"):
@@ -80,22 +77,18 @@ else:
                     st.rerun()
             st.divider()
         
-        # User Header (Error မတက်အောင် data ညှိထားပြီးဖြစ်သည်)
         user_profile_header()
         st.divider()
         manage_owner_access()
 
     # --- ၇။ PAGE ROUTING ---
-    # A. Admin Dashboard
     if st.session_state.page_state == 'admin_dashboard':
         owner_dashboard()
-        # st.stop() ကို ဖြုတ်ထားရပါမည် (Sidebar ပေါ်စေရန်)
 
-    # B. AI Smart Chat (Messenger UI)
     elif st.session_state.page_state == 'chat_page':
         chat_interface()
+        # Chat Page တွင် အောက်ဆုံး Ads ထပ်မပေါ်စေရန် ဤနေရာတွင် logic ပိတ်ထားပါသည်
 
-    # C. Home Page
     elif st.session_state.page_state == 'home':
         st.markdown('<div class="bmt-title">BMT AI EMPIRE</div>', unsafe_allow_html=True)
         col_chat, col_vid = st.columns(2)
@@ -103,8 +96,10 @@ else:
             st.session_state.page_state = 'chat_page'; st.rerun()
         if col_vid.button("🎬 VIDEO GENERATOR", use_container_width=True): 
             st.session_state.page_state = 'tier_selection'; st.rerun()
+        
+        # Home Page အောက်ခြေတွင်သာ Ads ပြရန်
+        ads_manager()
 
-    # D. Tier Selection & Video Studio
     elif st.session_state.page_state == 'tier_selection':
         st.markdown("<h2 style='text-align:center;'>SELECT YOUR TIER</h2>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
@@ -121,6 +116,8 @@ else:
             t_btn('d_page', 'DIAMOND', '💎 D')
         if st.button("⬅️ BACK", use_container_width=True):
             st.session_state.page_state = 'admin_dashboard' if st.session_state.is_owner else 'home'; st.rerun()
+        
+        ads_manager()
 
     elif st.session_state.page_state in ['f_page', 's_page', 'g_page', 'd_page']:
         configs = {
@@ -130,5 +127,4 @@ else:
             'd_page': {'bg': '#0d0114', 'c': '#9b59b6', 'n': 'DIAMOND', 'd_list': ["30s", "60s", "90s", "120s"], 'res': ["1080p", "2k", "4k"]}
         }
         run_video_studio(configs[st.session_state.page_state])
-
-    ads_manager()
+        # Video Studio အတွက် Ads logic ကို studio_engine.py ထဲတွင် Owner ခိုင်းသည့်အတိုင်း ထည့်ထားပြီးဖြစ်သည်
