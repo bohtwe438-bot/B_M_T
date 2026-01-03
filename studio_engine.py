@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta
 import streamlit.components.v1 as components
 from database import get_api_key
+from ads_center import ads_manager
 
 # --- ၁။ Module Safe Import ---
 try:
@@ -38,48 +39,27 @@ def add_button_feedback():
 
 # --- MESSENGER CHAT INTERFACE ---
 def chat_interface():
-    # --- UI Style ပြင်ဆင်ချက်များ ---
     st.markdown("""
         <style>
-        /* Ads စာသားကို Header အပေါ်တွင်သာ ထားခြင်း (အောက်ခြေ Ads ကို ဖယ်ရှားပြီးသား) */
-        .top-ads {
-            text-align: center; background-color: rgba(255, 65, 108, 0.05);
-            color: #FF416C; font-size: 10px; letter-spacing: 2px;
-            padding: 6px; border-radius: 8px; margin-bottom: 12px;
-            border: 0.5px solid rgba(255, 65, 108, 0.1);
-        }
-
-        /* Header Style */
         .chat-header {
             text-align: center; padding: 12px; 
             background: linear-gradient(90deg, #FF4B2B, #FF416C); 
             color: white !important; border-radius: 12px; font-weight: bold; 
             font-size: 22px; margin-bottom: 25px;
         }
-
-        /* စာသားအရောင် အဖြူရောင်ပြောင်းခြင်း */
-        .stChatMessage div p {
-            color: #FFFFFF !important;
-        }
-
-        /* စာရိုက်ကွက် Style */
+        .stChatMessage div p { color: #FFFFFF !important; }
         div[data-testid="stChatInput"] {
             border: 2px solid #FF416C !important;
             border-radius: 25px !important;
             margin-left: 45px !important;
             z-index: 9999 !important;
         }
-
-        /* Back Button */
         .back-btn-fixed { position: fixed; bottom: 35px; left: 10px; z-index: 10000; }
         </style>
     """, unsafe_allow_html=True)
 
-    # UI အပေါ်ဆုံးတွင် Ads နှင့် Header ကို ပြသခြင်း
-    st.markdown('<div class="top-ads">BMT SPONSORED ADVERTISEMENT • PREMIUM AI SERVICES</div>', unsafe_allow_html=True)
     st.markdown('<div class="chat-header">AI CHAT</div>', unsafe_allow_html=True)
 
-    # Back Button
     st.markdown('<div class="back-btn-fixed">', unsafe_allow_html=True)
     if st.button("⬅️", key="chat_back_btn"):
         st.session_state.page_state = 'home'; st.rerun()
@@ -87,23 +67,22 @@ def chat_interface():
 
     api_key = get_api_key("2. LLM (Chat) API")
     
-    # User နှင့် AI Icon များ
-    USER_ICON = "😊"
+    # --- [Owner ခိုင်းသည့်အတိုင်း ပုံပြောင်းထားခြင်း] ---
+    # User Icon အတွက် Owner ပေးသော BMT Logo ပုံကို သုံးထားပါသည်
+    USER_ICON = "https://raw.githubusercontent.com/BMT-AI/Assets/main/bmt_logo.png" # ဤနေရာတွင် ပုံ Link ထည့်ပါ
     AI_ICON = "🤖"
 
-    # Chat Messages History (အလိုအလျောက် နှုတ်ဆက်စာ မပြစေရန် Empty List ထားသည်)
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Message များကို ပြသခြင်း
     for message in st.session_state.messages:
         avatar = USER_ICON if message["role"] == "user" else AI_ICON
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
 
-    # စာရိုက်ကွက် - "မေးမှသာ ဖြေပါ"
     if prompt := st.chat_input("BMT AI Chat ကို တစ်ခုခု မေးမြန်းပါ..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
+        # User ပုံနေရာတွင် BMT Logo ပေါ်မည်
         with st.chat_message("user", avatar=USER_ICON):
             st.markdown(prompt)
 
@@ -128,7 +107,6 @@ def chat_interface():
                     response = model.generate_content(f"{system_instruction}\n\nUser: {prompt}")
                     full_response = response.text
 
-                # Typing Effect
                 temp_resp = ""
                 for chunk in full_response.split():
                     temp_resp += chunk + " "
@@ -137,13 +115,14 @@ def chat_interface():
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e: st.error(f"Error: {e}")
 
-# --- Video Studio အပိုင်း (မူရင်းအတိုင်း) ---
+# --- Video Studio အပိုင်း ---
 def run_video_studio(curr):
     add_button_feedback()
     if 'studio_view' not in st.session_state: st.session_state.studio_view = 'input_page'
     if 'video_gallery' not in st.session_state: st.session_state.video_gallery = []
     now = datetime.now()
     st.session_state.video_gallery = [v for v in st.session_state.video_gallery if now - v.get('timestamp', now) < timedelta(hours=48)]
+    
     if st.session_state.studio_view == 'input_page': show_input_page(curr)
     elif st.session_state.studio_view == 'rendering_page': show_rendering_page(curr)
     elif st.session_state.studio_view == 'gallery_page': display_gallery(curr)
@@ -160,13 +139,16 @@ def show_input_page(curr):
     with c1: duration = st.selectbox("⏱ Time", curr.get('d_list', ["5s", "8s"]))
     with c2: ratio = st.selectbox("📐 Ratio", ["16:9", "9:16", "1:1"])
     with c3: resolution = st.selectbox("📺 Res", curr.get('res', ["480p", "720p"]))
+    
     prompt = st.text_area("DESCRIBE YOUR VISION", placeholder="Enter idea...", height=120)
+    
     if st.button(f"🚀 START GENERATE", use_container_width=True):
         if prompt:
             st.session_state.selected_duration = duration
             st.session_state.current_prompt = prompt
             st.session_state.studio_view = 'rendering_page'; st.rerun()
         else: st.warning("Prompt ထည့်ပါ!")
+    
     col_back, col_gal = st.columns(2)
     with col_gal:
         if st.button("🎞 MY GALLERY", use_container_width=True):
@@ -176,9 +158,44 @@ def show_input_page(curr):
             st.session_state.page_state = 'tier_selection'; st.rerun()
 
 def show_rendering_page(curr):
-    st.markdown(f"<h3 style='color:{curr['c']}; text-align:center;'>AI GENERATING...</h3>", unsafe_allow_html=True)
+    st.markdown(f"""
+        <style>
+        .render-card-box {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid {curr['c']};
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            margin-top: 20px;
+        }}
+        .percent-text {{ font-size: 60px; font-weight: 900; color: {curr['c']}; text-shadow: 0 0 15px {curr['c']}; }}
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<p style='text-align:center; color:gray; font-size:10px;'>SPONSORED ADVERTISEMENT</p>", unsafe_allow_html=True)
+    ads_manager()
+    st.divider()
+
+    st.markdown('<div class="render-card-box">', unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color:white;'>AI GENERATING...</h3>", unsafe_allow_html=True)
+    
+    sel_d = st.session_state.get('selected_duration', "5s").replace('s','')
+    try: d_val = int(sel_d)
+    except: d_val = 5
+    
+    wait_time = 30 if d_val <= 30 else 60 
+    
     prog_bar = st.progress(0)
-    for p in range(101): time.sleep(0.1); prog_bar.progress(p)
+    percent_display = st.empty()
+    
+    step = wait_time / 100
+    for p in range(101): 
+        time.sleep(step)
+        prog_bar.progress(p)
+        percent_display.markdown(f'<p class="percent-text">{p}%</p>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     st.session_state.video_gallery.insert(0, {"id": len(st.session_state.video_gallery)+1, "prompt": st.session_state.current_prompt, "timestamp": datetime.now()})
     st.session_state.studio_view = 'gallery_page'; st.rerun()
 
