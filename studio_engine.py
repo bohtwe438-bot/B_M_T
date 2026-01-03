@@ -67,9 +67,9 @@ def chat_interface():
 
     api_key = get_api_key("2. LLM (Chat) API")
     
-    # --- [Owner ခိုင်းသည့်အတိုင်း ပုံပြောင်းထားခြင်း] ---
-    # User Icon အတွက် Owner ပေးသော BMT Logo ပုံကို သုံးထားပါသည်
-    USER_ICON = "https://raw.githubusercontent.com/BMT-AI/Assets/main/bmt_logo.png" # ဤနေရာတွင် ပုံ Link ထည့်ပါ
+    # --- [User Icon နေရာတွင် Owner ပေးသော BMT Logo အသုံးပြုခြင်း] ---
+    # Forbidden Error ကင်းဝေးစေရန် တိုက်ရိုက် Link အဖြစ် ပြောင်းထားပါသည်
+    USER_ICON = "https://raw.githubusercontent.com/BMT-AI-EMPIRE/Assets/main/BMT_Logo.png" 
     AI_ICON = "🤖"
 
     if "messages" not in st.session_state:
@@ -82,7 +82,6 @@ def chat_interface():
 
     if prompt := st.chat_input("BMT AI Chat ကို တစ်ခုခု မေးမြန်းပါ..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        # User ပုံနေရာတွင် BMT Logo ပေါ်မည်
         with st.chat_message("user", avatar=USER_ICON):
             st.markdown(prompt)
 
@@ -161,13 +160,9 @@ def show_rendering_page(curr):
     st.markdown(f"""
         <style>
         .render-card-box {{
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid {curr['c']};
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            backdrop-filter: blur(20px);
-            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05); border: 2px solid {curr['c']};
+            border-radius: 20px; padding: 40px; text-align: center;
+            backdrop-filter: blur(20px); margin-top: 20px;
         }}
         .percent-text {{ font-size: 60px; font-weight: 900; color: {curr['c']}; text-shadow: 0 0 15px {curr['c']}; }}
         </style>
